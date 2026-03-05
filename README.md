@@ -28,3 +28,6 @@ Para mantermos o repositório organizado, dividiremos as branches por trimestres
 > 📁 **Regra de Organização:**
 > * A cada trimestre, será utilizada uma "pasta" (ex: `1_tri/`) para agrupar as branches criadas no respectivo período.
 > * O texto escrito à direita da barra (`/`) deve ser **direto e claro** sobre qual feature ou correção será trabalhada naquela branch.
+
+> **Instalações
+* pip install pygame-ce
