@@ -1,47 +1,48 @@
 import pygame
-
+from settings import *
 from core.game_object import GameObject
 
-SCREEN_SIZE = (1280, 720)
-
 class GameManager:
-    def __init__(self):
-        self._running = True
-        self._display_surface = None
-        self.size = self.width, self.height = SCREEN_SIZE
-    
-    
-    def on_init(self):
-        pygame.init()
-        self._display_surface = pygame.display.set_mode(self.size, pygame.DOUBLEBUF)
+    def __init__(self, tela):
+        self.tela = tela
+        self.clock = pygame.time.Clock()
         self._running = True
 
     
-    def on_event(self, event):
-        if event.type == pygame.QUIT:
-            self._running = False
+    def on_execute(self):
+        while (self._running):
+            self.clock.tick(FPS)
+            self.on_events()
+            self.update()
+            self.on_render()
+        self.on_cleanup()
     
+    def on_events(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self._running = False
+                
+            elif event.type == pygame.KEYUP:
+                self.on_key_up()
+                
+            elif event.type == pygame.KEYDOWN:
+                self.on_key_down()
+                
+    def update(self):
+        pass
+    
+    def on_render(self):
+        self.tela.fill(COLORS_GAME['BLACK'])
+        pygame.display.flip()
+
+    def on_cleanup(self):
+        pygame.quit()
     
     def on_loop(self):
         pass
 
-    
-    def on_render(self):
+    def on_key_up(self):
         pass
-
     
-    def on_cleanup(self):
-        pygame.quit()
-    
-
-    def on_execute(self):
-        if self.on_init() == False:
-            self._running = False        
-        
-        while (self._running):
-            for event in pygame.event.get():
-                self.on_event(event)
-            
-            self.on_loop()
-            self.on_render()
-        self.on_cleanup()
+    def on_key_down(self):
+        pass
