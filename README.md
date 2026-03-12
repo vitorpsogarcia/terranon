@@ -30,4 +30,4 @@ Para mantermos o repositório organizado, dividiremos as branches por trimestres
 > * O texto escrito à direita da barra (`/`) deve ser **direto e claro** sobre qual feature ou correção será trabalhada naquela branch.
 
 > **Instalações
-* pip install pygame-ce
+* pip install pygame
