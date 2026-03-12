@@ -1,6 +1,7 @@
 import pygame
-from settings import *
-from game import GameManager
+
+from core.game_manager import GameManager
+from core.settings import SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_NAME
 
 def main():
     pygame .init()

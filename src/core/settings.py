@@ -1,7 +1,7 @@
 
 SCREEN_WIDTH = 1056
 SCREEN_HEIGHT = 720
-SCREEN_NAME = "Meu primeiro jogo"
+SCREEN_NAME = "Terranon"
 FPS = 60
 COLORS_GAME = {
     'WHITE': (255, 255, 255),

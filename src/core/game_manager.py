@@ -1,6 +1,5 @@
 import pygame
-from settings import *
-from core.game_object import GameObject
+from .settings import COLORS_GAME, FPS
 
 class GameManager:
     def __init__(self, tela):
