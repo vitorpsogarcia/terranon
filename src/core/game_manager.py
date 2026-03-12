@@ -1,12 +1,13 @@
 import pygame
-from .settings import COLORS_GAME, FPS
+from .settings import COLORS_GAME, FPS, AXLE_X_PLAYER, AXLE_Y_PLAYER
+from entities.player import Player
 
 class GameManager:
     def __init__(self, tela):
         self.tela = tela
         self.clock = pygame.time.Clock()
         self._running = True
-
+        self.player = Player(AXLE_X_PLAYER, AXLE_Y_PLAYER)
     
     def on_execute(self):
         while (self._running):
@@ -14,6 +15,10 @@ class GameManager:
             self.on_events()
             self.update()
             self.on_render()
+            
+            DELTA_TIME = self.clock.tick(60) / 1000
+            DELTA_TIME = max(0.001, min(0.01, DELTA_TIME)) 
+    
         self.on_cleanup()
     
     def on_events(self):
