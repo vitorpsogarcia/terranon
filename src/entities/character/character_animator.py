@@ -58,6 +58,7 @@ class CharacterAnimator:
                 sprites[direction] = sprites_dir
             except FileNotFoundError:
                 placeholder = pygame.Surface((frame_width, frame_height)).convert_alpha()
+                placeholder = pygame.transform.scale(placeholder, (int(frame_width * scale), int(frame_height * scale)))
                 placeholder.fill((255, 0, 0))
                 sprites[direction] = placeholder
         
