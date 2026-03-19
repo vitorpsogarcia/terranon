@@ -17,7 +17,7 @@ class GameObject(ABC, pygame.sprite.Sprite):
         pass
 
     @abstractmethod
-    def draw(self, surface: pygame.Surface, offset: pygame.math.Vector2 = None):  # <-- Adicionado o offset
+    def draw(self, surface: pygame.Surface, offset: pygame.math.Vector2 | None = None):  # <-- Adicionado o offset
         """Renderização do objeto na tela."""
         pass
 
@@ -34,7 +34,7 @@ class StaticObject(GameObject):
         if self.rect:
             self.rect.topleft = (round(self.pos.x), round(self.pos.y))
 
-    def draw(self, surface: pygame.Surface, offset: pygame.math.Vector2 = None):
+    def draw(self, surface: pygame.Surface, offset: pygame.math.Vector2 | None = None):
         if offset is None:
             offset = pygame.math.Vector2(0, 0)  # Se não tiver offset, é zero.
 
@@ -55,7 +55,7 @@ class DynamicObject(GameObject):
         if self.rect:
             self.rect.topleft = (round(self.pos.x), round(self.pos.y))
 
-    def draw(self, surface: pygame.Surface, offset: pygame.math.Vector2 = None):
+    def draw(self, surface: pygame.Surface, offset: pygame.math.Vector2 | None = None):
         if offset is None:
             offset = pygame.math.Vector2(0, 0)
 

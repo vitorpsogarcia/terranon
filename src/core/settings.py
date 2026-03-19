@@ -1,3 +1,5 @@
+from os import path
+from pathlib import Path
 
 SCREEN_WIDTH = 1056
 SCREEN_HEIGHT = 720
@@ -12,3 +14,6 @@ COLORS_GAME = {
 SPEED_PLAYER = 120
 FRAME_WIDTH_PLAYER = 48
 FRAME_HEIGHT_PLAYER = 48
+
+ASSETS_FOLDER = Path(path.join(path.dirname(__file__), '..', '..', 'assets'))
+DIRECTIONS = ["N", "S", "W", "E", "NW", "NE", "SW", "SE"]
