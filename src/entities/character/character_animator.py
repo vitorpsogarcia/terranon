@@ -11,7 +11,6 @@ class CharacterAnimator:
         self._state = "idle"
         self._frame_index = 0.0
         self.animation_speed = 10.0
-        self._scale = scale
         self._sprites_path = ASSETS_FOLDER / "images" / char_name
         self.sprites = self._get_sprites(self._sprites_path, frame_width, frame_height, scale)
         
