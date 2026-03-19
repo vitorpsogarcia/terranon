@@ -1,5 +1,5 @@
 import pygame
-from core.settings import SPEED_PLAYER, FRAME_WIDTH_PLAYER, FRAME_HEIGHT_PLAYER
+from core.settings import SCALE_PLAYER, SPEED_PLAYER, FRAME_WIDTH_PLAYER, FRAME_HEIGHT_PLAYER
 from entities.character.character_animator import CharacterAnimator
 from entities.character.characters import Character
 from utils.direction import get_direction_str_by_vector
@@ -12,11 +12,12 @@ class Player(Character):
         super().__init__(axle_x, axle_y, speed=SPEED_PLAYER)
         self.frame_width = FRAME_WIDTH_PLAYER
         self.frame_height = FRAME_HEIGHT_PLAYER
+        self.scale = SCALE_PLAYER
         self._last_direction = "S"
 
 
         try:
-            self._animator = CharacterAnimator("player", self.frame_width, self.frame_height)
+            self._animator = CharacterAnimator("player", self.frame_width, self.frame_height, self.scale)
         except FileNotFoundError:
             self.frame = pygame.Surface(
                 (self.frame_width, self.frame_height)

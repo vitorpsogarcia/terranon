@@ -14,6 +14,7 @@ COLORS_GAME = {
 SPEED_PLAYER = 120
 FRAME_WIDTH_PLAYER = 48
 FRAME_HEIGHT_PLAYER = 48
+SCALE_PLAYER = 2.0
 
 ASSETS_FOLDER = Path(path.join(path.dirname(__file__), '..', '..', 'assets'))
 DIRECTIONS = ["N", "S", "W", "E", "NW", "NE", "SW", "SE"]
