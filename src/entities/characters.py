@@ -19,5 +19,5 @@ class Character(DynamicObject):
         self.move(dt)
         super().update(dt)
 
-    def draw(self, surface: pygame.Surface):
-        super().draw(surface)
+    def draw(self, surface: pygame.Surface, offset: pygame.math.Vector2 = None):
+        super().draw(surface, offset)

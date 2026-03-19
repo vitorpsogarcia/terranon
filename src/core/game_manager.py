@@ -1,7 +1,9 @@
 import pygame
-from core.settings import COLORS_GAME, FPS
+import random
+from core.settings import COLORS_GAME, FPS, SCREEN_WIDTH, SCREEN_HEIGHT 
 from core.game_world import GameScene, GameWorld
 from entities.player import Player
+from entities.obstacle import Obstacle
 
 
 class GameManager:
@@ -15,12 +17,22 @@ class GameManager:
         self._init_game()
 
     def _init_game(self):
-        world = GameWorld()
+        world = GameWorld(SCREEN_WIDTH, SCREEN_HEIGHT)
         screen_width, screen_height = self.tela.get_size()
         player = Player(0, 0)
         w_player, h_player = player.frame_width, player.frame_height
         player.pos = pygame.math.Vector2(screen_width // 2 - w_player // 2, screen_height // 2 - h_player // 2)
+        player.rect.topleft = player.pos
         world.add_object(player)
+        world.set_target(player)
+        
+        for _ in range(50):
+            random_x = random.randint(-1000, 2000)
+            random_y = random.randint(-1000, 2000)
+            
+            obs = Obstacle(random_x, random_y)
+            world.add_object(obs)
+            
         self.active_scene = world
 
     def on_execute(self):
