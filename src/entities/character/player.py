@@ -58,7 +58,10 @@ class Player(Character):
         if keys[pygame.K_RIGHT]:
             self.direction.x += 1
     
-        self._last_direction = get_direction_str_by_vector(self.direction)
+        direction = get_direction_str_by_vector(self.direction)
+
+        if direction is not None:
+            self._last_direction = direction
 
     def update(self, dt: float):
         self.handle_input()

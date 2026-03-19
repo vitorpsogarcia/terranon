@@ -1,7 +1,7 @@
 from pygame import Vector2
 
 
-def get_direction_str_by_vector(vector: Vector2) -> str:
+def get_direction_str_by_vector(vector: Vector2) -> str | None:
     if vector.x == 0 and vector.y < 0:
         return "N"
     elif vector.x == 0 and vector.y > 0:
@@ -19,4 +19,4 @@ def get_direction_str_by_vector(vector: Vector2) -> str:
     elif vector.x > 0 and vector.y > 0:
         return "SE"
     else:
-        return "S"
+        return None
