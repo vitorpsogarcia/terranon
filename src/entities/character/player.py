@@ -4,7 +4,6 @@ from entities.character.character_animator import CharacterAnimator
 from entities.character.characters import Character
 from utils.direction import get_direction_str_by_vector
 class Player(Character):
-
     _animator: CharacterAnimator | None = None
     
     def __init__(
@@ -17,6 +16,7 @@ class Player(Character):
         self.frame_height = FRAME_HEIGHT_PLAYER
         self.scale = SCALE_PLAYER
         self._last_direction = "S"
+        self._layer = 1
 
 
         try:
@@ -49,16 +49,16 @@ class Player(Character):
         self.direction.x = 0
         self.direction.y = 0
 
-        if keys[pygame.K_UP]:
+        if keys[pygame.K_w]:
             self.direction.y -= 1
 
-        if keys[pygame.K_DOWN]:
+        if keys[pygame.K_s]:
             self.direction.y += 1
 
-        if keys[pygame.K_LEFT]:
+        if keys[pygame.K_a]:
             self.direction.x -= 1
 
-        if keys[pygame.K_RIGHT]:
+        if keys[pygame.K_d]:
             self.direction.x += 1
     
         direction = get_direction_str_by_vector(self.direction)
