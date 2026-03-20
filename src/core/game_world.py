@@ -2,7 +2,7 @@ import bisect
 
 import pygame
 from abc import ABC, abstractmethod
-from typing import List, Dict
+from typing import List, Dict, Tuple
 from core.game_object import GameObject
 
 
@@ -21,12 +21,12 @@ class GameScene(ABC):
 
 
 class GameWorld(GameScene):
-    def __init__(self, screen_width: int, screen_height: int):
+    def __init__(self, screen_size: Tuple[int, int]):
         self.objects: Dict[int, List[GameObject]] = {}
 
         self.target = None
-        self.half_w = screen_width // 2
-        self.half_h = screen_height // 2
+        self.screen_size = screen_size
+        self.middle = (screen_size[0] // 2, screen_size[1] // 2)
         self.offset = pygame.math.Vector2()
         self._sorted_layers_keys = []
 
@@ -49,7 +49,7 @@ class GameWorld(GameScene):
 
     def update(self, dt: float):
         for obj in self._iterate_active_objects():
-                obj.update(dt)
+            obj.update(dt)
 
     def handle_events(self, events: List[pygame.event.Event]):
         for obj in self._iterate_active_objects():
@@ -57,9 +57,9 @@ class GameWorld(GameScene):
                 obj.process_event(event)
 
     def draw(self, surface: pygame.Surface):
-        if self.target and hasattr(self.target, 'rect'):
-            self.offset.x = self.target.rect.centerx - self.half_w
-            self.offset.y = self.target.rect.centery - self.half_h
+        if self.target and hasattr(self.target, "rect"):
+            self.offset.x = self.target.rect.centerx - self.middle[0]
+            self.offset.y = self.target.rect.centery - self.middle[1]
 
         for obj in self._iterate_active_objects():
             obj.draw(surface, self.offset)
