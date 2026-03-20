@@ -32,7 +32,7 @@ class GameWorld(GameScene):
         self.target = target
 
     def add_object(self,obj: GameObject):
-        layer = obj.layer
+        layer = obj.render_layer
         if not self.objects.get(layer):
             self.objects[layer] = []
         
@@ -42,7 +42,7 @@ class GameWorld(GameScene):
             self._sorted_layers_keys.sort()
 
     def remove_object(self, obj: GameObject):
-        layer = obj.layer
+        layer = obj.render_layer
 
         if obj in self.objects.get(layer, []):
             self.objects[layer].remove(obj)

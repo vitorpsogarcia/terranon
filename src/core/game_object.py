@@ -4,7 +4,7 @@ from pygame.math import Vector2
 
 
 class GameObject(ABC, pygame.sprite.Sprite):
-    _layer: int = 0
+    render_layer: int = 0
 
     def __init__(self, x: float, y: float):
         super().__init__()

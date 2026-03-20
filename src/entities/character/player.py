@@ -16,7 +16,7 @@ class Player(Character):
         self.frame_height = FRAME_HEIGHT_PLAYER
         self.scale = SCALE_PLAYER
         self._last_direction = "S"
-        self._layer = 1
+        self.render_layer = 1
 
 
         try:
