@@ -1,3 +1,5 @@
+import bisect
+
 import pygame
 from abc import ABC, abstractmethod
 from typing import List, Dict
@@ -31,15 +33,13 @@ class GameWorld(GameScene):
     def set_target(self, target: GameObject):
         self.target = target
 
-    def add_object(self,obj: GameObject):
+    def add_object(self, obj: GameObject):
         layer = obj.render_layer
-        if not self.objects.get(layer):
-            self.objects[layer] = []
-        
+        self.objects.setdefault(layer, []).append(obj)
+
         self.objects[layer].append(obj)
         if layer not in self._sorted_layers_keys:
-            self._sorted_layers_keys.append(layer)
-            self._sorted_layers_keys.sort()
+            bisect.insort(self._sorted_layers_keys, layer)
 
     def remove_object(self, obj: GameObject):
         layer = obj.render_layer
@@ -54,7 +54,7 @@ class GameWorld(GameScene):
     def handle_events(self, events: List[pygame.event.Event]):
         for obj in self._iterate_active_objects():
             for event in events:
-                    obj.process_event(event)
+                obj.process_event(event)
 
     def draw(self, surface: pygame.Surface):
         if self.target and hasattr(self.target, 'rect'):
@@ -68,7 +68,7 @@ class GameWorld(GameScene):
         for layer in self._sorted_layers_keys:
             for obj in self.objects[layer]:
                 yield obj
-    
+
     def _iterate_active_objects(self):
         for obj in self._iterate_objects():
             if obj.active:
