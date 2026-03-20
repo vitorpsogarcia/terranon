@@ -78,8 +78,3 @@ class Player(Character):
             self.image = self._animator.get_frame()
             
         super().update(dt)
-
-
-    def draw(self, surface: pygame.Surface, offset: pygame.math.Vector2 | None = None):
-        if (offset):
-            super().draw(surface, offset)
