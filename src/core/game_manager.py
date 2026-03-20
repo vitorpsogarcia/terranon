@@ -2,7 +2,7 @@ import pygame
 import random
 from core.settings import COLORS_GAME, FPS, SCREEN_WIDTH, SCREEN_HEIGHT 
 from core.game_world import GameScene, GameWorld
-from entities.player import Player
+from entities.character.player import Player
 from entities.obstacle import Obstacle
 
 
