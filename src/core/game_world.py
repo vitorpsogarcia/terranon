@@ -1,6 +1,8 @@
+import bisect
+
 import pygame
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, Dict, Tuple
 from core.game_object import GameObject
 
 
@@ -19,40 +21,59 @@ class GameScene(ABC):
 
 
 class GameWorld(GameScene):
-    def __init__(self, screen_width: int, screen_height: int):
-        self.objects: List[GameObject] = []
+    def __init__(self, screen_size: Tuple[int, int]):
+        self.objects: Dict[int, List[GameObject]] = {}
 
         self.target = None
-        self.half_w = screen_width // 2
-        self.half_h = screen_height // 2
+        self.screen_size = screen_size
+        self.middle = (screen_size[0] // 2, screen_size[1] // 2)
         self.offset = pygame.math.Vector2()
+        self._sorted_layers_keys = []
 
     def set_target(self, target: GameObject):
         self.target = target
 
     def add_object(self, obj: GameObject):
-        self.objects.append(obj)
+        layer = obj.render_layer
+        self.objects.setdefault(layer, []).append(obj)
+
+        self.objects[layer].append(obj)
+        if layer not in self._sorted_layers_keys:
+            bisect.insort(self._sorted_layers_keys, layer)
 
     def remove_object(self, obj: GameObject):
-        if obj in self.objects:
-            self.objects.remove(obj)
+        layer = obj.render_layer
+
+        if obj in self.objects.get(layer, []):
+            self.objects[layer].remove(obj)
+
+            if not self.objects[layer]:
+                del self.objects[layer]
+                self._sorted_layers_keys.remove(layer)
 
     def update(self, dt: float):
-        for obj in self.objects:
-            if obj.active:
-                obj.update(dt)
+        for obj in self._iterate_active_objects():
+            obj.update(dt)
 
     def handle_events(self, events: List[pygame.event.Event]):
-        for obj in self.objects:
-            if obj.active:
-                for event in events:
-                    obj.process_event(event)
+        for obj in self._iterate_active_objects():
+            for event in events:
+                obj.process_event(event)
 
     def draw(self, surface: pygame.Surface):
-        if self.target and hasattr(self.target, 'rect'):
-            self.offset.x = self.target.rect.centerx - self.half_w
-            self.offset.y = self.target.rect.centery - self.half_h
+        if self.target and hasattr(self.target, "rect"):
+            self.offset.x = self.target.rect.centerx - self.middle[0]
+            self.offset.y = self.target.rect.centery - self.middle[1]
 
-        for obj in self.objects:
+        for obj in self._iterate_active_objects():
+            obj.draw(surface, self.offset)
+
+    def _iterate_objects(self):
+        for layer in self._sorted_layers_keys:
+            for obj in self.objects[layer]:
+                yield obj
+
+    def _iterate_active_objects(self):
+        for obj in self._iterate_objects():
             if obj.active:
-                obj.draw(surface, self.offset)
+                yield obj
