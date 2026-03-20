@@ -48,24 +48,28 @@ class GameWorld(GameScene):
             self.objects[layer].remove(obj)
 
     def update(self, dt: float):
-        for layer in self.objects:
-            for obj in self.objects[layer]:
-                if obj.active:
-                    obj.update(dt)
+        for obj in self._iterate_active_objects():
+                obj.update(dt)
 
     def handle_events(self, events: List[pygame.event.Event]):
-        for layer in self.objects:
-            for obj in self.objects[layer]:
-                if obj.active:
-                    for event in events:
-                        obj.process_event(event)
+        for obj in self._iterate_active_objects():
+            for event in events:
+                    obj.process_event(event)
 
     def draw(self, surface: pygame.Surface):
         if self.target and hasattr(self.target, 'rect'):
             self.offset.x = self.target.rect.centerx - self.half_w
             self.offset.y = self.target.rect.centery - self.half_h
 
+        for obj in self._iterate_active_objects():
+            obj.draw(surface, self.offset)
+
+    def _iterate_objects(self):
         for layer in self._sorted_layers_keys:
             for obj in self.objects[layer]:
-                if obj.active:
-                    obj.draw(surface, self.offset)
+                yield obj
+    
+    def _iterate_active_objects(self):
+        for obj in self._iterate_objects():
+            if obj.active:
+                yield obj
