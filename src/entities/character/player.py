@@ -4,6 +4,9 @@ from entities.character.character_animator import CharacterAnimator
 from entities.character.characters import Character
 from utils.direction import get_direction_str_by_vector
 class Player(Character):
+
+    _animator: CharacterAnimator | None = None
+    
     def __init__(
         self,
         axle_x: float,
