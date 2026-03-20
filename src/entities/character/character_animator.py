@@ -10,7 +10,7 @@ class CharacterAnimator:
         self._last_direction = "S"
         self._state = "idle"
         self._frame_index = 0.0
-        self.animation_speed = 10.0
+        self.animation_speed = 5.0
         self._sprites_path = ASSETS_FOLDER / "images" / char_name
         self.sprites = self._get_sprites(self._sprites_path, frame_width, frame_height, scale)
         
@@ -21,7 +21,7 @@ class CharacterAnimator:
         self._state = state
         self._last_direction = direction
         
-        if self._state == "running":
+        if self._state == "walking" or self._state == "running":
             self._frame_index += self.animation_speed * dt
             if self._frame_index >= 8:
                 self._frame_index = 0.0
