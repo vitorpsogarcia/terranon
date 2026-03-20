@@ -47,6 +47,10 @@ class GameWorld(GameScene):
         if obj in self.objects.get(layer, []):
             self.objects[layer].remove(obj)
 
+            if not self.objects[layer]:
+                del self.objects[layer]
+                self._sorted_layers_keys.remove(layer)
+
     def update(self, dt: float):
         for obj in self._iterate_active_objects():
             obj.update(dt)
