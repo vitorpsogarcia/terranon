@@ -8,8 +8,9 @@ class Player(Character):
         self,
         axle_x: float,
         axle_y: float,
+        *groups: pygame.sprite.Group
     ):
-        super().__init__(axle_x, axle_y, speed=PLAYER_BASE_SPEED)
+        super().__init__(axle_x, axle_y, speed=PLAYER_BASE_SPEED, *groups)
         self.frame_width = FRAME_WIDTH_PLAYER
         self.frame_height = FRAME_HEIGHT_PLAYER
         self.scale = SCALE_PLAYER
