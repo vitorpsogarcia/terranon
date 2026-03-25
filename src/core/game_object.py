@@ -6,8 +6,8 @@ from pygame.math import Vector2
 class GameObject(ABC, pygame.sprite.Sprite):
     render_layer: int = 0
 
-    def __init__(self, x: float, y: float):
-        super().__init__()
+    def __init__(self, x: float, y: float, *groups: pygame.sprite.Group):
+        super().__init__(*groups)
         self.pos = Vector2(x, y)
         self.active = True
         self.image = None
@@ -29,8 +29,8 @@ class GameObject(ABC, pygame.sprite.Sprite):
 
 
 class StaticObject(GameObject):
-    def __init__(self, x: float, y: float):
-        super().__init__(x, y)
+    def __init__(self, x: float, y: float, *groups: pygame.sprite.Group):
+        super().__init__(x, y, *groups)
 
     def update(self, dt: float):
         if self.rect:
@@ -46,8 +46,8 @@ class StaticObject(GameObject):
 
 
 class DynamicObject(GameObject):
-    def __init__(self, x: float, y: float):
-        super().__init__(x, y)
+    def __init__(self, x: float, y: float, *groups: pygame.sprite.Group):
+        super().__init__(x, y, *groups)
         self.velocity = Vector2(0, 0)
         self.acceleration = Vector2(0, 0)
 

@@ -3,8 +3,8 @@ from core.game_object import DynamicObject
 
 
 class Character(DynamicObject):
-    def __init__(self, x: float, y: float, speed: float = 100.0):
-        super().__init__(x, y)
+    def __init__(self, x: float, y: float, speed: float = 100.0, *groups: pygame.sprite.Group):
+        super().__init__(x, y, *groups)
         self.health = 100
         self.speed = speed
         self.direction = pygame.math.Vector2(0, 0)
