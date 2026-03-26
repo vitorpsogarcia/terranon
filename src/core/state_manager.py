@@ -1,13 +1,15 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict
+
 
 if TYPE_CHECKING:
+    from core.states.base_state import BaseState
     from core.game_manager import GameManager
 
 
 class StateManager:
     def __init__(self, game_manager: "GameManager | None" = None):
         self.game_manager: "GameManager | None" = game_manager
-        self.states = {}
+        self.states: Dict[str, "BaseState"] = {}
     
     def register_state(self, state_name: str, state):
         self.states[state_name] = state
