@@ -65,6 +65,20 @@ class GameManager:
 
         if self.active_scene:
             self.active_scene.draw(self.tela)
+            
+            font = pygame.font.SysFont(None, 24)
+            player = self.active_scene.camera_group.target
+            
+            if player:
+                txt_pos = font.render(f"Pos Real do Player: X: {player.pos.x:.0f}, Y: {player.pos.y:.0f}", True, (255, 255, 0))
+                self.tela.blit(txt_pos, (10, 10))
+                
+                offset = self.active_scene.camera_group.offset
+                txt_cam = font.render(f"Offset da Câmera: X: {offset.x:.0f}, Y: {offset.y:.0f}", True, (0, 255, 255))
+                self.tela.blit(txt_cam, (10, 35))
+                
+                txt_fps = font.render(f"FPS: {self.clock.get_fps():.0f}", True, (0, 255, 0))
+                self.tela.blit(txt_fps, (10, 60))
 
         pygame.display.flip()
 

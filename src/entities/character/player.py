@@ -3,6 +3,7 @@ from core.settings import PLAYER_KEYS, SCALE_PLAYER, PLAYER_BASE_SPEED, FRAME_WI
 from entities.character.character_animator import CharacterAnimator
 from entities.character.characters import Character
 from utils.direction import get_direction_str_by_vector
+
 class Player(Character):
     def __init__(
         self,
