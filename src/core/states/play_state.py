@@ -58,11 +58,10 @@ class PlayState(BaseState):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_i:
                     self.state_manager.change_to("inventory")
-                
-                if event.key == pygame.K_k:
+                elif event.key == pygame.K_k:
                     self.state_manager.change_to("game_over")
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                self.state_manager.change_to("menu")
+                elif event.key == pygame.K_ESCAPE:
+                    self.state_manager.change_to("menu")
 
         if self.world is not None:
             self.world.handle_events(events)
