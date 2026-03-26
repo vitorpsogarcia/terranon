@@ -11,13 +11,12 @@ class GameManager:
         self.tela = tela
         self.clock = pygame.time.Clock()
         self._running = True
-
+        self.debug_font = pygame.font.SysFont(None, 24)
         self.active_scene: GameScene | None = None
-
         self._init_game()
 
     def _init_game(self):
-        world = GameWorld((SCREEN_WIDTH, SCREEN_HEIGHT))
+        world = GameWorld()
         screen_width, screen_height = self.tela.get_size()
         player = Player(0, 0)
         w_player, h_player = player.frame_width, player.frame_height
@@ -66,18 +65,18 @@ class GameManager:
         if self.active_scene:
             self.active_scene.draw(self.tela)
             
-            font = pygame.font.SysFont(None, 24)
+
             player = self.active_scene.camera_group.target
             
             if player:
-                txt_pos = font.render(f"Pos Real do Player: X: {player.pos.x:.0f}, Y: {player.pos.y:.0f}", True, (255, 255, 0))
+                txt_pos = self.debug_font.render(f"Pos Real do Player: X: {player.pos.x:.0f}, Y: {player.pos.y:.0f}", True, (255, 255, 0))
                 self.tela.blit(txt_pos, (10, 10))
                 
                 offset = self.active_scene.camera_group.offset
-                txt_cam = font.render(f"Offset da Câmera: X: {offset.x:.0f}, Y: {offset.y:.0f}", True, (0, 255, 255))
+                txt_cam = self.debug_font.render(f"Offset da Câmera: X: {offset.x:.0f}, Y: {offset.y:.0f}", True, (0, 255, 255))
                 self.tela.blit(txt_cam, (10, 35))
                 
-                txt_fps = font.render(f"FPS: {self.clock.get_fps():.0f}", True, (0, 255, 0))
+                txt_fps = self.debug_font.render(f"FPS: {self.clock.get_fps():.0f}", True, (0, 255, 0))
                 self.tela.blit(txt_fps, (10, 60))
 
         pygame.display.flip()

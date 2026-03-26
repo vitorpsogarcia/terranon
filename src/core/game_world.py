@@ -1,8 +1,7 @@
 import pygame
 from core.camera_group import CameraGroup
-from typing import List, Tuple
 from abc import ABC, abstractmethod
-from typing import List, Dict, Tuple
+from typing import List
 from core.game_object import GameObject
 
 class GameScene(ABC):
@@ -19,7 +18,7 @@ class GameScene(ABC):
         pass
 
 class GameWorld(GameScene):
-    def __init__(self, screen_size: Tuple[int, int]):
+    def __init__(self):
         self.camera_group = CameraGroup()
 
     def set_target(self, target: GameObject):

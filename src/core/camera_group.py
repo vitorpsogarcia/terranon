@@ -11,13 +11,13 @@ class CameraGroup(pygame.sprite.LayeredUpdates):
 
     def set_target(self, target):
         self.target = target
-
+                
     def custom_draw(self, surface: pygame.Surface):
         if self.target and hasattr(self.target, 'rect'):
             self.offset.x = self.target.rect.centerx - self.half_w
             self.offset.y = self.target.rect.centery - self.half_h
 
         for sprite in self.sprites():
-            if sprite.active and sprite.image and sprite.rect:
+            if getattr(sprite, 'active', True):
                 offset_pos = sprite.rect.topleft - self.offset
                 surface.blit(sprite.image, offset_pos)
