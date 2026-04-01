@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pygame
 
-from core.settings import ASSETS_FOLDER, DIRECTIONS
+from core.settings.settings import ASSETS_FOLDER, DIRECTIONS
 from utils.image import load_image
 
 class CharacterAnimator:

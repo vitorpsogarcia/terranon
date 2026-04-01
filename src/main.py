@@ -1,5 +1,6 @@
 import pygame
 
+from core.enums.game_state_enum import GameStateEnum
 from core.game_manager import GameManager
 from core.settings.settings import SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_NAME
 from core.state_manager import StateManager
@@ -23,10 +24,10 @@ def main():
     
     inventory_state.set_play_state(play_state)
     
-    state_manager.register_state("menu", menu_state)
-    state_manager.register_state("play", play_state)
-    state_manager.register_state("inventory", inventory_state)
-    state_manager.register_state("game_over", game_over_state)
+    state_manager.register_state(GameStateEnum.MENU, menu_state)
+    state_manager.register_state(GameStateEnum.PLAY, play_state)
+    state_manager.register_state(GameStateEnum.INVENTORY, inventory_state)
+    state_manager.register_state(GameStateEnum.GAME_OVER, game_over_state)
 
     state_manager.change_to("menu")
 
