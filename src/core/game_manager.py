@@ -6,6 +6,8 @@ from core.states.play_state import PlayState
 
 
 class GameManager:
+    current_state: BaseState | None = None
+
     def __init__(self, tela: pygame.Surface):
         self.tela = tela
         self.clock = pygame.time.Clock()
@@ -51,7 +53,7 @@ class GameManager:
             self.current_state.draw(self.tela)
             
 
-            if self.current_state is PlayState:
+            if type(self.current_state) is PlayState and self.current_state.world is not None:
                 camera_group = self.current_state.world.camera_group
                 player = camera_group.target
             

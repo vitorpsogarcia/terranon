@@ -33,7 +33,7 @@ class MenuState(BaseState):
     def handle_events(self, events):
         for event in events:
             if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
-                self.state_manager.change_to(GameStateEnum.MENU)
+                self.state_manager.change_to(GameStateEnum.PLAY)
                 print("Enter pressed - Start Game")
         pass
 

@@ -13,7 +13,7 @@ FRAME_WIDTH_PLAYER = 48
 FRAME_HEIGHT_PLAYER = 48
 SCALE_PLAYER = 1.5
 
-ASSETS_FOLDER = Path(path.join(path.dirname(__file__), '..', '..', 'assets'))
+ASSETS_FOLDER = Path(path.join(path.dirname(__file__), '..', '..', '..', 'assets'))
 DIRECTIONS = ["N", "S", "W", "E", "NW", "NE", "SW", "SE"]
 
 PLAYER_BASE_SPEED = 250

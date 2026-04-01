@@ -25,13 +25,14 @@ class PlayState(BaseState):
         if (self.initialized):
             return
 
-        self.world = GameWorld()
+        self.world = GameWorld(self.screen_size)
         
         player = Player(0, 0)
         w_player, h_player = player.frame_width, player.frame_height
         
         player.pos = pygame.math.Vector2(self.screen_size[0] // 2 - w_player // 2, self.screen_size[1] // 2 - h_player // 2)
-        player.rect.topleft = player.pos
+        if player.rect is not None:
+            player.rect.topleft = player.pos
         
         self.world.add_object(player)
         self.world.set_target(player)
