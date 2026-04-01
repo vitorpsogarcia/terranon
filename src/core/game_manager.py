@@ -16,7 +16,7 @@ class GameManager:
         self._init_game()
 
     def _init_game(self):
-        world = GameWorld()
+        world = GameWorld(self.tela.get_size())
         screen_width, screen_height = self.tela.get_size()
         player = Player(0, 0)
         w_player, h_player = player.frame_width, player.frame_height
