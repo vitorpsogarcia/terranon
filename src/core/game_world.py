@@ -3,7 +3,7 @@ from core.camera_group import CameraGroup
 from abc import ABC, abstractmethod
 from typing import List, Tuple
 from core.game_object import GameObject, StaticObject, DynamicObject
-from core.camera_group import CameraGroup
+from entities.obstacle import Obstacle
 
 class GameScene(ABC):
     @abstractmethod
@@ -21,24 +21,25 @@ class GameScene(ABC):
 class GameWorld(GameScene):
     def __init__(self, screen_size: Tuple[int, int]):
         self.all_sprites = CameraGroup()
+        self.camera_group = self.all_sprites
+        self.screen_size = screen_size
         self.obstacles = pygame.sprite.Group()
         self.dynamic_group = pygame.sprite.Group()
 
 
     def set_target(self, target: GameObject):
         self.target = target
-        try:
-            self.all_sprites.set_target(target)
-        except Exception:
-            pass
+        if not hasattr(self.all_sprites, 'set_target'):
+            raise AttributeError("CameraGroup deve possuir um método 'set_target'.")
+        self.all_sprites.set_target(target)
 
     def add_object(self, obj: GameObject):
 
         if isinstance(obj, DynamicObject):
-            layer = 2 + int(obj.pos.y)
+            layer = 2 + int(round(obj.pos.y))
             self.dynamic_group.add(obj)
         elif isinstance(obj, StaticObject):
-            if obj.__class__.__name__ == "Obstacle":
+            if isinstance(obj, Obstacle):
                 layer = 1
                 self.obstacles.add(obj)
             else:
@@ -58,13 +59,11 @@ class GameWorld(GameScene):
                 obj.update(dt)
 
             if isinstance(obj, DynamicObject):
-                try:
-                    new_layer = 2 + int(round(obj.pos.y))
-                    if new_layer != getattr(obj, "render_layer", None):
+                new_layer = 2 + int(round(obj.pos.y))
+                if new_layer != getattr(obj, "render_layer", None):
+                    if hasattr(self.all_sprites, "change_layer"):
                         self.all_sprites.change_layer(obj, new_layer)
-                        obj.render_layer = new_layer
-                except Exception:
-                    pass
+                    obj.render_layer = new_layer
 
     def handle_events(self, events: List[pygame.event.Event]):
         for obj in self.camera_group.sprites():
@@ -73,10 +72,9 @@ class GameWorld(GameScene):
                     obj.process_event(event)
 
     def draw(self, surface: pygame.Surface):
-
-        try:
+        if hasattr(self.all_sprites, "custom_draw"):
             self.all_sprites.custom_draw(surface)
-        except Exception:
+        else:
             self.all_sprites.draw(surface)
 
     def _iterate_objects(self):
