@@ -2,6 +2,7 @@ import pygame
 from core.settings.settings import FPS
 from core.states.base_state import BaseState
 from core.settings.colors import Colors
+from core.states.play_state import PlayState
 
 
 class GameManager:
@@ -9,8 +10,7 @@ class GameManager:
         self.tela = tela
         self.clock = pygame.time.Clock()
         self._running = True
-
-        self.current_state: BaseState | None = None
+        self.debug_font = pygame.font.SysFont(None, 24)
 
     def change_state(self, new_state: BaseState):
         if self.current_state is not None:
@@ -49,6 +49,22 @@ class GameManager:
 
         if self.current_state:
             self.current_state.draw(self.tela)
+            
+
+            if self.current_state is PlayState:
+                camera_group = self.current_state.world.camera_group
+                player = camera_group.target
+            
+                if player:
+                    txt_pos = self.debug_font.render(f"Pos Real do Player: X: {player.pos.x:.0f}, Y: {player.pos.y:.0f}", True, (255, 255, 0))
+                    self.tela.blit(txt_pos, (10, 10))
+                    
+                    offset = camera_group.offset
+                    txt_cam = self.debug_font.render(f"Offset da Câmera: X: {offset.x:.0f}, Y: {offset.y:.0f}", True, (0, 255, 255))
+                    self.tela.blit(txt_cam, (10, 35))
+                    
+                    txt_fps = self.debug_font.render(f"FPS: {self.clock.get_fps():.0f}", True, (0, 255, 0))
+                    self.tela.blit(txt_fps, (10, 60))
 
         pygame.display.flip()
 

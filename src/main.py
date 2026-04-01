@@ -29,7 +29,7 @@ def main():
     state_manager.register_state(GameStateEnum.INVENTORY, inventory_state)
     state_manager.register_state(GameStateEnum.GAME_OVER, game_over_state)
 
-    state_manager.change_to("menu")
+    state_manager.change_to(GameStateEnum.MENU)
 
     game_manager.on_execute()
     

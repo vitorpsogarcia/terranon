@@ -1,6 +1,7 @@
 import pygame
 from typing import TYPE_CHECKING
 
+from core.enums.game_state_enum import GameStateEnum
 from core.settings.colors import Colors
 from core.states.base_state import BaseState
 
@@ -31,7 +32,7 @@ class InventoryState(BaseState):
         for event in events:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE or event.key == pygame.K_i:
-                    self.state_manager.change_to("play")
+                    self.state_manager.change_to(GameStateEnum.MENU)
     
     def draw(self, surface: pygame.Surface):
         

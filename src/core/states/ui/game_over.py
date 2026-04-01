@@ -1,6 +1,7 @@
 import pygame
 from typing import TYPE_CHECKING
 
+from core.enums.game_state_enum import GameStateEnum
 from core.states.base_state import BaseState
 from core.settings.colors import Colors
 
@@ -27,7 +28,7 @@ class GameOverState(BaseState):
         for event in events:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
-                    self.state_manager.change_to("menu")
+                    self.state_manager.change_to(GameStateEnum.MENU)
     
     def draw(self, surface):
         surface.fill(Colors.ui.background)

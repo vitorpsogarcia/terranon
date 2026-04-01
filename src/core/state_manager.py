@@ -16,12 +16,12 @@ class StateManager:
     def register_state(self, state_name: GameStateEnum, state):
         self.states[state_name.value] = state
 
-    def change_to(self, state_name: str):
+    def change_to(self, state_name: GameStateEnum):
         if self.game_manager is None:
             raise ValueError("GameManager not set for StateManager.")
         
-        if state_name not in self.states:
-            raise ValueError(f"State '{state_name}' not registered in StateManager.")
+        if state_name.value not in self.states:
+            raise ValueError(f"State '{state_name.value}' not registered in StateManager.")
         
-        new_state = self.states[state_name]
+        new_state = self.states[state_name.value]
         self.game_manager.change_state(new_state)

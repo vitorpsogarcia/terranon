@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 
 import pygame
 
+from core.enums.game_state_enum import GameStateEnum
 from core.game_world import GameWorld
 from core.states.base_state import BaseState
 
@@ -17,13 +18,14 @@ class PlayState(BaseState):
         super().__init__(state_manager, screen_size)
         self.world: GameWorld | None = None
         self.initialized = False
+        self.screen_size = screen_size
     
 
     def enter(self):
         if (self.initialized):
             return
 
-        self.world = GameWorld(self.screen_size)
+        self.world = GameWorld()
         
         player = Player(0, 0)
         w_player, h_player = player.frame_width, player.frame_height
@@ -57,11 +59,11 @@ class PlayState(BaseState):
         for event in events:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_i:
-                    self.state_manager.change_to("inventory")
+                    self.state_manager.change_to(GameStateEnum.INVENTORY)
                 elif event.key == pygame.K_k:
-                    self.state_manager.change_to("game_over")
+                    self.state_manager.change_to(GameStateEnum.GAME_OVER)
                 elif event.key == pygame.K_ESCAPE:
-                    self.state_manager.change_to("menu")
+                    self.state_manager.change_to(GameStateEnum.MENU)
 
         if self.world is not None:
             self.world.handle_events(events)
