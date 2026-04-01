@@ -1,23 +1,22 @@
 import pygame
+from core.camera_group import CameraGroup
 from abc import ABC, abstractmethod
 from typing import List, Tuple
 from core.game_object import GameObject, StaticObject, DynamicObject
 from core.camera_group import CameraGroup
 
-
 class GameScene(ABC):
     @abstractmethod
-    def update(self, dt: float):
+    def update(self, dt: float): 
         pass
-
+    
     @abstractmethod
-    def handle_events(self, events: List[pygame.event.Event]):
+    def handle_events(self, events: List[pygame.event.Event]): 
         pass
-
+    
     @abstractmethod
-    def draw(self, surface: pygame.Surface):
+    def draw(self, surface: pygame.Surface): 
         pass
-
 
 class GameWorld(GameScene):
     def __init__(self, screen_size: Tuple[int, int]):
@@ -54,8 +53,9 @@ class GameWorld(GameScene):
         self.all_sprites.remove(obj)
 
     def update(self, dt: float):
-        for obj in self._iterate_active_objects():
-            obj.update(dt)
+        for obj in self.camera_group.sprites():
+            if obj.active:
+                obj.update(dt)
 
             if isinstance(obj, DynamicObject):
                 try:
@@ -67,9 +67,10 @@ class GameWorld(GameScene):
                     pass
 
     def handle_events(self, events: List[pygame.event.Event]):
-        for obj in self._iterate_active_objects():
-            for event in events:
-                obj.process_event(event)
+        for obj in self.camera_group.sprites():
+            if obj.active:
+                for event in events:
+                    obj.process_event(event)
 
     def draw(self, surface: pygame.Surface):
 
