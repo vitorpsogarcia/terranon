@@ -1,38 +1,25 @@
 import pygame
-import random
-from core.settings import COLORS_GAME, FPS, SCREEN_WIDTH, SCREEN_HEIGHT 
-from core.game_world import GameScene, GameWorld
-from entities.character.player import Player
-from entities.obstacle import Obstacle
+from core.settings.settings import FPS
+from core.states.base_state import BaseState
+from core.settings.colors import Colors
+from core.states.play_state import PlayState
 
 
 class GameManager:
+    current_state: BaseState | None = None
+
     def __init__(self, tela: pygame.Surface):
         self.tela = tela
         self.clock = pygame.time.Clock()
         self._running = True
         self.debug_font = pygame.font.SysFont(None, 24)
-        self.active_scene: GameScene | None = None
-        self._init_game()
 
-    def _init_game(self):
-        world = GameWorld(self.tela.get_size())
-        screen_width, screen_height = self.tela.get_size()
-        player = Player(0, 0)
-        w_player, h_player = player.frame_width, player.frame_height
-        player.pos = pygame.math.Vector2(screen_width // 2 - w_player // 2, screen_height // 2 - h_player // 2)
-        player.rect.topleft = player.pos
-        world.add_object(player)
-        world.set_target(player)
+    def change_state(self, new_state: BaseState):
+        if self.current_state is not None:
+            self.current_state.exit()
         
-        for _ in range(50):
-            random_x = random.randint(-1000, 2000)
-            random_y = random.randint(-1000, 2000)
-            
-            obs = Obstacle(random_x, random_y)
-            world.add_object(obs)
-            
-        self.active_scene = world
+        self.current_state = new_state
+        self.current_state.enter()
 
     def on_execute(self):
         dt = self.clock.tick(FPS) / 1000.0
@@ -52,32 +39,34 @@ class GameManager:
             if event.type == pygame.QUIT:
                 self._running = False
 
-        if self.active_scene:
-            self.active_scene.handle_events(events)
+        if self.current_state:
+            self.current_state.handle_events(events)
 
     def update(self, dt: float):
-        if self.active_scene:
-            self.active_scene.update(dt)
+        if self.current_state:
+            self.current_state.update(dt)
 
     def on_render(self):
-        self.tela.fill(COLORS_GAME.get("BLACK", (0, 0, 0)))
+        self.tela.fill(Colors.ui.background)
 
-        if self.active_scene:
-            self.active_scene.draw(self.tela)
+        if self.current_state:
+            self.current_state.draw(self.tela)
             
 
-            player = self.active_scene.camera_group.target
+            if type(self.current_state) is PlayState and self.current_state.world is not None:
+                camera_group = self.current_state.world.camera_group
+                player = camera_group.target
             
-            if player:
-                txt_pos = self.debug_font.render(f"Pos Real do Player: X: {player.pos.x:.0f}, Y: {player.pos.y:.0f}", True, (255, 255, 0))
-                self.tela.blit(txt_pos, (10, 10))
-                
-                offset = self.active_scene.camera_group.offset
-                txt_cam = self.debug_font.render(f"Offset da Câmera: X: {offset.x:.0f}, Y: {offset.y:.0f}", True, (0, 255, 255))
-                self.tela.blit(txt_cam, (10, 35))
-                
-                txt_fps = self.debug_font.render(f"FPS: {self.clock.get_fps():.0f}", True, (0, 255, 0))
-                self.tela.blit(txt_fps, (10, 60))
+                if player:
+                    txt_pos = self.debug_font.render(f"Pos Real do Player: X: {player.pos.x:.0f}, Y: {player.pos.y:.0f}", True, (255, 255, 0))
+                    self.tela.blit(txt_pos, (10, 10))
+                    
+                    offset = camera_group.offset
+                    txt_cam = self.debug_font.render(f"Offset da Câmera: X: {offset.x:.0f}, Y: {offset.y:.0f}", True, (0, 255, 255))
+                    self.tela.blit(txt_cam, (10, 35))
+                    
+                    txt_fps = self.debug_font.render(f"FPS: {self.clock.get_fps():.0f}", True, (0, 255, 0))
+                    self.tela.blit(txt_fps, (10, 60))
 
         pygame.display.flip()
 

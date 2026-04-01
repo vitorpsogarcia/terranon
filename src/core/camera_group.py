@@ -4,8 +4,9 @@ class CameraGroup(pygame.sprite.LayeredUpdates):
     def __init__(self):
         super().__init__()
         self.display_surface = pygame.display.get_surface()
-        self.half_w = self.display_surface.get_size()[0] // 2
-        self.half_h = self.display_surface.get_size()[1] // 2
+        if self.display_surface is not None:
+            self.half_w = self.display_surface.get_size()[0] // 2
+            self.half_h = self.display_surface.get_size()[1] // 2
         self.offset = pygame.math.Vector2()
         self.target = None
 
