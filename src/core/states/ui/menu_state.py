@@ -2,6 +2,7 @@ import pygame
 from typing import TYPE_CHECKING
 
 from core.states.base_state import BaseState
+from core.settings.colors import Colors
 
 if TYPE_CHECKING:
     from core.state_manager import StateManager
@@ -19,8 +20,8 @@ class MenuState(BaseState):
         self.instruction_text: pygame.Surface | None = None
 
     def enter(self):
-        self.title_text = self.font.render("Menu State", True, (255, 255, 255))
-        self.instruction_text = self.small_font.render("Press Enter to Start", True, (255, 255, 255))
+        self.title_text = self.font.render("Menu State", True, Colors.text.primary)
+        self.instruction_text = self.small_font.render("Press Enter to Start", True, Colors.text.primary)
 
     def exit(self):
         pass
@@ -39,7 +40,7 @@ class MenuState(BaseState):
         if self.title_text is None or self.instruction_text is None:
             return
 
-        surface.fill((0, 0, 0))
+        surface.fill(Colors.ui.background)
         
         surface.blit(self.title_text, (self.screen_size[0] // 2 - self.title_text.get_width() // 2, self.screen_size[1] // 3))
         surface.blit(self.instruction_text, (self.screen_size[0] // 2 - self.instruction_text.get_width() // 2, self.screen_size[1] // 2))

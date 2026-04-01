@@ -1,6 +1,7 @@
 import pygame
-from core.settings import COLORS_GAME, FPS
+from core.settings.settings import FPS
 from core.states.base_state import BaseState
+from core.settings.colors import Colors
 
 
 class GameManager:
@@ -44,7 +45,7 @@ class GameManager:
             self.current_state.update(dt)
 
     def on_render(self):
-        self.tela.fill(COLORS_GAME.get("BLACK", (0, 0, 0)))
+        self.tela.fill(Colors.ui.background)
 
         if self.current_state:
             self.current_state.draw(self.tela)

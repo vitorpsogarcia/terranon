@@ -1,6 +1,7 @@
 import pygame
 from typing import TYPE_CHECKING
 
+from core.settings.colors import Colors
 from core.states.base_state import BaseState
 
 if TYPE_CHECKING:
@@ -38,14 +39,14 @@ class InventoryState(BaseState):
             self.play_state.draw(surface)
         
         overlay = pygame.Surface(self.screen_size, pygame.SRCALPHA)
-        overlay.fill((0, 0, 0, 150))
+        overlay.fill(Colors.ui.panel_transparent)
         surface.blit(overlay, (0, 0))
         
         rect = pygame.Rect(100, 100, self.screen_size[0] - 200, self.screen_size[1] - 200)
-        pygame.draw.rect(surface, (50, 50, 50), rect)
-        pygame.draw.rect(surface, (150, 150, 150), rect, 3)
+        pygame.draw.rect(surface, Colors.ui.panel, rect)
+        pygame.draw.rect(surface, Colors.ui.border, rect, 3)
 
-        inventory_text = self.font.render("INVENTORY", True, (200, 200, 200))
-        close_hint = pygame.font.SysFont("Arial", 24).render("Press ESC or I to close", True, (100, 100, 100))
+        inventory_text = self.font.render("INVENTORY", True, Colors.text.primary)
+        close_hint = pygame.font.SysFont("Arial", 24).render("Press ESC or I to close", True, Colors.text.secondary)
         surface.blit(inventory_text, (self.screen_size[0] // 2 - inventory_text.get_width() // 2, 120))
         surface.blit(close_hint, (self.screen_size[0] // 2 - close_hint.get_width() // 2, self.screen_size[1] - 150))

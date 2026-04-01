@@ -2,6 +2,7 @@ import pygame
 from typing import TYPE_CHECKING
 
 from core.states.base_state import BaseState
+from core.settings.colors import Colors
 
 if TYPE_CHECKING:
     from core.state_manager import StateManager
@@ -29,8 +30,8 @@ class GameOverState(BaseState):
                     self.state_manager.change_to("menu")
     
     def draw(self, surface):
-        surface.fill((0, 0, 0))
-        game_over_text = self.font.render("GAME OVER", True, (255, 0, 0))
-        enter_to_continue = self.small_font.render("Press ENTER to continue", True, (255, 255, 255))
+        surface.fill(Colors.ui.background)
+        game_over_text = self.font.render("GAME OVER", True, Colors.feedback.error)
+        enter_to_continue = self.small_font.render("Press ENTER to continue", True, Colors.text.primary)
         surface.blit(game_over_text, (self.screen_size[0] // 2 - game_over_text.get_width() // 2, self.screen_size[1] // 2 - enter_to_continue.get_height() // 2))
         surface.blit(enter_to_continue, (self.screen_size[0] // 2 - enter_to_continue.get_width() // 2, self.screen_size[1] // 2 + enter_to_continue.get_height() + 30))

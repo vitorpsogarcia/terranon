@@ -1,7 +1,7 @@
 import pygame
 
 from core.game_manager import GameManager
-from core.settings import SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_NAME
+from core.settings.settings import SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_NAME
 from core.state_manager import StateManager
 from core.states.ui.game_over import GameOverState
 from core.states.ui.inventory_state import InventoryState
