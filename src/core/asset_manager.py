@@ -43,7 +43,7 @@ class AssetManager:
             try:
                 font = pygame.font.Font(ASSETS_FOLDER / "fonts" / path, size)
                 cls._assets["fonts"][key] = font
-            except pygame.error as e:
+            except pygame.error:
                 raise AssetNotFoundException(name)
         return cls._assets["fonts"].get(key)
 
