@@ -44,7 +44,7 @@ class CharacterAnimator:
         if self._state == CharacterStateEnum.IDLE:
             return AssetManager().get_image(f"{self.char_name}.{CharacterStateEnum.IDLE.value}.{direction}")
         else:
-            frame = int(self._frame_index) + 1
+            frame = int(self._frame_index)
             if frame > 7: 
                 frame = 1
             return AssetManager().get_image(f"{self.char_name}.{CharacterStateEnum.MOVING.value}.{direction}.{frame}")
