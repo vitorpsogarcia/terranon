@@ -24,7 +24,7 @@ class AssetManager:
             try:
                 image = load_image(ASSETS_FOLDER / "images" / path, **kwargs)
                 cls._assets["images"][name] = image
-            except pygame.error:
+            except (pygame.error, FileNotFoundError):
                 raise AssetNotFoundException(name)
         return cls._assets["images"].get(name)
 
