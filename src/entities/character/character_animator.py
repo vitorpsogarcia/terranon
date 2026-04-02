@@ -42,20 +42,20 @@ class CharacterAnimator:
         direction = self._last_direction
             
         if self._state == CharacterStateEnum.IDLE:
-            return AssetManager().get_image(f"{self.char_name}.{CharacterStateEnum.IDLE.value}.{direction}")
+            return AssetManager.get_image(f"{self.char_name}.{CharacterStateEnum.IDLE.value}.{direction}")
         else:
             frame = int(self._frame_index)
             if frame > 7: 
                 frame = 1
-            return AssetManager().get_image(f"{self.char_name}.{CharacterStateEnum.MOVING.value}.{direction}.{frame}")
+            return AssetManager.get_image(f"{self.char_name}.{CharacterStateEnum.MOVING.value}.{direction}.{frame}")
 
 
     @staticmethod
     def _get_sprites(_sprites_path: Path, char_name: str, scale: float = 1) -> None:
         for direction in DIRECTIONS:
-            AssetManager().load_image(f"{char_name}.idle.{direction}", str(_sprites_path / CharacterStateEnum.IDLE.value / f"{direction}.png"), scale=scale)
+            AssetManager.load_image(f"{char_name}.idle.{direction}", str(_sprites_path / CharacterStateEnum.IDLE.value / f"{direction}.png"), scale=scale)
             for i in range(0, ANIMATIONS_FRAME_COUNT):
                 path = _sprites_path / "animations" / CharacterStateEnum.MOVING.value / direction / f"{i}.png"
-                AssetManager().load_image(f"{char_name}.{CharacterStateEnum.MOVING.value}.{direction}.{i}", str(path), scale=scale)
+                AssetManager.load_image(f"{char_name}.{CharacterStateEnum.MOVING.value}.{direction}.{i}", str(path), scale=scale)
                 
         
