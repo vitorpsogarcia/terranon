@@ -18,7 +18,7 @@ class CharacterAnimator:
         self.char_name = char_name
         self.animation_speed = default_speed
 
-        self._get_sprites(self._relative_path, char_name, scale=scale)
+        self._load_sprites(self._relative_path, char_name, scale=scale)
 
     def set_speed(self, speed: float):
         self.animation_speed = speed
@@ -51,7 +51,7 @@ class CharacterAnimator:
 
 
     @staticmethod
-    def _get_sprites(_sprites_path: Path, char_name: str, scale: float = 1) -> None:
+    def _load_sprites(_sprites_path: Path, char_name: str, scale: float = 1) -> None:
         for direction in DIRECTIONS:
             AssetManager.load_image(f"{char_name}.idle.{direction}", str(_sprites_path / CharacterStateEnum.IDLE.value / f"{direction}.png"), scale=scale)
             for i in range(0, ANIMATIONS_FRAME_COUNT):
