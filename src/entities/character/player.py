@@ -1,9 +1,10 @@
 import pygame
 from core.enums.character_state_enum import CharacterStateEnum
-from core.settings.settings import PLAYER_BASE_ANIMATION_SPEED, PLAYER_KEYS, SCALE_PLAYER, PLAYER_BASE_SPEED, FRAME_WIDTH_PLAYER, FRAME_HEIGHT_PLAYER
+from core.settings.settings import PLAYER_BASE_ANIMATION_SPEED, SCALE_PLAYER, PLAYER_BASE_SPEED, FRAME_WIDTH_PLAYER, FRAME_HEIGHT_PLAYER
 from entities.character.character_animator import CharacterAnimator
 from entities.character.characters import Character
 from utils.direction import get_direction_str_by_vector
+from core.input_manager import InputManager
 
 class Player(Character):
     running: bool = False
@@ -22,8 +23,8 @@ class Player(Character):
         self.scale = SCALE_PLAYER
         self._last_direction = "S"
         self.render_layer = 1
-
         self._animator = CharacterAnimator("player", self.scale)
+        self.input_manager = InputManager()
 
         if not self._animator:
 
@@ -42,23 +43,22 @@ class Player(Character):
         pass
 
     def handle_input(self):
-        keys = pygame.key.get_pressed()
         self.direction.x = 0
         self.direction.y = 0
 
-        if keys[PLAYER_KEYS["UP"]]:
+        if self.input_manager.is_action_pressed("UP"):
             self.direction.y -= 1
 
-        if keys[PLAYER_KEYS["DOWN"]]:
+        if self.input_manager.is_action_pressed("DOWN"):
             self.direction.y += 1
 
-        if keys[PLAYER_KEYS["LEFT"]]:
+        if self.input_manager.is_action_pressed("LEFT"):
             self.direction.x -= 1
 
-        if keys[PLAYER_KEYS["RIGHT"]]:
+        if self.input_manager.is_action_pressed("RIGHT"):
             self.direction.x += 1
-        
-        if keys[PLAYER_KEYS["RUN"]]:
+
+        if self.input_manager.is_action_pressed("RUN"):
             self.speed = PLAYER_BASE_SPEED * 2
             self.running = True
             self._animator.set_speed(PLAYER_BASE_ANIMATION_SPEED * 2)
