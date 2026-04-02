@@ -67,7 +67,7 @@ class Player(Character):
         self.handle_input()
         
         state = "idle"
-        if self.direction.x != 0 or self.direction.y != 0 and state == "idle":
+        if (self.direction.x != 0 or self.direction.y != 0) and state == "idle":
             state = "walking"
             self._animator.animation_speed = 5.0
 

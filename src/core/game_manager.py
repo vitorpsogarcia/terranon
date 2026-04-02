@@ -53,7 +53,7 @@ class GameManager:
         if self.current_state:
             self.current_state.draw(self.tela)
 
-            if type(self.current_state) is PlayState and self.current_state.world is not None:
+            if isinstance(self.current_state, PlayState) and self.current_state.world is not None:
                 camera_group = self.current_state.world.camera_group
                 player = camera_group.target
 
