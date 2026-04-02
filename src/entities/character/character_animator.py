@@ -4,7 +4,7 @@ import pygame
 
 from core.asset_manager import AssetManager
 from core.enums.character_state_enum import CharacterStateEnum
-from core.settings.settings import DIRECTIONS
+from core.settings.settings import ANIMATIONS_FRAME_COUNT, DIRECTIONS
 
 class CharacterAnimator:
     _state: CharacterStateEnum
@@ -33,7 +33,7 @@ class CharacterAnimator:
         
         if self._state == CharacterStateEnum.MOVING:
             self._frame_index += self.animation_speed * dt
-            if self._frame_index >= 8:
+            if self._frame_index >= ANIMATIONS_FRAME_COUNT:
                 self._frame_index = 0.0
         else:
             self._frame_index = 0.0
@@ -54,7 +54,7 @@ class CharacterAnimator:
     def _get_sprites(_sprites_path: Path, char_name: str, scale: float = 1) -> None:
         for direction in DIRECTIONS:
             AssetManager().load_image(f"{char_name}.idle.{direction}", str(_sprites_path / CharacterStateEnum.IDLE.value / f"{direction}.png"), scale=scale)
-            for i in range(0, 8):
+            for i in range(0, ANIMATIONS_FRAME_COUNT):
                 path = _sprites_path / "animations" / CharacterStateEnum.MOVING.value / direction / f"{i}.png"
                 AssetManager().load_image(f"{char_name}.{CharacterStateEnum.MOVING.value}.{direction}.{i}", str(path), scale=scale)
                 

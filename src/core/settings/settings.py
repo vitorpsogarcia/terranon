@@ -16,6 +16,8 @@ SCALE_PLAYER = 1.5
 ASSETS_FOLDER = Path(path.join(path.dirname(__file__), '..', '..', '..', 'assets'))
 DIRECTIONS = ["N", "S", "W", "E", "NW", "NE", "SW", "SE"]
 
+ANIMATIONS_FRAME_COUNT = 8
+
 PLAYER_BASE_SPEED = 250
 PLAYER_BASE_ANIMATION_SPEED = 6
 PLAYER_KEYS = {
