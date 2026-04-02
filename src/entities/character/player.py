@@ -79,9 +79,6 @@ class Player(Character):
         if self.direction.x != 0 or self.direction.y != 0:
             state = CharacterStateEnum.MOVING
 
-            if (abs(self.direction.x) > 1 or abs(self.direction.y) > 1):
-                self.running = True
-
         if self._animator:
             self._animator.update(dt, state, self._last_direction)
             self.image = self._animator.get_frame()
