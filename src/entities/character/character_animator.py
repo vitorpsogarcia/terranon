@@ -2,26 +2,36 @@ from pathlib import Path
 
 import pygame
 
-from core.settings.settings import ASSETS_FOLDER, DIRECTIONS
-from utils.image import load_image
+from core.asset_manager import AssetManager
+from core.enums.character_state_enum import CharacterStateEnum
+from core.settings.settings import DIRECTIONS
 
 class CharacterAnimator:
-    def __init__(self, char_name: str, frame_width: int, frame_height: int, scale: float = 1.0):
+    _state: CharacterStateEnum
+    
+    def __init__(self, char_name: str, scale: float = 1.0, default_speed: float = 5.0):
         self._last_direction = "S"
-        self._state = "idle"
+        self._state = CharacterStateEnum.IDLE
         self._frame_index = 0.0
-        self.animation_speed = 5.0
-        self._sprites_path = ASSETS_FOLDER / "images" / char_name
-        self.sprites = self._get_sprites(self._sprites_path, frame_width, frame_height, scale)
+        self._relative_path = Path(char_name)
         
-    def update(self, dt: float, state: str, direction: str):
+        self.char_name = char_name
+        self.animation_speed = default_speed
+
+        self._get_sprites(self._relative_path, char_name, scale=scale)
+
+    def set_speed(self, speed: float):
+        self.animation_speed = speed
+    
+        
+    def update(self, dt: float, state: CharacterStateEnum, direction: str):
         if self._state != state or self._last_direction != direction:
             self._frame_index = 0.0
             
         self._state = state
         self._last_direction = direction
         
-        if self._state == "walking" or self._state == "running":
+        if self._state == CharacterStateEnum.MOVING:
             self._frame_index += self.animation_speed * dt
             if self._frame_index >= 8:
                 self._frame_index = 0.0
@@ -30,35 +40,22 @@ class CharacterAnimator:
 
     def get_frame(self) -> pygame.Surface:
         direction = self._last_direction
-        if direction not in self.sprites:
-            direction = "S"
             
-        anim_list = self.sprites[direction]
-        if isinstance(anim_list, pygame.Surface):
-            return anim_list
-            
-        if self._state == "idle":
-            return anim_list[0]
+        if self._state == CharacterStateEnum.IDLE:
+            return AssetManager().get_image(f"{self.char_name}.{CharacterStateEnum.IDLE.value}.{direction}")
         else:
             frame = int(self._frame_index) + 1
-            if frame > 8: 
+            if frame > 7: 
                 frame = 1
-            return anim_list[frame]
+            return AssetManager().get_image(f"{self.char_name}.{CharacterStateEnum.MOVING.value}.{direction}.{frame}")
+
 
     @staticmethod
-    def _get_sprites(_sprites_path: Path, frame_width: int, frame_height: int, scale: float) -> dict[str, list[pygame.Surface] | pygame.Surface]:
-        sprites = {}
+    def _get_sprites(_sprites_path: Path, char_name: str, scale: float = 1) -> None:
         for direction in DIRECTIONS:
-            try:
-                sprites_dir = []
-                sprites_dir.append(load_image(_sprites_path / "idle" / f"{direction}.png", scale=scale).convert_alpha(),)
-                for i in range(0, 8):
-                    sprites_dir.append(load_image(_sprites_path / "animations" / "running" / direction / f"{i}.png", scale=scale).convert_alpha())
-                sprites[direction] = sprites_dir
-            except FileNotFoundError:
-                placeholder = pygame.Surface((frame_width, frame_height)).convert_alpha()
-                placeholder = pygame.transform.scale(placeholder, (int(frame_width * scale), int(frame_height * scale)))
-                placeholder.fill((255, 0, 0))
-                sprites[direction] = placeholder
+            AssetManager().load_image(f"{char_name}.idle.{direction}", str(_sprites_path / CharacterStateEnum.IDLE.value / f"{direction}.png"), scale=scale)
+            for i in range(0, 8):
+                path = _sprites_path / "animations" / CharacterStateEnum.MOVING.value / direction / f"{i}.png"
+                AssetManager().load_image(f"{char_name}.{CharacterStateEnum.MOVING.value}.{direction}.{i}", str(path), scale=scale)
+                
         
-        return sprites
