@@ -10,7 +10,7 @@ from core.states.ui.menu_state import MenuState
 from core.states.play_state import PlayState
 
 def main():
-    pygame .init()
+    pygame.init()
     pygame.display.set_caption(SCREEN_NAME)
     tela = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     
