@@ -13,7 +13,9 @@ class AnimatorComponent:
 
     def add_animation(self, state_name: str, frames_list: List[pygame.Surface], frame_duration: float):
         if not frames_list:
-            raise ValueError("frames_list must contain at least one Surface")
+            raise ValueError("frames_list deve conter pelo menos uma Surface")
+        if frame_duration <= 0:
+            raise ValueError("frame_duration deve ser maior que zero")
         self.animations[state_name] = {
             "frames": list(frames_list),
             "duration": float(frame_duration),
@@ -45,8 +47,9 @@ class AnimatorComponent:
 
         self._time_acc += dt
         while self._time_acc >= duration:
-            self._time_acc -= duration
-            self._frame_index = (self._frame_index + 1) % len(frames)
+            num_frames = int(self._time_acc // duration)
+            self._time_acc %= duration
+            self._frame_index = (self._frame_index + num_frames) % len(frames)
         self._apply_frame()
 
     def _apply_frame(self):
