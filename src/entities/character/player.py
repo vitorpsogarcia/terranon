@@ -1,23 +1,21 @@
 import pygame
-from core.enums.character_state_enum import CharacterStateEnum
-from core.settings.settings import PLAYER_KEYS, SCALE_PLAYER, PLAYER_BASE_SPEED
-from entities.character.character_animator import CharacterAnimator
+from core.settings.settings import ASSETS_FOLDER, DIRECTIONS, PLAYER_KEYS, SCALE_PLAYER, PLAYER_BASE_SPEED
 from entities.character.characters import Character
+from utils.image import load_image
 from utils.direction import get_direction_str_by_vector
-from core.input_manager import InputManager
 
 class Player(Character):
     def __init__(self, axle_x: float, axle_y: float, *groups: pygame.sprite.Group):
         super().__init__(axle_x, axle_y, speed=PLAYER_BASE_SPEED, *groups)
         self.scale = SCALE_PLAYER
         self._last_direction = "S"
+        self._is_running = False
         self.render_layer = 1
 
-        self._animator = CharacterAnimator("player", scale=self.scale)
-        
-        self._animator.update(0.0, CharacterStateEnum.IDLE, self._last_direction)
-        self.image = self._animator.get_frame()
-        self.rect = self.image.get_rect(topleft=(round(axle_x), round(axle_y)))
+        self._setup_animations()
+        self.animator.play(f"idle_{self._last_direction}")
+        self.animator.update(0.0)
+        self.rect.topleft = (round(axle_x), round(axle_y))
     
     @property
     def frame_width(self) -> int:
@@ -30,11 +28,38 @@ class Player(Character):
     def process_event(self, event: pygame.event.Event):
         pass
 
+    def _setup_animations(self):
+        player_root = ASSETS_FOLDER / "images" / "player"
+
+        for direction in DIRECTIONS:
+            idle_path = player_root / "idle" / f"{direction}.png"
+            running_dir = player_root / "animations" / "moving" / direction
+
+            try:
+                idle_frame = load_image(idle_path, scale=self.scale)
+            except FileNotFoundError:
+                continue
+
+            running_frames = []
+            for i in range(8):
+                run_path = running_dir / f"{i}.png"
+                try:
+                    running_frames.append(load_image(run_path, scale=self.scale))
+                except FileNotFoundError:
+                    break
+
+            move_frames = running_frames if running_frames else [idle_frame]
+
+            self.animator.add_animation(f"idle_{direction}", [idle_frame], frame_duration=1.0)
+            self.animator.add_animation(f"walking_{direction}", move_frames, frame_duration=1 / 7.0)
+            self.animator.add_animation(f"running_{direction}", move_frames, frame_duration=1 / 10.0)
+
     def handle_input(self):
+        keys = pygame.key.get_pressed()
         self.direction.x = 0
         self.direction.y = 0
 
-        if self.input_manager.is_action_pressed("UP"):
+        if keys[PLAYER_KEYS["UP"]]:
             self.direction.y -= 1
         if keys[PLAYER_KEYS["DOWN"]]:
             self.direction.y += 1
@@ -43,7 +68,8 @@ class Player(Character):
         if keys[PLAYER_KEYS["RIGHT"]]:
             self.direction.x += 1
 
-        if keys[PLAYER_KEYS["RUN"]]:
+        self._is_running = bool(keys[PLAYER_KEYS["RUN"]])
+        if self._is_running:
             self.speed = PLAYER_BASE_SPEED * 2
         else:
             self.speed = PLAYER_BASE_SPEED
@@ -55,16 +81,10 @@ class Player(Character):
     def update(self, dt: float):
         self.handle_input()
 
-        state = CharacterStateEnum.IDLE
+        state = "idle"
         if self.direction.x != 0 or self.direction.y != 0:
-            state = CharacterStateEnum.MOVING
+            state = "running" if self._is_running else "walking"
 
-
-        self._animator.update(dt, state, self._last_direction)
-        self.image = self._animator.get_frame()
-        
-
-        old_center = self.rect.center
-        self.rect = self.image.get_rect(center=old_center)
+        self.animator.play(f"{state}_{self._last_direction}")
         
         super().update(dt)
