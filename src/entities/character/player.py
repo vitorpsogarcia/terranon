@@ -4,6 +4,7 @@ from core.settings.settings import PLAYER_KEYS, SCALE_PLAYER, PLAYER_BASE_SPEED
 from entities.character.character_animator import CharacterAnimator
 from entities.character.characters import Character
 from utils.direction import get_direction_str_by_vector
+from core.input_manager import InputManager
 
 class Player(Character):
     def __init__(self, axle_x: float, axle_y: float, *groups: pygame.sprite.Group):
@@ -30,11 +31,10 @@ class Player(Character):
         pass
 
     def handle_input(self):
-        keys = pygame.key.get_pressed()
         self.direction.x = 0
         self.direction.y = 0
 
-        if keys[PLAYER_KEYS["UP"]]:
+        if self.input_manager.is_action_pressed("UP"):
             self.direction.y -= 1
         if keys[PLAYER_KEYS["DOWN"]]:
             self.direction.y += 1
