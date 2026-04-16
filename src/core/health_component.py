@@ -18,7 +18,7 @@ class HealthComponent:
         self.on_death_callback = on_death_callback
 
     def take_damage(self, amount: float):
-        if self.is_dead or self.is_invulnerable:
+        if self.is_dead or self.is_invulnerable or amount <= 0:
             return
 
         self.current_hp -= amount
@@ -31,7 +31,7 @@ class HealthComponent:
             self.invulnerability_timer = self.iframes_duration
 
     def heal(self, amount: float):
-        if self.is_dead:
+        if self.is_dead or amount <= 0:
             return
             
         self.current_hp += amount

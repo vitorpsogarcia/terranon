@@ -19,6 +19,9 @@ class Character(DynamicObject):
         self.velocity = self.direction * self.speed
 
     def update(self, dt: float):
+        if not self.active:
+            return
+        
         self.health.update(dt)
         self.move(dt)
         self.animator.update(dt)
