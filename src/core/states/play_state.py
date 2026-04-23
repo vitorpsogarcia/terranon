@@ -6,6 +6,8 @@ import pygame
 from core.enums.game_state_enum import GameStateEnum
 from core.game_world import GameWorld
 from core.states.base_state import BaseState
+from entities.base_structure import BaseStructure
+from entities.enemy import Enemy
 
 if TYPE_CHECKING:
     from core.state_manager import StateManager
@@ -19,7 +21,6 @@ class PlayState(BaseState):
         self.world: GameWorld | None = None
         self.initialized = False
         self.screen_size = screen_size
-    
 
     def enter(self):
         if (self.initialized):
@@ -36,6 +37,17 @@ class PlayState(BaseState):
         
         self.world.add_object(player)
         self.world.set_target(player)
+        
+        self.base = BaseStructure(500, 300)
+        self.world.add_object(self.base)
+
+        inimigo1 = Enemy(100, -200, target=self.base)
+        inimigo2 = Enemy(900, 800, target=self.base)
+        inimigo3 = Enemy(-300, 500, target=self.base)
+
+        self.world.add_object(inimigo1)
+        self.world.add_object(inimigo2)
+        self.world.add_object(inimigo3)
 
         for _ in range(50):
             random_x = random.randint(-1000, 2000)
