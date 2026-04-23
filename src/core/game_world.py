@@ -3,6 +3,8 @@ from core.camera_group import CameraGroup
 from abc import ABC, abstractmethod
 from typing import List, Tuple
 from core.game_object import GameObject, StaticObject, DynamicObject
+from entities.character import player
+from entities.enemy import Enemy
 from entities.obstacle import Obstacle
 
 class GameScene(ABC):
@@ -40,6 +42,10 @@ class GameWorld(GameScene):
         if isinstance(obj, DynamicObject):
             layer = 2 + int(round(obj.pos.y))
             self.dynamic_group.add(obj)
+
+        if isinstance(obj, Enemy):
+                self.enemies_group.add(obj)
+
         elif isinstance(obj, StaticObject):
             if isinstance(obj, Obstacle):
                 layer = 1
@@ -61,6 +67,7 @@ class GameWorld(GameScene):
                 obj.update(dt)
         
         self._resolve_player_obstacle_collisions()
+        self._resolve_player_enemy_collisions()
 
         for obj in self.camera_group.sprites():
             if obj.active and isinstance(obj, DynamicObject):
@@ -75,7 +82,7 @@ class GameWorld(GameScene):
             for enemy, shots in hits.items():
                 for shot in shots:
                     enemy.health.take_damage(shot.damage)
-                if enemy.health.current_health <= 0:
+                if enemy.health.current_hp <= 0:
                     enemy.kill()
 
         obstacle_hits = pygame.sprite.groupcollide(self.obstacles, self.shots_group, False, True)
@@ -116,3 +123,20 @@ class GameWorld(GameScene):
                     player.rect.topleft = player.prev_rect.topleft
                     player.pos.x = player.rect.x
                     player.pos.y = player.rect.y
+                    
+    def _resolve_player_enemy_collisions(self):
+        if not hasattr(self, "target") or self.target is None:
+            return
+        player = self.target
+        if player.rect is None:
+            return
+
+        touching_enemies = pygame.sprite.spritecollide(player, self.enemies_group, False)
+        for enemy in touching_enemies:
+            if hasattr(player, "health"):
+                player.health.take_damage(10.0)
+
+            if hasattr(player, "prev_rect") and player.prev_rect is not None:
+                player.rect.topleft = player.prev_rect.topleft
+                player.pos.x = player.rect.x
+                player.pos.y = player.rect.y
