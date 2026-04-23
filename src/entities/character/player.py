@@ -90,8 +90,6 @@ class Player(Character):
         super().update(dt)
         
         if self.rect is not None:
-            self.rect.topleft = (round(self.pos.x), round(self.pos.y))
-        else:
             self.rect = pygame.Rect(round(self.pos.x), round(self.pos.y), self.frame_width, self.frame_height)
 
         state = "idle"

@@ -78,12 +78,9 @@ class GameWorld(GameScene):
                     obj.render_layer = new_layer
 
         hits = pygame.sprite.groupcollide(self.enemies_group, self.shots_group, False, True)
-        if hits:
-            for enemy, shots in hits.items():
-                for shot in shots:
-                    enemy.health.take_damage(shot.damage)
-                if enemy.health.current_hp <= 0:
-                    enemy.kill()
+        for enemy, shots in hits.items():
+            for shot in shots:
+                enemy.health.take_damage(shot.damage)
 
         obstacle_hits = pygame.sprite.groupcollide(self.obstacles, self.shots_group, False, True)
 
