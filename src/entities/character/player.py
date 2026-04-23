@@ -81,10 +81,20 @@ class Player(Character):
     def update(self, dt: float):
         self.handle_input()
 
+        self.prev_pos = self.pos.copy()
+        if self.rect is not None:
+            self.prev_rect = self.rect.copy()
+        else:
+            self.prev_rect = None
+
+        super().update(dt)
+        
+        if self.rect is not None:
+            self.rect = pygame.Rect(round(self.pos.x), round(self.pos.y), self.frame_width, self.frame_height)
+
         state = "idle"
         if self.direction.x != 0 or self.direction.y != 0:
             state = "running" if self._is_running else "walking"
 
         self.animator.play(f"{state}_{self._last_direction}")
         
-        super().update(dt)

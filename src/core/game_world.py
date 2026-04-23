@@ -3,6 +3,8 @@ from core.camera_group import CameraGroup
 from abc import ABC, abstractmethod
 from typing import List, Tuple
 from core.game_object import GameObject, StaticObject, DynamicObject
+from entities.character import player
+from entities.enemy import Enemy
 from entities.obstacle import Obstacle
 
 class GameScene(ABC):
@@ -25,6 +27,8 @@ class GameWorld(GameScene):
         self.screen_size = screen_size
         self.obstacles = pygame.sprite.Group()
         self.dynamic_group = pygame.sprite.Group()
+        self.shots_group = pygame.sprite.Group()
+        self.enemies_group = pygame.sprite.Group()
 
 
     def set_target(self, target: GameObject):
@@ -38,6 +42,10 @@ class GameWorld(GameScene):
         if isinstance(obj, DynamicObject):
             layer = 2 + int(round(obj.pos.y))
             self.dynamic_group.add(obj)
+
+        if isinstance(obj, Enemy):
+                self.enemies_group.add(obj)
+
         elif isinstance(obj, StaticObject):
             if isinstance(obj, Obstacle):
                 layer = 1
@@ -57,13 +65,24 @@ class GameWorld(GameScene):
         for obj in self.camera_group.sprites():
             if obj.active:
                 obj.update(dt)
+        
+        self._resolve_player_obstacle_collisions()
+        self._resolve_player_enemy_collisions()
 
-            if isinstance(obj, DynamicObject):
+        for obj in self.camera_group.sprites():
+            if obj.active and isinstance(obj, DynamicObject):
                 new_layer = 2 + int(round(obj.pos.y))
                 if new_layer != getattr(obj, "render_layer", None):
                     if hasattr(self.all_sprites, "change_layer"):
                         self.all_sprites.change_layer(obj, new_layer)
                     obj.render_layer = new_layer
+
+        hits = pygame.sprite.groupcollide(self.enemies_group, self.shots_group, False, True)
+        for enemy, shots in hits.items():
+            for shot in shots:
+                enemy.health.take_damage(shot.damage)
+
+        obstacle_hits = pygame.sprite.groupcollide(self.obstacles, self.shots_group, False, True)
 
     def handle_events(self, events: List[pygame.event.Event]):
         for obj in self.camera_group.sprites():
@@ -85,3 +104,36 @@ class GameWorld(GameScene):
         for obj in self._iterate_objects():
             if obj.active:
                 yield obj
+
+    def _resolve_player_obstacle_collisions(self):
+        if not hasattr(self, "target") or self.target is None:
+            return
+
+        player = self.target
+        if not isinstance(player, GameObject):
+            return
+
+        collisions = pygame.sprite.spritecollide(player, self.obstacles, False)
+        for obstacle in collisions:
+            if player.rect.colliderect(obstacle.rect):
+                if player.prev_rect is not None:
+                    player.rect.topleft = player.prev_rect.topleft
+                    player.pos.x = player.rect.x
+                    player.pos.y = player.rect.y
+                    
+    def _resolve_player_enemy_collisions(self):
+        if not hasattr(self, "target") or self.target is None:
+            return
+        player = self.target
+        if player.rect is None:
+            return
+
+        touching_enemies = pygame.sprite.spritecollide(player, self.enemies_group, False)
+        for enemy in touching_enemies:
+            if hasattr(player, "health"):
+                player.health.take_damage(10.0)
+
+            if hasattr(player, "prev_rect") and player.prev_rect is not None:
+                player.rect.topleft = player.prev_rect.topleft
+                player.pos.x = player.rect.x
+                player.pos.y = player.rect.y
