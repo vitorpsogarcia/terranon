@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 from typing import List, Tuple
 from core.game_object import GameObject, StaticObject, DynamicObject
 from entities.obstacle import Obstacle
+from entities.projectiles.projectile import Projectile
 
 class GameScene(ABC):
     @abstractmethod
@@ -23,8 +24,12 @@ class GameWorld(GameScene):
         self.all_sprites = CameraGroup()
         self.camera_group = self.all_sprites
         self.screen_size = screen_size
+        
         self.obstacles = pygame.sprite.Group()
         self.dynamic_group = pygame.sprite.Group()
+        self.player_group = pygame.sprite.GroupSingle()
+        self.friend_projectiles_group = pygame.sprite.Group()
+        self.enemy_projectiles_group = pygame.sprite.Group()
 
 
     def set_target(self, target: GameObject):
@@ -32,9 +37,16 @@ class GameWorld(GameScene):
         if not hasattr(self.all_sprites, 'set_target'):
             raise AttributeError("CameraGroup deve possuir um método 'set_target'.")
         self.all_sprites.set_target(target)
+        self.player_group.add(target)
 
     def add_object(self, obj: GameObject):
 
+        if isinstance(obj, Projectile):
+            if obj.friendly:
+                self.friend_projectiles_group.add(obj)
+            else:
+                self.enemy_projectiles_group.add(obj)
+        
         if isinstance(obj, DynamicObject):
             layer = 2 + int(round(obj.pos.y))
             self.dynamic_group.add(obj)
@@ -57,6 +69,10 @@ class GameWorld(GameScene):
         for obj in self.camera_group.sprites():
             if obj.active:
                 obj.update(dt)
+
+            # Check if the object was killed during its update
+            if not obj.alive():
+                continue
 
             if isinstance(obj, DynamicObject):
                 new_layer = 2 + int(round(obj.pos.y))
