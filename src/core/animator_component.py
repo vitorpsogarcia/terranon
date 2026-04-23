@@ -10,6 +10,7 @@ class AnimatorComponent:
         self.current: Optional[str] = None
         self._frame_index: int = 0
         self._time_acc: float = 0.0
+        self._angle = 0
 
     def add_animation(self, state_name: str, frames_list: List[pygame.Surface], frame_duration: float):
         if not frames_list:
@@ -53,6 +54,8 @@ class AnimatorComponent:
         self._apply_frame()
 
     def _apply_frame(self):
+        if self.current is None:
+            return
         anim = self.animations.get(self.current)
         if not anim:
             return
@@ -61,8 +64,15 @@ class AnimatorComponent:
         prev_rect = getattr(self.owner, "rect", None)
         prev_center = prev_rect.center if prev_rect else None
 
+        frame = pygame.transform.rotate(frame, self._angle)
+
         self.owner.image = frame
         if prev_center:
             self.owner.rect = self.owner.image.get_rect(center=prev_center)
         else:
             self.owner.rect = self.owner.image.get_rect()
+    
+    def set_angle(self, angle: float):
+        self._angle = angle
+        if self.current is not None:
+            self._apply_frame()
