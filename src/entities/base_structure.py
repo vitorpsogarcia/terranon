@@ -9,7 +9,7 @@ class BaseStructure(StaticObject):
 
         self.image = pygame.Surface((64, 64)).convert_alpha()
         self.image.fill((0, 0, 255))
-        self.rect = self.image.get_rect(center=(round(x), round(y)))
+        self.rect = self.image.get_rect(topleft=(round(x), round(y)))
 
         self.health = HealthComponent(
             max_hp=500.0, on_death_callback=self.on_death)
