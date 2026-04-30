@@ -23,14 +23,14 @@ class CameraGroup(pygame.sprite.LayeredUpdates):
                 offset_pos = sprite.rect.topleft - self.offset
                 surface.blit(sprite.image, offset_pos)
                 
-                # Renderiza o colisor (hitbox) em amarelo para visualização/debug
-                if hasattr(sprite, 'hitbox'):
-                    hitbox_rect = sprite.hitbox.copy()
-                    hitbox_rect.topleft -= self.offset
-                    pygame.draw.rect(surface, (255, 255, 0), hitbox_rect, 2)
+                # # Renderiza o colisor (hitbox) em amarelo para visualização/debug
+                # if hasattr(sprite, 'hitbox'):
+                #     hitbox_rect = sprite.hitbox.copy()
+                #     hitbox_rect.topleft -= self.offset
+                #     pygame.draw.rect(surface, (255, 255, 0), hitbox_rect, 2)
                     
-                # Renderiza o colisor de pés (feet_hitbox) em azul claro para visualização/debug
-                if hasattr(sprite, 'feet_hitbox'):
-                    feet_rect = sprite.feet_hitbox.copy()
-                    feet_rect.topleft -= self.offset
-                    pygame.draw.rect(surface, (0, 255, 255), feet_rect, 2)
+                # # Renderiza o colisor de pés (feet_hitbox) em azul claro para visualização/debug
+                # if hasattr(sprite, 'feet_hitbox'):
+                #     feet_rect = sprite.feet_hitbox.copy()
+                #     feet_rect.topleft -= self.offset
+                #     pygame.draw.rect(surface, (0, 255, 255), feet_rect, 2)
