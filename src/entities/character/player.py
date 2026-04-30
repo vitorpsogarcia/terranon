@@ -17,6 +17,9 @@ class Player(Character):
         self._time_between_shots = 0.3
         self._shot_timer = 0.0
 
+        self.hitbox = pygame.Rect(axle_x, axle_y, 30, 60)
+        self.feet_hitbox = pygame.Rect(axle_x, axle_y, 30, 20)
+
         self._setup_animations()
         self.animator.play(f"idle_{self._last_direction.text}")
         self.animator.update(0.0)
@@ -135,14 +138,17 @@ class Player(Character):
 
         super().update(dt)
         
-        if self.rect is not None:
-            self.rect = pygame.Rect(round(self.pos.x), round(self.pos.y), self.frame_width, self.frame_height)
+        self.hitbox.center = (round(self.pos.x), round(self.pos.y))
+        self.feet_hitbox.midbottom = self.hitbox.midbottom
 
         state = "idle"
         if self.direction.x != 0 or self.direction.y != 0:
             state = "running" if self._is_running else "walking"
 
         self.animator.play(f"{state}_{self._last_direction.text}")
+        
+        if self.rect is not None:
+            self.rect.center = self.hitbox.center
 
         if self._shooting and self._shot_timer >= self._time_between_shots:
             self.shoot()

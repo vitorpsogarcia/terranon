@@ -142,28 +142,41 @@ class GameWorld(GameScene):
         if not isinstance(player, GameObject):
             return
 
-        collisions = pygame.sprite.spritecollide(player, self.obstacles, False)
-        for obstacle in collisions:
-            if isinstance(player, Player) and player.rect is not None and player.rect.colliderect(obstacle.rect):
-                if player.prev_rect is not None:
-                    player.rect.topleft = player.prev_rect.topleft
-                    player.pos.x = player.rect.x
-                    player.pos.y = player.rect.y
+        def collide_hitbox(p, o):
+            p_rect = p.feet_hitbox if hasattr(p, "feet_hitbox") else (p.hitbox if hasattr(p, "hitbox") else p.rect)
+            return p_rect.colliderect(o.rect)
+
+        collisions = pygame.sprite.spritecollide(player, self.obstacles, False, collided=collide_hitbox)
+        if collisions:
+            if hasattr(player, "prev_pos"):
+                player.pos.x = player.prev_pos.x
+                player.pos.y = player.prev_pos.y
+                if hasattr(player, "hitbox"):
+                    player.hitbox.center = (round(player.pos.x), round(player.pos.y))
+                if hasattr(player, "feet_hitbox"):
+                    player.feet_hitbox.midbottom = player.hitbox.midbottom
                     
     def _resolve_player_enemy_collisions(self):
         if not hasattr(self, "target") or self.target is None:
             return
         player = self.target
-        if player.rect is None:
+        if player.rect is None or not isinstance(player, Player):
             return
 
-        touching_enemies = pygame.sprite.spritecollide(player, self.enemies_group, False)
+        def collide_hitbox(p, e):
+            p_rect = p.hitbox if hasattr(p, "hitbox") else p.rect
+            e_rect = e.hitbox if hasattr(e, "hitbox") else e.rect
+            return p_rect.colliderect(e_rect)
+
+        touching_enemies = pygame.sprite.spritecollide(player, self.enemies_group, False, collided=collide_hitbox)
         for enemy in touching_enemies:
             if isinstance(player, Player):
                 player.health.take_damage(10.0)
             
-
-                if player.prev_rect is not None:
-                    player.rect.topleft = player.prev_rect.topleft
-                    player.pos.x = player.rect.x
-                    player.pos.y = player.rect.y
+                if hasattr(player, "prev_pos"):
+                    player.pos.x = player.prev_pos.x
+                    player.pos.y = player.prev_pos.y
+                    if hasattr(player, "hitbox"):
+                        player.hitbox.center = (round(player.pos.x), round(player.pos.y))
+                    if hasattr(player, "feet_hitbox"):
+                        player.feet_hitbox.midbottom = player.hitbox.midbottom
