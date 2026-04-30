@@ -2,7 +2,6 @@ import pygame
 from core.enums.directions_enum import DirectionsEnum
 from core.enums.projectile.projectile_types_enum import ProjectileTypesEnum
 from core.enums.projectile.projectile_variant_enum import ProjectileVariantEnum
-from core.factories.projectile_factory import ProjectileFactory
 from core.settings.settings import ASSETS_FOLDER, PLAYER_KEYS, SCALE_PLAYER, PLAYER_BASE_SPEED
 from entities.character.characters import Character
 from utils.image import load_image
@@ -93,6 +92,7 @@ class Player(Character):
     
 
     def shoot(self):
+        from core.factories.projectile_factory import ProjectileFactory
         proj_fact = ProjectileFactory.get_instance()
         mouse_pos = pygame.math.Vector2(pygame.mouse.get_pos())
         
