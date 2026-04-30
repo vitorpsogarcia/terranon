@@ -8,7 +8,6 @@ from core.asset_manager import AssetManager
 from core.enums.projectile.projectile_types_enum import ProjectileTypesEnum
 from core.enums.projectile.projectile_variant_enum import ProjectileVariantEnum
 from core.game_object import DynamicObject
-from utils.rotation import get_rotation_by_vector
 
 
 class Projectile(DynamicObject):
@@ -23,13 +22,18 @@ class Projectile(DynamicObject):
         self._type = type
         self._variant = variant
         self._name = f"projectile.{self._type.value}.{self._variant.variant_name}"
+        
+        self.rect = pygame.Rect(0, 0, 4, 4)
+        self.rect.center = (round(position.x), round(position.y))
 
         self._setup_animations()
 
         self.animator.play(self._name)
         self.animator.update(0.0)
-        # BUG: A rotação do projétil não está sendo aplicada corretamente. 
-        self.animator.set_angle(-self.direction.angle)
+        
+        import math
+        angle_deg = math.degrees(math.atan2(-self.direction.y, self.direction.x))
+        self.animator.set_angle(angle_deg)
     
     
     def _setup_animations(self):
@@ -55,7 +59,7 @@ class Projectile(DynamicObject):
         
         self.pos += self.direction * self.speed * dt
         if self.rect:
-            self.rect.topleft = (round(self.pos.x), round(self.pos.y))
+            self.rect.center = (round(self.pos.x), round(self.pos.y))
 
         super().update(dt)
         self.animator.update(dt)

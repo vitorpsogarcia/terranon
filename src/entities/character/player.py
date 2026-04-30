@@ -92,8 +92,16 @@ class Player(Character):
         mouse_pos = pygame.math.Vector2(pygame.mouse.get_pos())
         
         if self.rect is not None:
+            # Obtém o deslocamento da câmera para converter a posição da tela para posição do mundo
+            camera_offset = pygame.math.Vector2(0, 0)
+            for group in self.groups():
+                if hasattr(group, 'offset'):
+                    camera_offset = group.offset
+                    break
+            
             start_pos = pygame.math.Vector2(self.rect.center)
-            direction = mouse_pos - start_pos
+            world_mouse_pos = mouse_pos + camera_offset
+            direction = world_mouse_pos - start_pos
 
             if direction.length() > 0:
                 direction = direction.normalize()
