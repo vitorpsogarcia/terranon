@@ -14,6 +14,9 @@ class Player(Character):
         self._last_direction = DirectionsEnum.SOUTH
         self._is_running = False
         self.render_layer = 1
+        self._shooting = False
+        self._time_between_shots = 0.3
+        self._shot_timer = 0.0
 
         self._setup_animations()
         self.animator.play(f"idle_{self._last_direction.text}")
@@ -31,7 +34,9 @@ class Player(Character):
 
     def process_event(self, event: pygame.event.Event):
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            self.shoot()
+            self._shooting = True
+        elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+            self._shooting = False
 
 
     def _setup_animations(self):
@@ -120,11 +125,16 @@ class Player(Character):
 
     def update(self, dt: float):
         self.handle_input()
+        self._shot_timer += dt
 
         state = "idle"
         if self.direction.x != 0 or self.direction.y != 0:
             state = "running" if self._is_running else "walking"
 
         self.animator.play(f"{state}_{self._last_direction.text}")
+
+        if self._shooting and self._shot_timer >= self._time_between_shots:
+            self.shoot()
+            self._shot_timer = 0.0
         
         super().update(dt)
