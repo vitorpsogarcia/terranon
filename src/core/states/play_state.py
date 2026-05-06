@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 import pygame
 
 from core.enums.game_state_enum import GameStateEnum
+from core.factories.factories_loader import FactoriesLoader
 from core.game_world import GameWorld
 from core.states.base_state import BaseState
 from entities.base_structure import BaseStructure
@@ -27,6 +28,8 @@ class PlayState(BaseState):
             return
 
         self.world = GameWorld(self.screen_size)
+
+        FactoriesLoader(self.world)
         
         player = Player(0, 0)
         w_player, h_player = player.frame_width, player.frame_height
@@ -68,6 +71,7 @@ class PlayState(BaseState):
         if self.world is not None:
             self.world.update(delta_time)
 
+
     def handle_events(self, events: list[pygame.event.Event]):
         for event in events:
             if event.type == pygame.KEYDOWN:
@@ -85,3 +89,5 @@ class PlayState(BaseState):
     def draw(self, surface):
         if self.world is not None:
             self.world.draw(surface)
+    
+

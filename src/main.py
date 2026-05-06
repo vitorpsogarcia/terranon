@@ -21,7 +21,7 @@ def main():
     menu_state = MenuState(state_manager, (SCREEN_WIDTH, SCREEN_HEIGHT))
     inventory_state = InventoryState(state_manager, (SCREEN_WIDTH, SCREEN_HEIGHT))
     game_over_state = GameOverState(state_manager, (SCREEN_WIDTH, SCREEN_HEIGHT))
-    
+
     inventory_state.set_play_state(play_state)
     
     state_manager.register_state(GameStateEnum.MENU, menu_state)

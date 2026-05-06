@@ -1,3 +1,5 @@
+from typing import Dict, TypedDict
+
 import pygame
 
 from core.exceptions.asset_not_found_exception import AssetNotFoundException
@@ -5,9 +7,14 @@ from utils.image import load_image
 
 from core.settings.settings import ASSETS_FOLDER
 
+class AssetsDict(TypedDict):
+    images: Dict[str, pygame.Surface]
+    fonts: Dict[str, pygame.font.Font]
+    sounds: Dict[str, pygame.mixer.Sound]
+
 class AssetManager:
     _instance = None
-    _assets = {
+    _assets: AssetsDict = {
         "images": {},
         "fonts": {},
         "sounds": {}
@@ -19,11 +26,12 @@ class AssetManager:
         return cls._instance
 
     @classmethod
-    def load_image(cls, name: str, path: str, **kwargs):
+    def load_image(cls, name: str, path: str, size: tuple[int, int] | None = None, scale: float | None = None, **kwargs):
         if name not in cls._assets["images"]:
             try:
-                image = load_image(ASSETS_FOLDER / "images" / path, **kwargs)
+                image = load_image(ASSETS_FOLDER / "images" / path, size=size, scale=scale, **kwargs)
                 cls._assets["images"][name] = image
+                return image
             except (pygame.error, FileNotFoundError):
                 raise AssetNotFoundException(name)
         return cls._assets["images"].get(name)
