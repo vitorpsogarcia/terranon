@@ -17,6 +17,7 @@ class Factory:
     @classmethod
     def initialize(cls, world: GameWorld):
         if getattr(cls, "_instance", None) is not None:
+            cls._instance.world = world
             return cls._instance
         cls._instance = cls(world)
     
