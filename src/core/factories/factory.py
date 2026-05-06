@@ -17,5 +17,9 @@ class Factory:
     @classmethod
     def initialize(cls, world: GameWorld):
         if getattr(cls, "_instance", None) is not None:
-            raise ValueError(f"{cls.__name__} has already been initialized.")
+            return cls._instance
         cls._instance = cls(world)
+    
+    @classmethod
+    def reset(cls):
+        cls._instance = None

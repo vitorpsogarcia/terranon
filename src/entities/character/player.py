@@ -1,7 +1,9 @@
 import pygame
 from core.enums.directions_enum import DirectionsEnum
+from core.enums.game_event_enum import GameEventEnum
 from core.enums.projectile.projectile_types_enum import ProjectileTypesEnum
 from core.enums.projectile.projectile_variant_enum import ProjectileVariantEnum
+from core.event_manager import EventManager
 from core.settings.settings import ASSETS_FOLDER, PLAYER_KEYS, SCALE_PLAYER, PLAYER_BASE_SPEED
 from entities.character.characters import Character
 from utils.image import load_image
@@ -25,6 +27,12 @@ class Player(Character):
         self.animator.update(0.0)
         if self.rect is not None:
             self.rect.topleft = (round(axle_x), round(axle_y))
+    
+    def on_death(self):
+        on_death = super().on_death()
+        EventManager.get_instance().emit(GameEventEnum.GAME_OVER)
+
+        return on_death
     
     @property
     def frame_width(self) -> int:
@@ -95,8 +103,6 @@ class Player(Character):
     
 
     def shoot(self):
-        from core.factories.projectile_factory import ProjectileFactory
-        proj_fact = ProjectileFactory.get_instance()
         mouse_pos = pygame.math.Vector2(pygame.mouse.get_pos())
         
         if self.rect is not None:
@@ -116,7 +122,8 @@ class Player(Character):
             else:
                 direction = pygame.math.Vector2(0, 1) # Fallback caso mouse_pos == start_pos
 
-            proj_fact.create_projectile(
+            EventManager.get_instance().emit(
+                GameEventEnum.SPAWN_PROJECTILE,
                 position=start_pos, 
                 direction=direction, 
                 type=ProjectileTypesEnum.NORMAL, 

@@ -4,5 +4,4 @@ from core.game_world import GameWorld
 
 class FactoriesLoader():
     def __init__(self, world: GameWorld):
-        self.world = world
-        ProjectileFactory.initialize(self.world)
+        ProjectileFactory.initialize(world)

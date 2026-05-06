@@ -1,4 +1,6 @@
 import pygame
+from core.enums.game_event_enum import GameEventEnum
+from core.event_manager import EventManager
 from core.game_object import StaticObject
 from core.health_component import HealthComponent
 
@@ -22,4 +24,5 @@ class BaseStructure(StaticObject):
         self.active = False
         self.kill()
         print("A BASE CAIU! GAME OVER!")
+        EventManager.get_instance().emit(GameEventEnum.GAME_OVER)
         
