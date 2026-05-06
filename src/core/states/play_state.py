@@ -8,6 +8,7 @@ from core.enums.game_state_enum import GameStateEnum
 from core.event_manager import EventManager
 from core.factories.factories_loader import FactoriesLoader
 from core.game_world import GameWorld
+from core.sound_manager import SoundManager
 from core.states.base_state import BaseState
 from entities.base_structure import BaseStructure
 from entities.enemy import Enemy
@@ -29,6 +30,11 @@ class PlayState(BaseState):
     def enter(self):
         if (self.initialized):
             return
+        try:
+            SoundManager.play_background_music("Crashsite-Defense.wav", volume=0.7)
+        except Exception as e:
+            print(f"{e}")
+        
         EventManager.get_instance().subscribe(GameEventEnum.GAME_OVER, self._game_over)
 
         self.world = GameWorld(self.screen_size)
@@ -67,8 +73,9 @@ class PlayState(BaseState):
     
 
     def exit(self):
+        self.initialized = False
+        SoundManager.stop_background_music()
         EventManager.get_instance().unsubscribe(GameEventEnum.GAME_OVER, self._game_over)
-        pass
 
 
     def update(self, delta_time):

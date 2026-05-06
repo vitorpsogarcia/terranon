@@ -1,4 +1,5 @@
 import pygame
+from core.asset_manager import AssetManager
 from core.enums.directions_enum import DirectionsEnum
 from core.enums.game_event_enum import GameEventEnum
 from core.enums.projectile.projectile_types_enum import ProjectileTypesEnum
@@ -130,6 +131,12 @@ class Player(Character):
                 variant=ProjectileVariantEnum.DEFAULT, 
                 friendly=True
             )
+
+            try:
+                shot_sound = AssetManager.get_sound("effects/shoot.wav")
+                shot_sound.play()
+            except Exception as e:
+                print(f"Error playing shoot sound: {e}")
 
 
 

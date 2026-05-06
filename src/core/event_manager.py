@@ -6,12 +6,11 @@ from core.exceptions.event_not_valid_exception import EventNotValidException
 
 class EventManager:
     _instance = None
+    _initialized = False
 
     def __init__(self):
-        if self._instance is not None:
-            raise Exception("This class is a singleton!")
-        self._events_listeners: Dict[GameEventEnum, list] = {}
-
+        if not hasattr(self, '_events_listeners'):
+            self._events_listeners: Dict[GameEventEnum, list] = {}
 
     def __new__(cls, *args, **kwargs):
         if cls._instance is None:
@@ -24,7 +23,7 @@ class EventManager:
 
     @classmethod
     def initialize(cls):
-        if getattr(cls, "_initialized", False):
+        if cls._initialized:
             raise ValueError(f"{cls.__name__} has already been initialized.")
         
         instance = cls()
