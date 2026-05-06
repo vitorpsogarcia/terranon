@@ -1,1 +1,1 @@
-- Fire Pixel Bullet ([itch.io](https://bdragon1727.itch.io/fire-pixel-bullet-16x16)()
+- Fire Pixel Bullet ([itch.io](https://bdragon1727.itch.io/fire-pixel-bullet-16x16))
