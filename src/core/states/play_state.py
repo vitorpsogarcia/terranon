@@ -3,7 +3,9 @@ from typing import TYPE_CHECKING
 
 import pygame
 
+from core.enums.game_event_enum import GameEventEnum
 from core.enums.game_state_enum import GameStateEnum
+from core.event_manager import EventManager
 from core.factories.factories_loader import FactoriesLoader
 from core.game_world import GameWorld
 from core.states.base_state import BaseState
@@ -23,9 +25,11 @@ class PlayState(BaseState):
         self.initialized = False
         self.screen_size = screen_size
 
+
     def enter(self):
         if (self.initialized):
             return
+        EventManager.get_instance().subscribe(GameEventEnum.GAME_OVER, self._game_over)
 
         self.world = GameWorld(self.screen_size)
 
@@ -63,13 +67,21 @@ class PlayState(BaseState):
     
 
     def exit(self):
-        # self.world = None
+        EventManager.get_instance().unsubscribe(GameEventEnum.GAME_OVER, self._game_over)
         pass
 
 
     def update(self, delta_time):
         if self.world is not None:
             self.world.update(delta_time)
+    
+
+    def _change_state(self, new_state: GameStateEnum):
+        self.state_manager.change_to(new_state)
+    
+    def _game_over(self):
+        self.initialized = False
+        self._change_state(GameStateEnum.GAME_OVER)
 
 
     def handle_events(self, events: list[pygame.event.Event]):

@@ -1,6 +1,7 @@
 import pygame
 
 from core.enums.game_state_enum import GameStateEnum
+from core.event_manager import EventManager
 from core.game_manager import GameManager
 from core.settings.settings import SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_NAME
 from core.state_manager import StateManager
@@ -13,6 +14,8 @@ def main():
     pygame.init()
     pygame.display.set_caption(SCREEN_NAME)
     tela = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+
+    EventManager.initialize()
     
     game_manager = GameManager(tela)
     state_manager = StateManager(game_manager)
