@@ -6,7 +6,12 @@ from core.exceptions.event_not_valid_exception import EventNotValidException
 
 class EventManager:
     _instance = None
-    _events_listeners: Dict[GameEventEnum, list] = {}
+
+    def __init__(self):
+        if self._instance is not None:
+            raise Exception("This class is a singleton!")
+        self._events_listeners: Dict[GameEventEnum, list] = {}
+
 
     def __new__(cls, *args, **kwargs):
         if cls._instance is None:
@@ -38,7 +43,8 @@ class EventManager:
 
     def unsubscribe(self, event: GameEventEnum, listener):
         self._validate_event(event)
-        self._events_listeners[event].remove(listener)
+        if listener in self._events_listeners[event]:
+            self._events_listeners[event].remove(listener)
 
     def emit(self, event: GameEventEnum, *args, **kwargs):
         self._validate_event(event)
