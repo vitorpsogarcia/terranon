@@ -25,11 +25,11 @@ class PlayState(BaseState):
         self.initialized = False
         self.screen_size = screen_size
 
-        EventManager.get_instance().subscribe(GameEventEnum.GAME_OVER, self._game_over)
 
     def enter(self):
         if (self.initialized):
             return
+        EventManager.get_instance().subscribe(GameEventEnum.GAME_OVER, self._game_over)
 
         self.world = GameWorld(self.screen_size)
 
@@ -67,7 +67,7 @@ class PlayState(BaseState):
     
 
     def exit(self):
-        # self.world = None
+        EventManager.get_instance().unsubscribe(GameEventEnum.GAME_OVER, self._game_over)
         pass
 
 
