@@ -20,7 +20,7 @@ class DirectionsEnum(Enum):
 
     @staticmethod
     def to_list():
-        return [DirectionsEnum.NORTH, DirectionsEnum.SOUTH, DirectionsEnum.EAST, DirectionsEnum.WEST, DirectionsEnum.NORTH_EAST, DirectionsEnum.NORTH_WEST, DirectionsEnum.SOUTH_EAST, DirectionsEnum.SOUTH_WEST]
+        return list(DirectionsEnum)
 
     @staticmethod
     def get_by_text(text: str):
