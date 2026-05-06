@@ -2,6 +2,7 @@
 from pathlib import Path
 
 import pygame
+from math import degrees, atan2
 from pygame import Vector2
 from core.animator_component import AnimatorComponent
 from core.asset_manager import AssetManager
@@ -31,8 +32,7 @@ class Projectile(DynamicObject):
         self.animator.play(self._name)
         self.animator.update(0.0)
         
-        import math
-        angle_deg = math.degrees(math.atan2(-self.direction.y, self.direction.x))
+        angle_deg = degrees(atan2(-self.direction.y, self.direction.x))
         self.animator.set_angle(angle_deg)
     
     
