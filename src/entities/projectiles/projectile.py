@@ -37,7 +37,7 @@ class Projectile(DynamicObject):
     
     
     def _setup_animations(self):
-        projectile_path = "projectile" / Path(self._type.value) / self._variant.variant_name
+        projectile_path = Path("projectile") / self._type.value / self._variant.variant_name
 
         frames: list[pygame.Surface] = []
         for i in range(self._variant.frames):
