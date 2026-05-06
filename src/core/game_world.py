@@ -103,15 +103,11 @@ class GameWorld(GameScene):
         enemy_obstacle_hits = pygame.sprite.groupcollide(self.obstacles, self.enemy_projectiles_group, False, True)
         friend_obstacle_hits = pygame.sprite.groupcollide(self.obstacles, self.friend_projectiles_group, False, True)
 
-        for obstacle, shots in enemy_obstacle_hits.items():
-            for shot in shots:
-                if hasattr(obstacle, "health"):
-                    obstacle.health.take_damage(shot.damage)
-        
-        for obstacle, shots in friend_obstacle_hits.items():
-            for shot in shots:
-                if hasattr(obstacle, "health"):
-                    obstacle.health.take_damage(shot.damage)
+        for hits_dict in [enemy_obstacle_hits, friend_obstacle_hits]:
+            for obstacle, shots in hits_dict.items():
+                for shot in shots:
+                    if hasattr(obstacle, "health"):
+                        obstacle.health.take_damage(shot.damage)
 
     def handle_events(self, events: List[pygame.event.Event]):
         for obj in self.camera_group.sprites():
