@@ -1,3 +1,4 @@
+import logging
 import random
 from typing import TYPE_CHECKING
 
@@ -8,6 +9,7 @@ from core.enums.game_state_enum import GameStateEnum
 from core.event_manager import EventManager
 from core.factories.factories_loader import FactoriesLoader
 from core.game_world import GameWorld
+from core.sound_manager import SoundManager
 from core.states.base_state import BaseState
 from entities.base_structure import BaseStructure
 from entities.enemy import Enemy
@@ -30,6 +32,11 @@ class PlayState(BaseState):
     def enter(self):
         if (self.initialized):
             return
+        try:
+            SoundManager.play_background_music("Crashsite-Defense.wav", volume=0.7)
+        except Exception as e:
+            logging.error(f"{e}")
+        
         EventManager.get_instance().subscribe(GameEventEnum.GAME_OVER, self._game_over)
         EventManager.get_instance().subscribe(
             GameEventEnum.ENEMY_SPAWNED, self._on_enemy_spawned)
@@ -94,8 +101,9 @@ class PlayState(BaseState):
         self.initialized = True
     
     def exit(self):
-        EventManager.get_instance().unsubscribe(
-            GameEventEnum.GAME_OVER, self._game_over)
+        self.initialized = False
+        SoundManager.stop_background_music()
+        EventManager.get_instance().unsubscribe(GameEventEnum.GAME_OVER, self._game_over)
         EventManager.get_instance().unsubscribe(
             GameEventEnum.ENEMY_SPAWNED, self._on_enemy_spawned)
 
