@@ -1,3 +1,4 @@
+import logging
 import random
 from typing import TYPE_CHECKING
 
@@ -33,7 +34,7 @@ class PlayState(BaseState):
         try:
             SoundManager.play_background_music("Crashsite-Defense.wav", volume=0.7)
         except Exception as e:
-            print(f"{e}")
+            logging.error(f"{e}")
         
         EventManager.get_instance().subscribe(GameEventEnum.GAME_OVER, self._game_over)
 
