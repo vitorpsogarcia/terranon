@@ -8,6 +8,7 @@ class GameEventEnum(Enum):
     GAME_OVER = "GAME_OVER"
     WAVE_STARTED = "WAVE_STARTED"
     WAVE_ENDED = "WAVE_ENDED"
+    ENEMY_SPAWNED = "ENEMY_SPAWNED"
 
     def __str__(self):
         return self.value

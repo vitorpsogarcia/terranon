@@ -11,6 +11,7 @@ from core.game_world import GameWorld
 from core.states.base_state import BaseState
 from entities.base_structure import BaseStructure
 from entities.enemy import Enemy
+from entities.enemy_spawner import EnemySpawner
 
 if TYPE_CHECKING:
     from core.state_manager import StateManager
@@ -30,6 +31,8 @@ class PlayState(BaseState):
         if (self.initialized):
             return
         EventManager.get_instance().subscribe(GameEventEnum.GAME_OVER, self._game_over)
+        EventManager.get_instance().subscribe(
+            GameEventEnum.ENEMY_SPAWNED, self._on_enemy_spawned)
 
         self.world = GameWorld(self.screen_size)
 
@@ -48,14 +51,6 @@ class PlayState(BaseState):
         self.base = BaseStructure(500, 300)
         self.world.add_object(self.base)
 
-        inimigo1 = Enemy(100, -200, target=self.base)
-        inimigo2 = Enemy(900, 800, target=self.base)
-        inimigo3 = Enemy(-300, 500, target=self.base)
-
-        self.world.add_object(inimigo1)
-        self.world.add_object(inimigo2)
-        self.world.add_object(inimigo3)
-
         for _ in range(50):
             random_x = random.randint(-1000, 2000)
             random_y = random.randint(-1000, 2000)
@@ -63,12 +58,46 @@ class PlayState(BaseState):
             obs = Obstacle(random_x, random_y)
             self.world.add_object(obs)
         
+        
+        rota_norte = [
+            pygame.math.Vector2(500, -100), 
+            pygame.math.Vector2(800, 50),
+            pygame.math.Vector2(200, 200),
+            pygame.math.Vector2(532, 336)
+            ]
+        rota_sul   = [
+            pygame.math.Vector2(500, 800), 
+            
+            pygame.math.Vector2(532, 336)
+            ]
+        rota_leste = [
+            pygame.math.Vector2(1100, 300),
+            
+            pygame.math.Vector2(532, 336)
+            ]
+        rota_oeste = [
+            pygame.math.Vector2(-100, 300), 
+            pygame.math.Vector2(-890, 452), 
+            pygame.math.Vector2(532, 336)
+            ]
+        
+        spawner_norte = EnemySpawner(500, -100, rota_norte, spawn_interval=10.0)
+        spawner_sul = EnemySpawner(500, 800,  rota_sul, spawn_interval=5.0)
+        spawner_leste = EnemySpawner(1100, 300, rota_leste, spawn_interval=8.0)
+        spawner_oeste = EnemySpawner(-100, 300, rota_oeste, spawn_interval=3.0)
+
+        self.world.add_object(spawner_norte)
+        self.world.add_object(spawner_sul)
+        self.world.add_object(spawner_leste)
+        self.world.add_object(spawner_oeste)
+        
         self.initialized = True
     
-
     def exit(self):
-        EventManager.get_instance().unsubscribe(GameEventEnum.GAME_OVER, self._game_over)
-        pass
+        EventManager.get_instance().unsubscribe(
+            GameEventEnum.GAME_OVER, self._game_over)
+        EventManager.get_instance().unsubscribe(
+            GameEventEnum.ENEMY_SPAWNED, self._on_enemy_spawned)
 
 
     def update(self, delta_time):
@@ -101,5 +130,10 @@ class PlayState(BaseState):
     def draw(self, surface):
         if self.world is not None:
             self.world.draw(surface)
+
+    def _on_enemy_spawned(self, enemy):
+        """Callback acionado quando um ninho cria um inimigo."""
+        if self.world:
+            self.world.add_object(enemy)
     
 
