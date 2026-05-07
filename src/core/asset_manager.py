@@ -19,6 +19,7 @@ class AssetManager:
         "fonts": {},
         "sounds": {}
     }
+    _sound_cache = {}
 
     def __new__(cls):
         if cls._instance is None:
@@ -61,3 +62,13 @@ class AssetManager:
         if font is None:
             raise AssetNotFoundException(name, message="Font not loaded")
         return font
+    
+    @classmethod
+    def get_sound(cls, path: str) -> pygame.mixer.Sound:
+        if path not in cls._sound_cache:
+            try:
+                sound = pygame.mixer.Sound(ASSETS_FOLDER / "sounds" / path)
+                cls._sound_cache[path] = sound
+            except (pygame.error, FileNotFoundError):
+                raise AssetNotFoundException(path)
+        return cls._sound_cache.get(path)
