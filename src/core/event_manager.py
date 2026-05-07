@@ -15,7 +15,11 @@ class EventManager:
     def __new__(cls, *args, **kwargs):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
+            cls._instance._events_listeners: Dict[GameEventEnum, list] = {}
         return cls._instance
+
+    def __init__(self):
+        pass
 
     @classmethod
     def get_instance(cls):
@@ -26,7 +30,7 @@ class EventManager:
         if cls._initialized:
             raise ValueError(f"{cls.__name__} has already been initialized.")
         
-        instance = cls()
+        instance = cls.get_instance()
         for event in GameEventEnum:
             instance._events_listeners[event] = []
             
