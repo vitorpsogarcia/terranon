@@ -4,7 +4,6 @@ from core.exceptions.asset_not_found_exception import AssetNotFoundException
 from core.settings.settings import ASSETS_FOLDER
 
 class SoundManager:
-    _instance = None
 
     @classmethod
     def play_background_music(cls, path: str, volume: float, loops: int = -1):

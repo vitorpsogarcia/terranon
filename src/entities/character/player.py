@@ -28,6 +28,8 @@ class Player(Character):
         self.animator.update(0.0)
         if self.rect is not None:
             self.rect.topleft = (round(axle_x), round(axle_y))
+
+        self._shot_sound = AssetManager.get_sound("effects/shoot.wav")
     
     def on_death(self):
         on_death = super().on_death()
@@ -133,8 +135,7 @@ class Player(Character):
             )
 
             try:
-                shot_sound = AssetManager.get_sound("effects/shoot.wav")
-                shot_sound.play()
+                self._shot_sound.play()
             except Exception as e:
                 print(f"Error playing shoot sound: {e}")
 
