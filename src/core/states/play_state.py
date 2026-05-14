@@ -34,7 +34,7 @@ class PlayState(BaseState):
         if (self.initialized):
             return
         try:
-            SoundManager.play_background_music("Crashsite-Defense.wav", volume=0.7)
+            SoundManager().play_music("Crashsite-Defense.wav")
         except Exception as e:
             logging.error(f"{e}")
         
