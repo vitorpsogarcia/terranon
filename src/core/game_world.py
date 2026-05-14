@@ -7,6 +7,7 @@ from entities.enemy import Enemy
 from entities.obstacle import Obstacle
 from entities.projectiles.projectile import Projectile
 from entities.character.player import Player
+from entities.enemy_spawner import EnemySpawner
 
 
 
@@ -28,13 +29,13 @@ class GameWorld(GameScene):
         self.all_sprites = CameraGroup()
         self.camera_group = self.all_sprites
         self.screen_size = screen_size
-        
         self.obstacles = pygame.sprite.Group()
         self.dynamic_group = pygame.sprite.Group()
         self.player_group = pygame.sprite.GroupSingle()
         self.friend_projectiles_group = pygame.sprite.Group()
         self.enemy_projectiles_group = pygame.sprite.Group()
         self.enemies_group = pygame.sprite.Group()
+        self.spawners: dict[str, EnemySpawner] = {}
 
 
     def set_target(self, target: GameObject):
@@ -59,6 +60,12 @@ class GameWorld(GameScene):
 
         if isinstance(obj, Enemy):
                 self.enemies_group.add(obj)
+                
+        if isinstance(obj, EnemySpawner):
+            if obj.spawner_id in self.spawners:
+                raise ValueError(f"Spawner ID já existe: {obj.spawner_id}")
+            
+            self.spawners[obj.spawner_id] = obj
 
         elif isinstance(obj, StaticObject):
             if isinstance(obj, Obstacle):
@@ -80,7 +87,6 @@ class GameWorld(GameScene):
             if obj.active:
                 obj.update(dt)
         
-            # Check if the object was killed during its update
             if not obj.alive():
                 continue
 

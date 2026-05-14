@@ -14,6 +14,7 @@ from core.states.base_state import BaseState
 from entities.base_structure import BaseStructure
 from entities.enemy import Enemy
 from entities.enemy_spawner import EnemySpawner
+from core.enums.enemy_spawner_enum import EnemySpawnerEnum
 
 if TYPE_CHECKING:
     from core.state_manager import StateManager
@@ -45,7 +46,7 @@ class PlayState(BaseState):
 
         FactoriesLoader(self.world)
         
-        player = Player(0, 0)
+        player = Player(415, 478)
         w_player, h_player = player.frame_width, player.frame_height
         
         player.pos = pygame.math.Vector2(self.screen_size[0] // 2 - w_player // 2, self.screen_size[1] // 2 - h_player // 2)
@@ -67,31 +68,30 @@ class PlayState(BaseState):
         
         
         rota_norte = [
-            pygame.math.Vector2(500, -100), 
-            pygame.math.Vector2(800, 50),
-            pygame.math.Vector2(200, 200),
+            pygame.math.Vector2(762, -224), 
+            pygame.math.Vector2(762, 119),
             pygame.math.Vector2(532, 336)
             ]
         rota_sul   = [
-            pygame.math.Vector2(500, 800), 
-            
+            pygame.math.Vector2(413, 697), 
+            pygame.math.Vector2(532, 697),
             pygame.math.Vector2(532, 336)
             ]
         rota_leste = [
-            pygame.math.Vector2(1100, 300),
-            
+            pygame.math.Vector2(863, 426),
+            pygame.math.Vector2(863, 334),
             pygame.math.Vector2(532, 336)
             ]
         rota_oeste = [
-            pygame.math.Vector2(-100, 300), 
-            pygame.math.Vector2(-890, 452), 
+            pygame.math.Vector2(-296, -8), 
+            pygame.math.Vector2(-277, -8), 
             pygame.math.Vector2(532, 336)
             ]
         
-        spawner_norte = EnemySpawner(500, -100, rota_norte, spawn_interval=10.0)
-        spawner_sul = EnemySpawner(500, 800,  rota_sul, spawn_interval=5.0)
-        spawner_leste = EnemySpawner(1100, 300, rota_leste, spawn_interval=8.0)
-        spawner_oeste = EnemySpawner(-100, 300, rota_oeste, spawn_interval=3.0)
+        spawner_norte = EnemySpawner(EnemySpawnerEnum.NORTE, 514, -234, rota_norte, spawn_interval=5.0)
+        spawner_sul = EnemySpawner(EnemySpawnerEnum.SUL, 413, 927,  rota_sul, spawn_interval=5.0)
+        spawner_leste = EnemySpawner(EnemySpawnerEnum.LESTE, 1114, 426, rota_leste, spawn_interval=5.0)
+        spawner_oeste = EnemySpawner(EnemySpawnerEnum.OESTE, -296, 286, rota_oeste, spawn_interval=5.0)
 
         self.world.add_object(spawner_norte)
         self.world.add_object(spawner_sul)
