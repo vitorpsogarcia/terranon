@@ -14,11 +14,11 @@ class SoundManager:
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super(SoundManager, cls).__new__(cls)
-            cls._instance._inicialized = False
+            cls._instance._initialized = False
         return cls._instance
 
     def __init__(self):
-        if self._inicialized:
+        if self._initialized:
             return
         pygame.mixer.init()
 
@@ -29,7 +29,7 @@ class SoundManager:
         }
 
         self._sfx_counts: Dict [str, int] = {}
-        self._inicialized = True
+        self._initialized = True
 
     def play_music(self, filename: str, loops: int = -1, fade_ms: int = 1000):
         try:
@@ -38,13 +38,10 @@ class SoundManager:
             pygame.mixer.music.set_volume(self.volumes["music"] * self.volumes["master"])
             pygame.mixer.music.play(loops=loops, fade_ms=fade_ms)
         except Exception as e:
-            raise AssetNotFoundException(f"Musica '{filename}' não foi encontrada no caminho {music_path}.") from e
+            raise AssetNotFoundException(f"Musica '{filename}' não foi encontrada.") from e
         
     def play_sfx(self, filename: str):
         sound = AssetManager.get_sound(filename)
-
-        if not sound:
-            raise AssetNotFoundException(f"Som '{filename}' não foi encontrado no caminho {sound}.")
 
         if filename not in self._sfx_counts:
             self._sfx_counts[filename] = 0
@@ -52,16 +49,17 @@ class SoundManager:
         if self._sfx_counts[filename] < 3:
             sound.set_volume(self.volumes["sfx"] * self.volumes["master"])
             self._sfx_counts[filename] += 1
+        elif self._sfx_counts[filename] >= 3:
+            self._sfx_counts[filename] = 0
         else:
-            sound.set_volume(self.volumes["sfx"] * self.volumes["master"] * 0.5)
+            return
         
         channel = sound.play()
         if channel:
-            channel.set_endevent(pygame.USEREVENT)
+            channel.set_endevent(pygame.event.custom_type())
 
     def stop_music(self, fade_ms: int = 500):
         pygame.mixer.music.fadeout(fade_ms)
-        pygame.mixer.music.stop()
 
     def set_volume(self, category: str, volume: float):
         if category in self.volumes:
