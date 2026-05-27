@@ -3,6 +3,8 @@ from ast import Dict
 import pygame
 
 from core.asset_manager import AssetManager
+from core.enums.game_event_enum import GameEventEnum
+from core.event_manager import EventManager
 from core.exceptions.asset_not_found_exception import AssetNotFoundException
 from core.settings.settings import ASSETS_FOLDER
 from typing import Dict
@@ -30,6 +32,15 @@ class SoundManager:
 
         self._sfx_counts: Dict [str, int] = {}
         self._initialized = True
+
+        EventManager.get_instance().subscribe(GameEventEnum.PLAY_SFX, self._on_play_sfx)
+        EventManager.get_instance().subscribe(GameEventEnum.PLAY_MUSIC, self._on_play_music)
+
+    def _on_play_sfx(self, filename: str):
+        self.play_sfx(filename)
+
+    def _on_play_music(self, filename: str, loops: int = -1, fade_ms: int = 1000):
+        self.play_music(filename, loops, fade_ms)
 
     def play_music(self, filename: str, loops: int = -1, fade_ms: int = 1000):
         try:

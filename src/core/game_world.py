@@ -2,6 +2,8 @@ import pygame
 from core.camera_group import CameraGroup
 from abc import ABC, abstractmethod
 from typing import List, Tuple
+from core.enums.game_event_enum import GameEventEnum
+from core.event_manager import EventManager
 from core.game_object import GameObject, StaticObject, DynamicObject
 from entities.enemy import Enemy
 from entities.obstacle import Obstacle
@@ -174,6 +176,10 @@ class GameWorld(GameScene):
         for enemy in touching_enemies:
             if isinstance(player, Player):
                 player.health.take_damage(10.0)
+                try:
+                    EventManager.get_instance().emit(GameEventEnum.PLAY_SFX, filename="effects/damage.mp3")
+                except Exception as e:
+                    print(f"Erro ao reproduzir som de hit: {e}")
             
                 if hasattr(player, "prev_pos"):
                     player.pos.x = player.prev_pos.x
