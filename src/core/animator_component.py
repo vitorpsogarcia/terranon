@@ -1,7 +1,5 @@
 from typing import List, Dict, Optional
 import pygame
-from core.enums.game_event_enum import GameEventEnum
-from core.event_manager import EventManager
 
 
 class AnimatorComponent:

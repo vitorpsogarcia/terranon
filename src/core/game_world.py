@@ -5,7 +5,6 @@ from typing import List, Tuple
 from core.enums.game_event_enum import GameEventEnum
 from core.event_manager import EventManager
 from core.game_object import GameObject, StaticObject, DynamicObject
-from core.sound_manager import SoundManager
 from entities.enemy import Enemy
 from entities.obstacle import Obstacle
 from entities.projectiles.projectile import Projectile

@@ -102,7 +102,7 @@ class PlayState(BaseState):
     
     def exit(self):
         self.initialized = False
-        SoundManager.stop_music(self)
+        SoundManager().stop_music()
         EventManager.get_instance().unsubscribe(GameEventEnum.GAME_OVER, self._game_over)
         EventManager.get_instance().unsubscribe(
             GameEventEnum.ENEMY_SPAWNED, self._on_enemy_spawned)

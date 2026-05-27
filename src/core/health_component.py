@@ -1,5 +1,4 @@
 from typing import Callable, Optional
-from core.sound_manager import SoundManager
 
 class HealthComponent:
     def __init__(
