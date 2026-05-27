@@ -2,6 +2,8 @@ import pygame
 from core.game_object import DynamicObject
 from core.animator_component import AnimatorComponent
 from core.health_component import HealthComponent
+from core.enums.game_event_enum import GameEventEnum
+from core.event_manager import EventManager
 
 
 class Character(DynamicObject):
@@ -28,5 +30,6 @@ class Character(DynamicObject):
         super().update(dt)
 
     def on_death(self):
+        EventManager.get_instance().emit(GameEventEnum.PLAY_SFX, "effects/death.mp3")
         self.active = False
         self.kill()

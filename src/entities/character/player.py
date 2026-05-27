@@ -1,12 +1,10 @@
 import pygame
-from core.asset_manager import AssetManager
 from core.enums.directions_enum import DirectionsEnum
 from core.enums.game_event_enum import GameEventEnum
 from core.enums.projectile.projectile_types_enum import ProjectileTypesEnum
 from core.enums.projectile.projectile_variant_enum import ProjectileVariantEnum
 from core.event_manager import EventManager
 from core.settings.settings import ASSETS_FOLDER, PLAYER_KEYS, SCALE_PLAYER, PLAYER_BASE_SPEED
-from core.sound_manager import SoundManager
 from entities.character.characters import Character
 from utils.image import load_image
 
@@ -29,8 +27,6 @@ class Player(Character):
         self.animator.update(0.0)
         if self.rect is not None:
             self.rect.topleft = (round(axle_x), round(axle_y))
-
-        self._shot_sound = AssetManager.get_sound("effects/shoot.wav")
     
     def on_death(self):
         on_death = super().on_death()
@@ -135,10 +131,7 @@ class Player(Character):
                 friendly=True
             )
 
-            try:
-                SoundManager().play_sfx("effects/shoot.wav")
-            except Exception as e:
-                print(f"Error playing shoot sound: {e}")
+            EventManager.get_instance().emit(GameEventEnum.PLAY_SFX, "effects/shoot.wav")
 
 
 

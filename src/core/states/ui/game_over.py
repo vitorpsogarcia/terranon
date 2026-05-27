@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 from core.enums.game_state_enum import GameStateEnum
 from core.states.base_state import BaseState
 from core.settings.colors import Colors
+from core.sound_manager import SoundManager
 
 if TYPE_CHECKING:
     from core.state_manager import StateManager
@@ -17,6 +18,11 @@ class GameOverState(BaseState):
     
     def enter(self):
         print("Game Over State")
+        try:
+            SoundManager().stop_music(fade_ms=500)
+            SoundManager().play_sfx("effects/death.mp3")
+        except Exception as e:
+            print(f"Erro ao reproduzir som de morte: {e}")
     
     def exit(self):
         pass
