@@ -7,11 +7,12 @@ from core.health_component import HealthComponent
 
 class BaseStructure(StaticObject):
     def __init__(self, x: float, y: float):
-        super().__init__(x, y)
+        self.pos = pygame.math.Vector2(x, y)
+        super().__init__(self.pos.x, self.pos.y)
 
         self.image = pygame.Surface((64, 64)).convert_alpha()
         self.image.fill((0, 0, 255))
-        self.rect = self.image.get_rect(topleft=(round(x), round(y)))
+        self.rect = self.image.get_rect(topleft=(round(self.pos.x), round(self.pos.y)))
 
         self.health = HealthComponent(
             max_hp=500.0, on_death_callback=self.on_death)

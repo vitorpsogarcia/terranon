@@ -25,7 +25,7 @@ class GameObject(ABC, pygame.sprite.Sprite):
 
 class StaticObject(GameObject):
     def __init__(self, x: float, y: float, *groups: pygame.sprite.Group):
-        super().__init__(x, y, *groups)
+        super().__init__(self.pos.x, self.pos.y, *groups)
 
     def update(self, dt: float):
         if self.rect:
@@ -33,7 +33,7 @@ class StaticObject(GameObject):
 
 class DynamicObject(GameObject):
     def __init__(self, x: float, y: float, *groups: pygame.sprite.Group):
-        super().__init__(x, y, *groups)
+        super().__init__(self.pos.x, self.pos.y, *groups)
         self.velocity = Vector2(0, 0)
         self.acceleration = Vector2(0, 0)
 

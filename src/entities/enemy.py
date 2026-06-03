@@ -7,7 +7,8 @@ from core.enums.game_event_enum import GameEventEnum
 
 class Enemy(Character):
     def __init__(self, x: float, y: float, path: List[pygame.math.Vector2], speed: float = 50.0, *groups: pygame.sprite.Group):
-        super().__init__(x, y, speed, *groups)
+        self.pos = pygame.math.Vector2(x, y)
+        super().__init__(self.pos.x, self.pos.y, speed, *groups)
 
         self.path = path
         self.current_waypoint_index = 0
@@ -15,7 +16,7 @@ class Enemy(Character):
         if self.image is None:
             self.image = pygame.Surface((20, 48)).convert_alpha()
             self.image.fill((111, 0, 0))
-            self.rect = self.image.get_rect(topleft=(round(x), round(y)))
+            self.rect = self.image.get_rect(topleft=(round(self.pos.x), round(self.pos.y)))
 
     def update(self, dt: float):
         if self.current_waypoint_index < len(self.path):
