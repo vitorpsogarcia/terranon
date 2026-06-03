@@ -58,7 +58,7 @@ class GameWorld(GameScene):
             layer = 2 + int(round(obj.pos.y))
             self.dynamic_group.add(obj)
 
-        if isinstance(obj, Enemy):
+            if isinstance(obj, Enemy):
                 self.enemies_group.add(obj)
                 
         elif isinstance(obj, EnemySpawner):
@@ -66,6 +66,7 @@ class GameWorld(GameScene):
                 raise ValueError(f"Spawner ID já existe: {obj.spawner_id}")
             
             self.spawners[obj.spawner_id] = obj
+            layer = getattr(obj, "render_layer", 0)
 
         elif isinstance(obj, StaticObject):
             if isinstance(obj, Obstacle):
