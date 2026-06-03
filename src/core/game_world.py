@@ -61,7 +61,7 @@ class GameWorld(GameScene):
         if isinstance(obj, Enemy):
                 self.enemies_group.add(obj)
                 
-        if isinstance(obj, EnemySpawner):
+        elif isinstance(obj, EnemySpawner):
             if obj.spawner_id in self.spawners:
                 raise ValueError(f"Spawner ID já existe: {obj.spawner_id}")
             
