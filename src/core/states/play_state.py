@@ -88,10 +88,10 @@ class PlayState(BaseState):
             pygame.math.Vector2(532, 336)
             ]
         
-        spawner_norte = EnemySpawner(EnemySpawnerEnum.NORTE, 514, -234, rota_norte, spawn_interval=5.0)
-        spawner_sul = EnemySpawner(EnemySpawnerEnum.SUL, 413, 927,  rota_sul, spawn_interval=5.0)
-        spawner_leste = EnemySpawner(EnemySpawnerEnum.LESTE, 1114, 426, rota_leste, spawn_interval=5.0)
-        spawner_oeste = EnemySpawner(EnemySpawnerEnum.OESTE, -296, 286, rota_oeste, spawn_interval=5.0)
+        spawner_norte = EnemySpawner(EnemySpawnerEnum.NORTE.value, 514, -234, rota_norte, spawn_interval=5.0)
+        spawner_sul = EnemySpawner(EnemySpawnerEnum.SUL.value, 413, 927,  rota_sul, spawn_interval=5.0)
+        spawner_leste = EnemySpawner(EnemySpawnerEnum.LESTE.value, 1114, 426, rota_leste, spawn_interval=5.0)
+        spawner_oeste = EnemySpawner(EnemySpawnerEnum.OESTE.value, -296, 286, rota_oeste, spawn_interval=5.0)
 
         self.world.add_object(spawner_norte)
         self.world.add_object(spawner_sul)
