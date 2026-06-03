@@ -7,8 +7,7 @@ from core.enums.game_event_enum import GameEventEnum
 
 class EnemySpawner(StaticObject):
     def __init__(self, spawner_id: str, x: float, y: float, path: List[pygame.math.Vector2], spawn_interval: float = 5.0):
-        self.pos = pygame.math.Vector2(x, y)
-        super().__init__(self.pos.x, self.pos.y)
+        super().__init__(x, y)
         self.spawner_id = spawner_id
         self.path = path
         self.spawn_interval = spawn_interval
