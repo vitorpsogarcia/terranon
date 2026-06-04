@@ -14,7 +14,7 @@ class EnemySpawner(StaticObject):
         self.spawn_timer = spawn_interval 
         self.image = pygame.Surface((32, 32)).convert_alpha()
         self.image.fill((100, 0, 100)) 
-        self.rect = self.image.get_rect(center=(round(x), round(y)))
+        self.rect = self.image.get_rect(center=(round(self.pos.x), round(self.pos.y)))
 
     def update(self, dt: float):
         super().update(dt)

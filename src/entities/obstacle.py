@@ -6,4 +6,4 @@ class Obstacle(StaticObject):
         super().__init__(x, y, *groups)
         self.image = pygame.Surface((width, height)).convert_alpha()
         self.image.fill((255, 0, 0))
-        self.rect = self.image.get_rect(topleft=(round(x), round(y)))
+        self.rect = self.image.get_rect(topleft=(round(self.pos.x), round(self.pos.y)))

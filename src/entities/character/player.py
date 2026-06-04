@@ -19,14 +19,14 @@ class Player(Character):
         self._time_between_shots = 0.3
         self._shot_timer = 0.0
 
-        self.hitbox = pygame.Rect(axle_x, axle_y, 30, 60)
-        self.feet_hitbox = pygame.Rect(axle_x, axle_y, 30, 20)
+        self.hitbox = pygame.Rect(self.pos.x, self.pos.y, 30, 60)
+        self.feet_hitbox = pygame.Rect(self.pos.x, self.pos.y, 30, 20)
 
         self._setup_animations()
         self.animator.play(f"idle_{self._last_direction.text}")
         self.animator.update(0.0)
         if self.rect is not None:
-            self.rect.topleft = (round(axle_x), round(axle_y))
+            self.rect.topleft = (round(self.pos.x), round(self.pos.y))
     
     def on_death(self):
         on_death = super().on_death()
