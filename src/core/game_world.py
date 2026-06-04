@@ -86,8 +86,9 @@ class GameWorld(GameScene):
         self.all_sprites.remove(obj._sprite)
 
     def update(self, dt: float):
-        for obj in self.camera_group.sprites():
-            if obj.active:
+        for sprite in self.camera_group.sprites():
+            obj = sprite.owner
+            if obj.active and hasattr(obj, "update"):
                 obj.update(dt)
         
             if not obj.alive():
