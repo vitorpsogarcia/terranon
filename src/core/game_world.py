@@ -45,23 +45,23 @@ class GameWorld(GameScene):
         if not hasattr(self.all_sprites, 'set_target'):
             raise AttributeError("CameraGroup deve possuir um método 'set_target'.")
         self.all_sprites.set_target(target)
-        self.player_group.add(target)
+        self.player_group.add(target._sprite)
 
     def add_object(self, obj: GameObject):
 
         layer = 0
         if isinstance(obj, Projectile):
             if obj.friendly:
-                self.friend_projectiles_group.add(obj)
+                self.friend_projectiles_group.add(obj._sprite)
             else:
-                self.enemy_projectiles_group.add(obj)
+                self.enemy_projectiles_group.add(obj._sprite)
         
         if isinstance(obj, DynamicObject):
             layer = 2 + int(round(obj.pos.y))
-            self.dynamic_group.add(obj)
+            self.dynamic_group.add(obj._sprite)
 
             if isinstance(obj, Enemy):
-                self.enemies_group.add(obj)
+                self.enemies_group.add(obj._sprite)
                 
         elif isinstance(obj, EnemySpawner):
             if obj.spawner_id in self.spawners:
@@ -73,21 +73,22 @@ class GameWorld(GameScene):
         elif isinstance(obj, StaticObject):
             if isinstance(obj, Obstacle):
                 layer = 1
-                self.obstacles.add(obj)
+                self.obstacles.add(obj._sprite)
             else:
                 layer = 0
         else:
             layer = getattr(obj, "render_layer", 0)
 
         obj.render_layer = layer
-        self.all_sprites.add(obj, layer=layer)
+        self.all_sprites.add(obj._sprite, layer=layer)
 
     def remove_object(self, obj: GameObject):
-        self.all_sprites.remove(obj)
+        self.all_sprites.remove(obj._sprite)
 
     def update(self, dt: float):
-        for obj in self.camera_group.sprites():
-            if obj.active:
+        for sprite in self.camera_group.sprites():
+            obj = sprite.owner
+            if obj.active and hasattr(obj, "update"):
                 obj.update(dt)
         
             if not obj.alive():
