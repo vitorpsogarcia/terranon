@@ -2,16 +2,34 @@ from abc import ABC, abstractmethod
 import pygame
 from pygame.math import Vector2
 
+from core.entity_sprite import EntitySprite
 
-class GameObject(ABC, pygame.sprite.Sprite):
+
+class GameObject(ABC):
     render_layer: int = 0
 
     def __init__(self, x: float, y: float, *groups: pygame.sprite.Group):
-        super().__init__(*groups)
+        self._sprite = EntitySprite(self, *groups)
         self.pos = Vector2(x, y)
         self.active = True
         self.image = None
         self.rect = None
+
+    @property
+    def image(self):
+        return self._sprite.image
+    
+    @image.setter
+    def image(self, value):
+        self._sprite.image = value
+
+    @property
+    def rect(self):
+        return self._sprite.rect
+    
+    @rect.setter
+    def rect(self, value):
+        self._sprite.rect = value
 
     @abstractmethod
     def update(self, dt: float):
@@ -21,6 +39,15 @@ class GameObject(ABC, pygame.sprite.Sprite):
     def process_event(self, event: pygame.event.Event):
         """Processamento de eventos específicos (override se necessário)."""
         pass
+
+    def kill(self):
+        """Desativa o objeto e remove seu sprite do grupo."""
+        self.active = False
+        self._sprite.kill()
+
+    def alive(self):
+        """Verifica se o objeto ainda está ativo."""
+        return self._sprite.alive()
 
 
 class StaticObject(GameObject):

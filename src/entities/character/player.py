@@ -108,7 +108,7 @@ class Player(Character):
         if self.rect is not None:
             # Obtém o deslocamento da câmera para converter a posição da tela para posição do mundo
             camera_offset = pygame.math.Vector2(0, 0)
-            for group in self.groups():
+            for group in self._sprite.groups():
                 if hasattr(group, 'offset'):
                     camera_offset = group.offset
                     break

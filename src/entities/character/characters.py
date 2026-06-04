@@ -30,6 +30,5 @@ class Character(DynamicObject):
         super().update(dt)
 
     def on_death(self):
-        EventManager.get_instance().emit(GameEventEnum.PLAY_SFX, "effects/death.mp3")
         self.active = False
         self.kill()
