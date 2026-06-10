@@ -6,8 +6,8 @@ from core.event_manager import EventManager
 from core.enums.game_event_enum import GameEventEnum
 
 class EnemySpawner(StaticObject):
-    def __init__(self, spawner_id: str, x: float, y: float, path: List[pygame.math.Vector2], spawn_interval: float = 5.0):
-        super().__init__(x, y)
+    def __init__(self, spawner_id: str, x: float, y: float, path: List[pygame.math.Vector2], spawn_interval: float = 5.0, *groups: pygame.sprite.Group):
+        super().__init__((x, y), *groups)
         self.spawner_id = spawner_id
         self.path = path
         self.spawn_interval = spawn_interval

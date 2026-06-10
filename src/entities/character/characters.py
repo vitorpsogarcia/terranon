@@ -7,8 +7,8 @@ from core.event_manager import EventManager
 
 
 class Character(DynamicObject):
-    def __init__(self, x: float, y: float, speed: float = 100.0, *groups: pygame.sprite.Group):
-        super().__init__(x, y, *groups)
+    def __init__(self, initial_position: tuple[float, float], speed: float = 100.0, *groups: pygame.sprite.Group):
+        super().__init__(initial_position, *groups)
         self.animator = AnimatorComponent(self)
         self.health = HealthComponent(max_hp=100.0, on_death_callback=self.on_death, iframes_duration=0.5)
         self.speed = speed

@@ -7,7 +7,7 @@ from core.enums.game_event_enum import GameEventEnum
 
 class Enemy(Character):
     def __init__(self, x: float, y: float, path: List[pygame.math.Vector2], speed: float = 50.0, *groups: pygame.sprite.Group):
-        super().__init__(x, y, speed, *groups)
+        super().__init__((x, y), speed, *groups)
 
         self.path = path
         self.current_waypoint_index = 0
