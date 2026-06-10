@@ -10,7 +10,7 @@ from utils.image import load_image
 
 class Player(Character):
     def __init__(self, axle_x: float, axle_y: float, *groups: pygame.sprite.Group):
-        super().__init__(axle_x, axle_y, speed=PLAYER_BASE_SPEED, *groups)
+        super().__init__((axle_x, axle_y), speed=PLAYER_BASE_SPEED, *groups)
         self.scale = SCALE_PLAYER
         self._last_direction = DirectionsEnum.SOUTH
         self._is_running = False

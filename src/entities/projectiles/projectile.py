@@ -13,7 +13,7 @@ from core.game_object import DynamicObject
 
 class Projectile(DynamicObject):
     def __init__(self, position: Vector2, direction: Vector2, speed: float = 100.0, damage: int = 10, lifetime: float = 2.0, type: ProjectileTypesEnum = ProjectileTypesEnum.NORMAL, variant: ProjectileVariantEnum = ProjectileVariantEnum.DEFAULT, friendly: bool = False, *groups: pygame.sprite.Group):
-        super().__init__(position.x, position.y, *groups)
+        super().__init__((position.x, position.y), *groups)
         self.animator = AnimatorComponent(self)
         self.friendly = friendly
         self.direction = direction
