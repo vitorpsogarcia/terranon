@@ -97,6 +97,17 @@ class GameWorld(GameScene):
         self._resolve_player_obstacle_collisions()
         self._resolve_player_enemy_collisions()
 
+        for sprite in self.camera_group.sprites():
+            obj = sprite.owner
+            if obj.active and isinstance(obj, DynamicObject):
+                new_layer = 2 + int(round(obj.pos.y))
+                if new_layer != getattr(obj, "render_layer", None):
+                    if hasattr(self.all_sprites, "change_layer"):
+                        self.camera_group.change_layer(sprite, new_layer)
+                    elif hasattr(self.all_sprites, "change_layer"):
+                        self.all_sprites.change_layer(sprite, new_layer)
+                    obj.render_layer = new_layer
+
         for obj in self.camera_group.sprites():
             if obj.active and isinstance(obj, DynamicObject):
                 new_layer = 2 + int(round(obj.pos.y))
