@@ -19,7 +19,8 @@ class CameraGroup(pygame.sprite.LayeredUpdates):
             self.offset.y = self.target.rect.centery - self.half_h
 
         for sprite in self.sprites():
-            if sprite.owner.active:
+            owner = getattr(sprite, 'owner', None)
+            if owner is None or getattr(owner, 'active', True):
                 offset_pos = sprite.rect.topleft - self.offset
                 surface.blit(sprite.image, offset_pos)
                 

@@ -108,14 +108,6 @@ class GameWorld(GameScene):
                         self.all_sprites.change_layer(sprite, new_layer)
                     obj.render_layer = new_layer
 
-        for obj in self.camera_group.sprites():
-            if obj.active and isinstance(obj, DynamicObject):
-                new_layer = 2 + int(round(obj.pos.y))
-                if new_layer != getattr(obj, "render_layer", None):
-                    if hasattr(self.all_sprites, "change_layer"):
-                        self.all_sprites.change_layer(obj, new_layer)
-                    obj.render_layer = new_layer
-
         hits = pygame.sprite.groupcollide(self.enemies_group, self.friend_projectiles_group, False, True)
         for enemy, shots in hits.items():
             for shot in shots:
