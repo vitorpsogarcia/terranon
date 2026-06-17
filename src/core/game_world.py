@@ -10,6 +10,7 @@ from entities.obstacle import Obstacle
 from entities.projectiles.projectile import Projectile
 from entities.character.player import Player
 from entities.enemy_spawner import EnemySpawner
+import math
 
 
 
@@ -192,6 +193,7 @@ class GameWorld(GameScene):
             return p_rect.colliderect(e_rect)
 
         touching_enemies = pygame.sprite.spritecollide(player_sprite, self.enemies_group, False, collided=collide_hitbox)
+        
         for enemy_sprite in touching_enemies:
             if isinstance(player, Player):
                 player.health.take_damage(10.0)
@@ -199,12 +201,40 @@ class GameWorld(GameScene):
                     EventManager.get_instance().emit(GameEventEnum.PLAY_SFX, filename="effects/damage.mp3")
                 except Exception as e:
                     print(f"Erro ao reproduzir som de hit: {e}")
-            
+                
+                p_rect = player.hitbox if hasattr(player, "hitbox") else player.rect
+                e_rect = enemy_sprite.owner.hitbox if hasattr(enemy_sprite.owner, "hitbox") else enemy_sprite.owner.rect
+
+                dx = p_rect.centerx - e_rect.centerx
+                dy = p_rect.centery - e_rect.centery
+
+                distance = math.hypot(dx, dy)
+                if distance > 0:
+                    dx /= distance
+                    dy /= distance
+                else:
+                    dx, dy = 0, -1 
+
+                knockback_strength = 30.0 
+                kx = dx * knockback_strength
+                ky = dy * knockback_strength
+
                 if hasattr(player, "prev_pos"):
-                    player.pos.x = player.prev_pos.x
-                    player.pos.y = player.prev_pos.y
-                    if hasattr(player, "hitbox"):
-                        player.hitbox.center = (round(player.pos.x), round(player.pos.y))
-                    if hasattr(player, "feet_hitbox"):
-                        player.feet_hitbox.midbottom = player.hitbox.midbottom
-                    player_sprite.rect.center = (round(player.pos.x), round(player.pos.y))
+                    player.pos.x = player.prev_pos.x + kx
+                    player.pos.y = player.prev_pos.y + ky
+                else:
+                    player.pos.x += kx
+                    player.pos.y += ky
+
+                if hasattr(player, "hitbox"):
+                    player.hitbox.center = (round(player.pos.x), round(player.pos.y))
+                if hasattr(player, "feet_hitbox"):
+                    player.feet_hitbox.midbottom = player.hitbox.midbottom
+                player_sprite.rect.center = (round(player.pos.x), round(player.pos.y))
+
+
+                if hasattr(player, "set_invulnerable"):
+                    player.set_invulnerable(duration_frames=30) 
+                else:
+                    player.is_invulnerable = True
+                    player.invulnerable_timer = 30
