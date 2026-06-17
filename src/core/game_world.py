@@ -109,16 +109,20 @@ class GameWorld(GameScene):
                     obj.render_layer = new_layer
 
         hits = pygame.sprite.groupcollide(self.enemies_group, self.friend_projectiles_group, False, True)
-        for enemy, shots in hits.items():
-            for shot in shots:
+        for enemy_sprite, shots in hits.items():
+            enemy = enemy_sprite.owner
+            for shot_sprite in shots:
+                shot = shot_sprite.owner
                 enemy.health.take_damage(shot.damage)
 
         enemy_obstacle_hits = pygame.sprite.groupcollide(self.obstacles, self.enemy_projectiles_group, False, True)
         friend_obstacle_hits = pygame.sprite.groupcollide(self.obstacles, self.friend_projectiles_group, False, True)
 
         for hits_dict in [enemy_obstacle_hits, friend_obstacle_hits]:
-            for obstacle, shots in hits_dict.items():
-                for shot in shots:
+            for obstacle_sprite, shots in hits_dict.items():
+                obstacle = obstacle_sprite.owner
+                for shot_sprite in shots:
+                    shot = shot_sprite.owner
                     if hasattr(obstacle, "health"):
                         obstacle.health.take_damage(shot.damage)
 
@@ -150,12 +154,17 @@ class GameWorld(GameScene):
         player = self.target
         if not isinstance(player, GameObject):
             return
+        
+        player_sprite = player._sprite
 
-        def collide_hitbox(p, o):
-            p_rect = p.feet_hitbox if hasattr(p, "feet_hitbox") else (p.hitbox if hasattr(p, "hitbox") else p.rect)
-            return p_rect.colliderect(o.rect)
+        def collide_hitbox(p_sprite, o_sprite):
+            p_owner = p_sprite.owner
+            o_owner = o_sprite.owner
+            p_rect = p_owner.feet_hitbox if hasattr(p_owner, "feet_hitbox") else (p_owner.hitbox if hasattr(p_owner, "hitbox") else p_owner.rect)
+            o_rect = o_owner.rect
+            return p_rect.colliderect(o_rect)
 
-        collisions = pygame.sprite.spritecollide(player, self.obstacles, False, collided=collide_hitbox)
+        collisions = pygame.sprite.spritecollide(player_sprite, self.obstacles, False, collided=collide_hitbox)
         if collisions:
             if hasattr(player, "prev_pos"):
                 player.pos.x = player.prev_pos.x
@@ -164,6 +173,8 @@ class GameWorld(GameScene):
                     player.hitbox.center = (round(player.pos.x), round(player.pos.y))
                 if hasattr(player, "feet_hitbox"):
                     player.feet_hitbox.midbottom = player.hitbox.midbottom
+
+                player_sprite.rect.center = (round(player.pos.x), round(player.pos.y))
                     
     def _resolve_player_enemy_collisions(self):
         if not hasattr(self, "target") or self.target is None:
@@ -171,14 +182,17 @@ class GameWorld(GameScene):
         player = self.target
         if player.rect is None or not isinstance(player, Player):
             return
+        player_sprite = player._sprite
 
-        def collide_hitbox(p, e):
-            p_rect = p.hitbox if hasattr(p, "hitbox") else p.rect
-            e_rect = e.hitbox if hasattr(e, "hitbox") else e.rect
+        def collide_hitbox(p_sprite, e_sprite):
+            p_owner = p_sprite.owner
+            e_owner = e_sprite.owner
+            p_rect = p_owner.hitbox if hasattr(p_owner, "hitbox") else p_owner.rect
+            e_rect = e_owner.hitbox if hasattr(e_owner, "hitbox") else e_owner.rect
             return p_rect.colliderect(e_rect)
 
-        touching_enemies = pygame.sprite.spritecollide(player, self.enemies_group, False, collided=collide_hitbox)
-        for enemy in touching_enemies:
+        touching_enemies = pygame.sprite.spritecollide(player_sprite, self.enemies_group, False, collided=collide_hitbox)
+        for enemy_sprite in touching_enemies:
             if isinstance(player, Player):
                 player.health.take_damage(10.0)
                 try:
@@ -193,3 +207,4 @@ class GameWorld(GameScene):
                         player.hitbox.center = (round(player.pos.x), round(player.pos.y))
                     if hasattr(player, "feet_hitbox"):
                         player.feet_hitbox.midbottom = player.hitbox.midbottom
+                    player_sprite.rect.center = (round(player.pos.x), round(player.pos.y))
