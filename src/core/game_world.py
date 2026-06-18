@@ -10,6 +10,7 @@ from entities.obstacle import Obstacle
 from entities.projectiles.projectile import Projectile
 from entities.character.player import Player
 from entities.enemy_spawner import EnemySpawner
+import math
 
 
 
@@ -191,20 +192,18 @@ class GameWorld(GameScene):
             e_rect = e_owner.hitbox if hasattr(e_owner, "hitbox") else e_owner.rect
             return p_rect.colliderect(e_rect)
 
-        touching_enemies = pygame.sprite.spritecollide(player_sprite, self.enemies_group, False, collided=collide_hitbox)
+        touching_enemies = pygame.sprite.spritecollide(
+            player_sprite, self.enemies_group, False, collided=collide_hitbox
+        )
+
         for enemy_sprite in touching_enemies:
-            if isinstance(player, Player):
-                player.health.take_damage(10.0)
-                try:
-                    EventManager.get_instance().emit(GameEventEnum.PLAY_SFX, filename="effects/damage.mp3")
-                except Exception as e:
-                    print(f"Erro ao reproduzir som de hit: {e}")
             
-                if hasattr(player, "prev_pos"):
-                    player.pos.x = player.prev_pos.x
-                    player.pos.y = player.prev_pos.y
-                    if hasattr(player, "hitbox"):
-                        player.hitbox.center = (round(player.pos.x), round(player.pos.y))
-                    if hasattr(player, "feet_hitbox"):
-                        player.feet_hitbox.midbottom = player.hitbox.midbottom
-                    player_sprite.rect.center = (round(player.pos.x), round(player.pos.y))
+            enemy = enemy_sprite.owner
+            
+            player.health.take_damage(10.0)
+            player.apply_knockback(enemy.pos, force=1500.0)  
+            
+            try:
+                EventManager.get_instance().emit(GameEventEnum.PLAY_SFX, filename="effects/damage.mp3")
+            except Exception as e:
+                print(f"Erro ao reproduzir som de hit: {e}")

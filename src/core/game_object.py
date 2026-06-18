@@ -63,9 +63,15 @@ class DynamicObject(GameObject):
         super().__init__(initial_position, *groups)
         self.velocity = Vector2(0, 0)
         self.acceleration = Vector2(0, 0)
+        self.friction = 0.85
 
     def update(self, dt: float):
         self.velocity += self.acceleration * dt
+        self.velocity *= self.friction
+
+        if self.velocity.length() < 0.01:
+            self.velocity = Vector2(0, 0)
+
         self.pos += self.velocity * dt
         if self.rect:
             self.rect.topleft = (round(self.pos.x), round(self.pos.y))
