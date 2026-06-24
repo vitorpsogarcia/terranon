@@ -7,7 +7,7 @@ from utils.direction import get_direction_str_by_vector
 class Enemy(Character):
     current_waypoint: Waypoint
     def __init__(self, x: float, y: float, path: Polyline, speed: float = 50.0, *groups: pygame.sprite.Group):
-        super().__init__(x, y, speed, *groups)
+        super().__init__((x, y), speed, *groups)
 
         self.path = path
         self.current_waypoint = self.path.get_start_waypoint()
@@ -15,7 +15,7 @@ class Enemy(Character):
         if self.image is None:
             self.image = pygame.Surface((20, 48)).convert_alpha()
             self.image.fill((111, 0, 0))
-            self.rect = self.image.get_rect(topleft=(round(x), round(y)))
+            self.rect = self.image.get_rect(topleft=(round(self.pos.x), round(self.pos.y)))
 
     def update(self, dt: float):
         next_waypoint = self.path.get_next_waypoint(self.current_waypoint)

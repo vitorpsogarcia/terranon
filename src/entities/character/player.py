@@ -10,7 +10,7 @@ from utils.image import load_image
 
 class Player(Character):
     def __init__(self, axle_x: float, axle_y: float, *groups: pygame.sprite.Group):
-        super().__init__(axle_x, axle_y, speed=PLAYER_BASE_SPEED, *groups)
+        super().__init__((axle_x, axle_y), PLAYER_BASE_SPEED, *groups)
         self.scale = SCALE_PLAYER
         self._last_direction = DirectionsEnum.SOUTH
         self._is_running = False
@@ -19,20 +19,21 @@ class Player(Character):
         self._time_between_shots = 0.3
         self._shot_timer = 0.0
 
-        self.hitbox = pygame.Rect(axle_x, axle_y, 30, 60)
-        self.feet_hitbox = pygame.Rect(axle_x, axle_y, 30, 20)
+        self.hitbox = pygame.Rect(self.pos.x, self.pos.y, 30, 60)
+        self.feet_hitbox = pygame.Rect(self.pos.x, self.pos.y, 30, 20)
 
         self._setup_animations()
         self.animator.play(f"idle_{self._last_direction.text}")
         self.animator.update(0.0)
         if self.rect is not None:
-            self.rect.topleft = (round(axle_x), round(axle_y))
+            self.rect.topleft = (round(self.pos.x), round(self.pos.y))
     
     def on_death(self):
         on_death = super().on_death()
         EventManager.get_instance().emit(GameEventEnum.GAME_OVER)
 
         return on_death
+    
     
     @property
     def frame_width(self) -> int:
@@ -106,9 +107,8 @@ class Player(Character):
         mouse_pos = pygame.math.Vector2(pygame.mouse.get_pos())
         
         if self.rect is not None:
-            # Obtém o deslocamento da câmera para converter a posição da tela para posição do mundo
             camera_offset = pygame.math.Vector2(0, 0)
-            for group in self.groups():
+            for group in self._sprite.groups():
                 if hasattr(group, 'offset'):
                     camera_offset = group.offset
                     break
@@ -120,7 +120,7 @@ class Player(Character):
             if direction.length() > 0:
                 direction = direction.normalize()
             else:
-                direction = pygame.math.Vector2(0, 1) # Fallback caso mouse_pos == start_pos
+                direction = pygame.math.Vector2(0, 1)
 
             EventManager.get_instance().emit(
                 GameEventEnum.SPAWN_PROJECTILE,
@@ -136,7 +136,8 @@ class Player(Character):
 
 
     def update(self, dt: float):
-        self.handle_input()
+        if not self.is_knockedback:
+            self.handle_input() 
         self._shot_timer += dt
 
         self.prev_pos = self.pos.copy()
@@ -150,11 +151,13 @@ class Player(Character):
         self.hitbox.center = (round(self.pos.x), round(self.pos.y))
         self.feet_hitbox.midbottom = self.hitbox.midbottom
 
-        state = "idle"
-        if self.direction.x != 0 or self.direction.y != 0:
-            state = "running" if self._is_running else "walking"
+        if not self.is_knockedback:
 
-        self.animator.play(f"{state}_{self._last_direction.text}")
+            state = "idle"
+            if self.direction.x != 0 or self.direction.y != 0:
+                state = "running" if self._is_running else "walking"
+
+            self.animator.play(f"{state}_{self._last_direction.text}")
         
         if self.rect is not None:
             self.rect.center = self.hitbox.center

@@ -71,6 +71,10 @@ class GameManager:
                         f"FPS: {self.clock.get_fps():.0f}", True, (0, 255, 0))
                     self.tela.blit(txt_fps, (10, 60))
 
+                    txt_life = self.debug_font.render(
+                        f"Vida: {player.health.current_hp:.0f}/{player.health.max_hp:.0f}", True, (255, 0, 0))
+                    self.tela.blit(txt_life, (10, 85))
+
         pygame.display.flip()
 
     def on_cleanup(self):
