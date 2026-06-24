@@ -1,12 +1,13 @@
 import pygame
 from typing import List
 from core.game_object import StaticObject
+from core.map.waypoints.polyline import Polyline
 from entities.enemy import Enemy
 from core.event_manager import EventManager
 from core.enums.game_event_enum import GameEventEnum
 
 class EnemySpawner(StaticObject):
-    def __init__(self, spawner_id: str, x: float, y: float, path: List[pygame.math.Vector2], spawn_interval: float = 5.0):
+    def __init__(self, spawner_id: str, x: float, y: float, path: Polyline, spawn_interval: float = 5.0):
         super().__init__(x, y)
         self.spawner_id = spawner_id
         self.path = path
