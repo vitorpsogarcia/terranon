@@ -1,8 +1,10 @@
+import logging
 import pygame
 
 from core.enums.game_state_enum import GameStateEnum
 from core.event_manager import EventManager
 from core.game_manager import GameManager
+from core.map.map_manager import MapManager
 from core.settings.settings import SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_NAME
 from core.state_manager import StateManager
 from core.states.ui.game_over import GameOverState
@@ -11,10 +13,12 @@ from core.states.ui.menu_state import MenuState
 from core.states.play_state import PlayState
 
 def main():
+    logging.basicConfig(level=logging.INFO, datefmt='%m/%d/%Y %I:%M:%S %p', format='%(asctime)s [%(levelname)s] [%(name)s]\t%(message)s')
     pygame.init()
     pygame.display.set_caption(SCREEN_NAME)
     tela = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
+    MapManager.initialize()
     EventManager.initialize()
     
     game_manager = GameManager(tela)
