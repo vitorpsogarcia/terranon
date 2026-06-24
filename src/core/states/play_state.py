@@ -26,11 +26,11 @@ from core.map.map_manager import MapManager
 
 
 class MapBackground(StaticObject):
-    def __init__(self, x: float, y: float, image: pygame.Surface):
-        super().__init__(x, y)
+    def __init__(self, position: pygame.Vector2, image: pygame.Surface):
+        super().__init__(position)
         self.image = image
         self.rect = self.image.get_rect()
-        self.rect.topleft = (x, y)
+        self.rect.topleft = (position.x, position.y)
         self.render_layer = -1
 
     def update(self, dt: float):
@@ -65,7 +65,7 @@ class PlayState(BaseState):
         current_map = MapManager.get_map(MapsEnum.MAIN_WORLD)
         
         if current_map and current_map._ground_image:
-            bg = MapBackground(0, 0, current_map._ground_image)
+            bg = MapBackground(pygame.math.Vector2(0, 0), current_map._ground_image)
             self.world.add_object(bg)
 
         player_x, player_y = 415, 478
