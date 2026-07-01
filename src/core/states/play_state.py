@@ -20,6 +20,21 @@ if TYPE_CHECKING:
     from core.state_manager import StateManager
 from entities.character.player import Player
 from entities.obstacle import Obstacle
+from core.game_object import StaticObject
+from core.enums.map_enums import MapsEnum, WaypointsEnum
+from core.map.map_manager import MapManager
+
+
+class MapBackground(StaticObject):
+    def __init__(self, position: pygame.Vector2, image: pygame.Surface):
+        super().__init__(position)
+        self.image = image
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (position.x, position.y)
+        self.render_layer = -1
+
+    def update(self, dt: float):
+        pass
 
 
 class PlayState(BaseState):
@@ -46,10 +61,22 @@ class PlayState(BaseState):
 
         FactoriesLoader(self.world)
         
-        player = Player(415, 478)
+        MapManager.change_map(MapsEnum.MAIN_WORLD, self.world)
+        current_map = MapManager.get_map(MapsEnum.MAIN_WORLD)
+        
+        if current_map and current_map._ground_image:
+            bg = MapBackground(pygame.math.Vector2(0, 0), current_map._ground_image)
+            self.world.add_object(bg)
+
+        player_x, player_y = 415, 478
+        if current_map and WaypointsEnum.PLAYER_SPAWNPOINT in current_map._waypoints:
+            spawnpoint = current_map._waypoints[WaypointsEnum.PLAYER_SPAWNPOINT]
+            player_x, player_y = spawnpoint.position.x, spawnpoint.position.y
+            
+        player = Player(player_x, player_y)
         w_player, h_player = player.frame_width, player.frame_height
         
-        player.pos = pygame.math.Vector2(self.screen_size[0] // 2 - w_player // 2, self.screen_size[1] // 2 - h_player // 2)
+        player.pos = pygame.math.Vector2(player_x, player_y)
         if player.rect is not None:
             player.rect.topleft = player.pos
         
@@ -65,38 +92,7 @@ class PlayState(BaseState):
             
             obs = Obstacle(random_x, random_y)
             self.world.add_object(obs)
-        
-        
-        rota_norte = [
-            pygame.math.Vector2(762, -224), 
-            pygame.math.Vector2(762, 119),
-            pygame.math.Vector2(532, 336)
-            ]
-        rota_sul   = [
-            pygame.math.Vector2(413, 697), 
-            pygame.math.Vector2(532, 697),
-            pygame.math.Vector2(532, 336)
-            ]
-        rota_leste = [
-            pygame.math.Vector2(863, 426),
-            pygame.math.Vector2(863, 334),
-            pygame.math.Vector2(532, 336)
-            ]
-        rota_oeste = [
-            pygame.math.Vector2(-296, -8), 
-            pygame.math.Vector2(-277, -8), 
-            pygame.math.Vector2(532, 336)
-            ]
-        
-        spawner_norte = EnemySpawner(EnemySpawnerEnum.NORTE.value, 514, -234, rota_norte, spawn_interval=5.0)
-        spawner_sul = EnemySpawner(EnemySpawnerEnum.SUL.value, 413, 927,  rota_sul, spawn_interval=5.0)
-        spawner_leste = EnemySpawner(EnemySpawnerEnum.LESTE.value, 1114, 426, rota_leste, spawn_interval=5.0)
-        spawner_oeste = EnemySpawner(EnemySpawnerEnum.OESTE.value, -296, 286, rota_oeste, spawn_interval=5.0)
 
-        self.world.add_object(spawner_norte)
-        self.world.add_object(spawner_sul)
-        self.world.add_object(spawner_leste)
-        self.world.add_object(spawner_oeste)
         
         self.initialized = True
     

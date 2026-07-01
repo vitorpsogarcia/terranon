@@ -1,16 +1,16 @@
 import pygame
-from typing import List
+from core.map.waypoints.polyline import Polyline
+from core.map.waypoints.waypoint import Waypoint
 from entities.character.characters import Character
 from utils.direction import get_direction_str_by_vector
-from core.event_manager import EventManager
-from core.enums.game_event_enum import GameEventEnum
 
 class Enemy(Character):
-    def __init__(self, x: float, y: float, path: List[pygame.math.Vector2], speed: float = 50.0, *groups: pygame.sprite.Group):
+    current_waypoint: Waypoint
+    def __init__(self, x: float, y: float, path: Polyline, speed: float = 50.0, *groups: pygame.sprite.Group):
         super().__init__((x, y), speed, *groups)
 
         self.path = path
-        self.current_waypoint_index = 0
+        self.current_waypoint = self.path.get_start_waypoint()
         
         if self.image is None:
             self.image = pygame.Surface((20, 48)).convert_alpha()
@@ -18,9 +18,10 @@ class Enemy(Character):
             self.rect = self.image.get_rect(topleft=(round(self.pos.x), round(self.pos.y)))
 
     def update(self, dt: float):
-        if self.current_waypoint_index < len(self.path):
-            
-            target_pos = self.path[self.current_waypoint_index]
+        next_waypoint = self.path.get_next_waypoint(self.current_waypoint)
+
+        if next_waypoint is not None and self.rect is not None:
+            target_pos = next_waypoint.position
             self_pos = pygame.math.Vector2(self.rect.centerx, self.rect.centery)
 
             direction_vector = target_pos - self_pos
@@ -30,15 +31,15 @@ class Enemy(Character):
                 self.direction = direction_vector.normalize()
                 estado_animacao = "walking"
             else:
-                self.current_waypoint_index += 1
+                self.current_waypoint = next_waypoint
                 self.direction = pygame.math.Vector2(0, 0)
                 estado_animacao = "walking"
-                
+
         else:
             self.direction = pygame.math.Vector2(0, 0)
             estado_animacao = "idle"
             
-            # TODO: Disparar evento de Dano à Base
+            # TODO: Disparar evento de Dano à Base (vitor: Depende, e se o inimigo não estiver sobre a base? Seria melhor deixar para o colisor da base lidar com isso)
             # EventManager.get_instance().emit(GameEventEnum.BASE_DAMAGED, dano=10)
             
             self.health.take_damage(9999)
