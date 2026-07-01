@@ -75,7 +75,7 @@ class MainWorldMap(Map):
             path_points = [*item.points]
             path_points.reverse()
             for point in path_points:
-                points.append(Waypoint(item.id, pygame.math.Vector2(item.x + point[0], item.y + point[1])))
+                points.append(Waypoint(item.id, pygame.math.Vector2(point[0], point[1])))
             
             to_waypoint = None
             if 'is_last' in item.properties and item.properties['is_last']:
