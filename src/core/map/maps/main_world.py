@@ -100,13 +100,14 @@ class MainWorldMap(Map):
                     self._logger.warning(f"Spawner name '{spawner_name}' in map does not match any defined EnemySpawnerEnum. Skipping.")
                     continue
 
-                if item.start_path is None:
+                start_path = item.properties.get('start_path')
+                if start_path is None:
                     self._logger.error(f"Spawner '{spawner_name}' is missing a start_path. Skipping.")
                     continue
                 
-                path = self.get_enemy_path_by_id(item.start_path)
+                path = self.get_enemy_path_by_id(start_path)
                 if path is None:
-                    self._logger.error(f"Spawner '{spawner_name}' references non-existent enemy path ID {item.start_path}. Skipping.")
+                    self._logger.error(f"Spawner '{spawner_name}' references non-existent enemy path ID {start_path}. Skipping.")
                     continue
 
                 enemy_spawner = EnemySpawner(spawner_name, item.x, item.y, path, spawn_interval=8.0)
