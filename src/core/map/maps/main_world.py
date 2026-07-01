@@ -45,7 +45,7 @@ class MainWorldMap(Map):
 
     def _process_ground_layer(self, layer):
         self._logger.info("Processing ground layer...")
-        surface = pygame.Surface((self.tiled_map.width * self.tiled_map.tilewidth, self.tiled_map.height * self.tiled_map.tileheight))
+        surface = pygame.Surface((self.tiled_map.width * self.tiled_map.tilewidth, self.tiled_map.height * self.tiled_map.tileheight)).convert()
         for x, y, image in layer.tiles():
             surface.blit(image, (x * self.tiled_map.tilewidth, y * self.tiled_map.tileheight))
         self._ground_image = surface
