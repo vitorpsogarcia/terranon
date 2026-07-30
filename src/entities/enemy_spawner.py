@@ -1,6 +1,7 @@
 import pygame
 from typing import List
 from core.game_object import StaticObject
+from core.map.waypoints.polyline import Polyline
 from entities.character.goblin import Goblin
 from entities.enemy import Enemy
 from core.event_manager import EventManager
