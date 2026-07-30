@@ -8,7 +8,7 @@ from core.entity_sprite import EntitySprite
 class GameObject(ABC):
     render_layer: int = 0
 
-    def __init__(self, initial_position: tuple[float, float], *groups: pygame.sprite.Group):
+    def __init__(self, initial_position: pygame.Vector2, *groups: pygame.sprite.Group):
         self._sprite = EntitySprite(self, *groups)
         self.pos = Vector2(*initial_position)
         self.active = True
@@ -51,7 +51,7 @@ class GameObject(ABC):
 
 
 class StaticObject(GameObject):
-    def __init__(self, initial_position: tuple[float, float], *groups: pygame.sprite.Group):
+    def __init__(self, initial_position: pygame.Vector2, *groups: pygame.sprite.Group):
         super().__init__(initial_position, *groups)
 
     def update(self, dt: float):
@@ -59,7 +59,7 @@ class StaticObject(GameObject):
             self.rect.topleft = (round(self.pos.x), round(self.pos.y))
 
 class DynamicObject(GameObject):
-    def __init__(self, initial_position: tuple[float, float], *groups: pygame.sprite.Group):
+    def __init__(self, initial_position: pygame.Vector2, *groups: pygame.sprite.Group):
         super().__init__(initial_position, *groups)
         self.velocity = Vector2(0, 0)
         self.acceleration = Vector2(0, 0)
