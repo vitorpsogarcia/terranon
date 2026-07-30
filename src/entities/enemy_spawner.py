@@ -1,6 +1,7 @@
 import pygame
 from typing import List
 from core.game_object import StaticObject
+from entities.character.goblin import Goblin
 from entities.enemy import Enemy
 from core.event_manager import EventManager
 from core.enums.game_event_enum import GameEventEnum
@@ -26,5 +27,5 @@ class EnemySpawner(StaticObject):
             self.spawn_timer = 0.0
 
     def spawn_enemy(self, enemy_type: str = "default"):
-        new_enemy = Enemy(self.pos.x, self.pos.y, path=self.path)
+        new_enemy = Goblin(self.pos.x, self.pos.y, path=self.path)
         EventManager.get_instance().emit(GameEventEnum.ENEMY_SPAWNED, new_enemy)

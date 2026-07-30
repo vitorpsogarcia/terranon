@@ -2,12 +2,12 @@ import pygame
 from typing import List
 from entities.character.characters import Character
 from utils.direction import get_direction_str_by_vector
-from core.event_manager import EventManager
-from core.enums.game_event_enum import GameEventEnum
 
 class Enemy(Character):
     def __init__(self, x: float, y: float, path: List[pygame.math.Vector2], speed: float = 50.0, *groups: pygame.sprite.Group):
         super().__init__((x, y), speed, *groups)
+
+        self.scale = 0.3
 
         self.path = path
         self.current_waypoint_index = 0
