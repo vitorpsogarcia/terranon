@@ -23,6 +23,10 @@ class DirectionsEnum(Enum):
         return list(DirectionsEnum)
 
     @staticmethod
+    def four_direction_list():
+        return [DirectionsEnum.NORTH, DirectionsEnum.SOUTH, DirectionsEnum.EAST, DirectionsEnum.WEST]
+
+    @staticmethod
     def get_by_text(text: str):
         for direction in DirectionsEnum:
             if direction.text == text:
