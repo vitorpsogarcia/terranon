@@ -13,11 +13,14 @@ class Enemy(Character):
 
         self.path = path
         self.current_waypoint = self.path.get_start_waypoint()
+        self.hitbox = pygame.Rect(self.pos.x, self.pos.y, 30, 60)
         
         if self.image is None:
             self.image = pygame.Surface((20, 48)).convert_alpha()
             self.image.fill((111, 0, 0))
             self.rect = self.image.get_rect(topleft=(round(self.pos.x), round(self.pos.y)))
+
+        
 
     def update(self, dt: float):
         next_waypoint = self.path.get_next_waypoint(self.current_waypoint)
@@ -52,3 +55,5 @@ class Enemy(Character):
             self.last_direction = dir_str
 
         super().update(dt)
+
+        self.hitbox.center = (round(self.pos.x), round(self.pos.y))
