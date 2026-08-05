@@ -15,16 +15,17 @@ from entities.projectiles.projectile import Projectile
 
 class GameScene(ABC):
     @abstractmethod
-    def update(self, dt: float): 
+    def update(self, dt: float):
         pass
 
     @abstractmethod
-    def handle_events(self, events: list[pygame.event.Event]): 
+    def handle_events(self, events: list[pygame.event.Event]):
         pass
 
     @abstractmethod
-    def draw(self, surface: pygame.Surface): 
+    def draw(self, surface: pygame.Surface):
         pass
+
 
 class GameWorld(GameScene):
     def __init__(self, screen_size: tuple[int, int]):
@@ -39,45 +40,23 @@ class GameWorld(GameScene):
         self.spawners: dict[str, EnemySpawner] = {}
         self.world_colliders: list[pygame.Rect] = []
 
-
     def set_target(self, target: GameObject):
         self.target = target
-        if not hasattr(self.camera_group, 'set_target'):
+        if not hasattr(self.camera_group, "set_target"):
             raise AttributeError("CameraGroup deve possuir um método 'set_target'.")
         self.camera_group.set_target(target)
         self.player_group.add(target._sprite)
 
     def add_object(self, obj: GameObject):
+        layer = getattr(obj, "render_layer", 0)
 
-        layer = 0
-        if isinstance(obj, Projectile):
-            if obj.friendly:
-                self.friend_projectiles_group.add(obj._sprite)
-            else:
-                self.enemy_projectiles_group.add(obj._sprite)
-        
-        if isinstance(obj, DynamicObject):
-            layer = 2 + round(obj.pos.y)
-            self.dynamic_group.add(obj._sprite)
+        self._add_obj_to_group(obj)
 
-            if isinstance(obj, Enemy):
-                self.enemies_group.add(obj._sprite)
-                
-        elif isinstance(obj, EnemySpawner):
-            if obj.spawner_id in self.spawners:
-                raise ValueError(f"Spawner ID já existe: {obj.spawner_id}")
-            
-            self.spawners[obj.spawner_id] = obj
-            layer = getattr(obj, "render_layer", 0)
+        if isinstance(obj, DynamicObject) and obj.rect is not None:
+            layer = round(obj.rect.bottom)
 
-        elif isinstance(obj, StaticObject):
-            if isinstance(obj, Obstacle):
-                layer = 1
-                self.obstacles.add(obj._sprite)
-            else:
-                layer = 0
-        else:
-            layer = getattr(obj, "render_layer", 0)
+        if not obj._fixed_layer and obj.rect is not None:
+            layer = round(obj.rect.bottom)
 
         obj.render_layer = layer
         self.camera_group.add(obj._sprite, layer=layer)
@@ -90,7 +69,13 @@ class GameWorld(GameScene):
             obj = sprite.owner
             if obj.active and hasattr(obj, "update"):
                 obj.update(dt)
-        
+
+            if obj.active and obj.rect is not None and isinstance(obj, DynamicObject):
+                new_layer = round(obj.rect.bottom)
+                if new_layer != obj.render_layer:
+                    self.camera_group.change_layer(sprite, new_layer)
+                    obj.render_layer = new_layer
+
             if not obj.alive():
                 continue
 
@@ -98,24 +83,21 @@ class GameWorld(GameScene):
         self._resolve_player_obstacle_collisions()
         self._resolve_player_enemy_collisions()
 
-        for sprite in self.camera_group.sprites():
-            obj = sprite.owner
-            if obj.active and isinstance(obj, DynamicObject):
-                new_layer = 2 + round(obj.pos.y)
-                if new_layer != getattr(obj, "render_layer", None):
-                    if hasattr(self.camera_group, "change_layer") or hasattr(self.camera_group, "change_layer"):
-                        self.camera_group.change_layer(sprite, new_layer)
-                    obj.render_layer = new_layer
-
-        hits = pygame.sprite.groupcollide(self.enemies_group, self.friend_projectiles_group, False, True)
+        hits = pygame.sprite.groupcollide(
+            self.enemies_group, self.friend_projectiles_group, False, True
+        )
         for enemy_sprite, shots in hits.items():
             enemy = enemy_sprite.owner
             for shot_sprite in shots:
                 shot = shot_sprite.owner
                 enemy.health.take_damage(shot.damage)
 
-        enemy_obstacle_hits = pygame.sprite.groupcollide(self.obstacles, self.enemy_projectiles_group, False, True)
-        friend_obstacle_hits = pygame.sprite.groupcollide(self.obstacles, self.friend_projectiles_group, False, True)
+        enemy_obstacle_hits = pygame.sprite.groupcollide(
+            self.obstacles, self.enemy_projectiles_group, False, True
+        )
+        friend_obstacle_hits = pygame.sprite.groupcollide(
+            self.obstacles, self.friend_projectiles_group, False, True
+        )
 
         for hits_dict in [enemy_obstacle_hits, friend_obstacle_hits]:
             for obstacle_sprite, shots in hits_dict.items():
@@ -171,13 +153,14 @@ class GameWorld(GameScene):
 
         if not isinstance(player, Player):
             return
-        
+
         player_sprite = player._sprite
 
-        pottential_collisions = pygame.sprite.spritecollide(player_sprite, self.obstacles, False)
+        pottential_collisions = pygame.sprite.spritecollide(
+            player_sprite, self.obstacles, False
+        )
         if not pottential_collisions:
             return
-
 
         actual_collision = False
 
@@ -200,7 +183,6 @@ class GameWorld(GameScene):
             if player.rect is not None:
                 player._sprite.rect = player.rect.copy()
 
-
     def _resolve_player_enemy_collisions(self):
         if not hasattr(self, "target") or self.target is None:
             return
@@ -221,13 +203,34 @@ class GameWorld(GameScene):
         )
 
         for enemy_sprite in touching_enemies:
-            
             enemy = enemy_sprite.owner
-            
+
             player.health.take_damage(10.0)
-            player.apply_knockback(enemy.pos, force=1500.0)  
-            
+            player.apply_knockback(enemy.pos, force=1500.0)
+
             try:
-                EventManager.get_instance().emit(GameEventEnum.PLAY_SFX, filename="effects/damage.mp3")
+                EventManager.get_instance().emit(
+                    GameEventEnum.PLAY_SFX, filename="effects/damage.mp3"
+                )
             except Exception as e:
                 print(f"Erro ao reproduzir som de hit: {e}")
+
+    def _add_obj_to_group(self, obj: GameObject):
+        if isinstance(obj, Projectile):
+            if obj.friendly:
+                self.friend_projectiles_group.add(obj._sprite)
+            else:
+                self.enemy_projectiles_group.add(obj._sprite)
+
+        elif isinstance(obj, DynamicObject):
+            self.dynamic_group.add(obj._sprite)
+            if isinstance(obj, Enemy):
+                self.enemies_group.add(obj._sprite)
+
+        elif isinstance(obj, EnemySpawner):
+            if obj.spawner_id in self.spawners:
+                raise ValueError(f"Spawner ID já existe: {obj.spawner_id}")
+            self.spawners[obj.spawner_id] = obj
+
+        elif isinstance(obj, Obstacle):
+            self.obstacles.add(obj._sprite)

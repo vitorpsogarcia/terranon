@@ -2,12 +2,12 @@ import logging
 
 from core.asset_manager import AssetManager
 from core.enums.map_enums import MapsEnum
-
 from core.exceptions.map_not_existent_exception import MapNotExistentException
 from core.game_world import GameWorld
 from core.map.map import Map
 from core.map.maps.main_world import MainWorldMap
 from core.settings.maps_assets import NATURE_PROPS
+
 
 class MapManager:
     _instance = None
@@ -19,7 +19,6 @@ class MapManager:
 
     def __init__(self):
         raise RuntimeError("MapManager is a static class and cannot be instantiated.")
-    
 
     @classmethod
     def _is_map_valid(cls, map_enum: MapsEnum) -> bool:
@@ -27,7 +26,6 @@ class MapManager:
             cls._logger.error(f"Map not found: {map_enum.value}")
             raise MapNotExistentException(map_enum.value)
         return True
-
 
     @classmethod
     def initialize(cls):
@@ -38,34 +36,28 @@ class MapManager:
 
         cls._load_props()
 
-        cls._maps = {
-            MapsEnum.MAIN_WORLD: MainWorldMap()
-        }
-
+        cls._maps = {MapsEnum.MAIN_WORLD: MainWorldMap()}
 
         cls._logger.info("MapManager initialized successfully.")
 
-
     @classmethod
-    def get_map(cls, map_enum: MapsEnum) -> Map| None:
+    def get_map(cls, map_enum: MapsEnum) -> Map | None:
         cls._logger.info(f"Getting map: {map_enum.value}")
         if not cls._is_map_valid(map_enum):
             return
         return cls._maps[map_enum]
-    
 
     @classmethod
     def change_map(cls, map_enum: MapsEnum, world: GameWorld):
         cls._logger.info(f"Changing map to: {map_enum.value}")
         if not cls._is_map_valid(map_enum):
             return
-        
+
         map = cls._maps[map_enum]
         map.instantiate(world)
 
         cls._current_map = map
         cls._current_map_enum = map_enum
-
 
     @classmethod
     def _load_props(cls):
@@ -73,12 +65,11 @@ class MapManager:
         cls._load_nature_props()
         cls._logger.info("Props loaded successfully.")
 
-
     @classmethod
     def _load_nature_props(cls):
         cls._logger.info("Loading nature props...")
-        
-        for file in NATURE_PROPS.glob('*.png'):
+
+        for file in NATURE_PROPS.glob("*.png"):
             name = file.stem
             AssetManager.load_image(name, str(file))
 
