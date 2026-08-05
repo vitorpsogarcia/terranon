@@ -1,6 +1,13 @@
+import logging
+
 import pygame
 
+from core.debug_manager import DebugManager
+
+
 class CameraGroup(pygame.sprite.LayeredUpdates):
+    _logger = logging.getLogger("CameraGroup")
+
     def __init__(self):
         super().__init__()
         self.display_surface = pygame.display.get_surface()
@@ -20,18 +27,8 @@ class CameraGroup(pygame.sprite.LayeredUpdates):
 
         for sprite in self.sprites():
             owner = getattr(sprite, 'owner', None)
-            if owner is None or getattr(owner, 'active', True):
+            if getattr(owner, 'active', True):
                 offset_pos = sprite.rect.topleft - self.offset
                 surface.blit(sprite.image, offset_pos)
-                
-                # # Renderiza o colisor (hitbox) em amarelo para visualização/debug
-                # if hasattr(sprite, 'hitbox'):
-                #     hitbox_rect = sprite.hitbox.copy()
-                #     hitbox_rect.topleft -= self.offset
-                #     pygame.draw.rect(surface, (255, 255, 0), hitbox_rect, 2)
-                    
-                # # Renderiza o colisor de pés (feet_hitbox) em azul claro para visualização/debug
-                # if hasattr(sprite, 'feet_hitbox'):
-                #     feet_rect = sprite.feet_hitbox.copy()
-                #     feet_rect.topleft -= self.offset
-                #     pygame.draw.rect(surface, (0, 255, 255), feet_rect, 2)
+
+        DebugManager.draw_world_debug(surface, self)

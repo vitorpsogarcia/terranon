@@ -7,6 +7,10 @@ from core.entity_sprite import EntitySprite
 
 class GameObject(ABC):
     render_layer: int = 0
+    pos: Vector2
+    active: bool
+    relative_hitboxes: list[pygame.Rect]
+    _sprite: EntitySprite
 
     def __init__(self, initial_position: pygame.Vector2, *groups: pygame.sprite.Group):
         self._sprite = EntitySprite(self, *groups)
@@ -14,14 +18,22 @@ class GameObject(ABC):
         self.active = True
         self.image = None
         self.rect = None
+        self.relative_hitboxes = []
 
     @property
     def image(self):
         return self._sprite.image
     
+
     @image.setter
-    def image(self, value):
+    def image(self, value: pygame.Surface | None):
         self._sprite.image = value
+
+        if value is not None:
+            self.rect = value.get_rect()
+        else:
+            self.rect = None
+
 
     @property
     def rect(self):
@@ -30,6 +42,29 @@ class GameObject(ABC):
     @rect.setter
     def rect(self, value):
         self._sprite.rect = value
+
+
+    @property
+    def hitboxes(self) -> list[pygame.Rect]:
+        """
+        Calcula as posições absolutas das hitboxes com base na posição atual do objeto e retorna uma nova lista de Rects.
+        """
+        if self.rect is None:
+            return []
+        
+        absolute_hitboxes = []
+        for rel_box in self.relative_hitboxes:
+            abs_box = rel_box.move(self.rect.topleft)
+            absolute_hitboxes.append(abs_box)
+        return absolute_hitboxes
+
+
+    def sync_colliders(self):
+        if self.rect is None:
+            return
+
+        self.rect.center = (round(self.pos.x), round(self.pos.y))
+
 
     @abstractmethod
     def update(self, dt: float):
@@ -64,6 +99,7 @@ class DynamicObject(GameObject):
         self.velocity = Vector2(0, 0)
         self.acceleration = Vector2(0, 0)
         self.friction = 0.85
+        self.prev_pos = self.pos.copy()
 
     def update(self, dt: float):
         self.velocity += self.acceleration * dt

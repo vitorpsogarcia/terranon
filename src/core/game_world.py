@@ -1,36 +1,34 @@
-import pygame
-from core.camera_group import CameraGroup
 from abc import ABC, abstractmethod
-from typing import List, Tuple
+
+import pygame
+
+from core.camera_group import CameraGroup
 from core.enums.game_event_enum import GameEventEnum
 from core.event_manager import EventManager
-from core.game_object import GameObject, StaticObject, DynamicObject
+from core.game_object import DynamicObject, GameObject, StaticObject
+from entities.character.player import Player
 from entities.enemy import Enemy
+from entities.enemy_spawner import EnemySpawner
 from entities.obstacle import Obstacle
 from entities.projectiles.projectile import Projectile
-from entities.character.player import Player
-from entities.enemy_spawner import EnemySpawner
-import math
-
 
 
 class GameScene(ABC):
     @abstractmethod
     def update(self, dt: float): 
         pass
-    
+
     @abstractmethod
-    def handle_events(self, events: List[pygame.event.Event]): 
+    def handle_events(self, events: list[pygame.event.Event]): 
         pass
-    
+
     @abstractmethod
     def draw(self, surface: pygame.Surface): 
         pass
 
 class GameWorld(GameScene):
-    def __init__(self, screen_size: Tuple[int, int]):
-        self.all_sprites = CameraGroup()
-        self.camera_group = self.all_sprites
+    def __init__(self, screen_size: tuple[int, int]):
+        self.camera_group = CameraGroup()
         self.screen_size = screen_size
         self.obstacles = pygame.sprite.Group()
         self.dynamic_group = pygame.sprite.Group()
@@ -39,13 +37,14 @@ class GameWorld(GameScene):
         self.enemy_projectiles_group = pygame.sprite.Group()
         self.enemies_group = pygame.sprite.Group()
         self.spawners: dict[str, EnemySpawner] = {}
+        self.world_colliders: list[pygame.Rect] = []
 
 
     def set_target(self, target: GameObject):
         self.target = target
-        if not hasattr(self.all_sprites, 'set_target'):
+        if not hasattr(self.camera_group, 'set_target'):
             raise AttributeError("CameraGroup deve possuir um método 'set_target'.")
-        self.all_sprites.set_target(target)
+        self.camera_group.set_target(target)
         self.player_group.add(target._sprite)
 
     def add_object(self, obj: GameObject):
@@ -58,7 +57,7 @@ class GameWorld(GameScene):
                 self.enemy_projectiles_group.add(obj._sprite)
         
         if isinstance(obj, DynamicObject):
-            layer = 2 + int(round(obj.pos.y))
+            layer = 2 + round(obj.pos.y)
             self.dynamic_group.add(obj._sprite)
 
             if isinstance(obj, Enemy):
@@ -81,10 +80,10 @@ class GameWorld(GameScene):
             layer = getattr(obj, "render_layer", 0)
 
         obj.render_layer = layer
-        self.all_sprites.add(obj._sprite, layer=layer)
+        self.camera_group.add(obj._sprite, layer=layer)
 
     def remove_object(self, obj: GameObject):
-        self.all_sprites.remove(obj._sprite)
+        self.camera_group.remove(obj._sprite)
 
     def update(self, dt: float):
         for sprite in self.camera_group.sprites():
@@ -95,18 +94,17 @@ class GameWorld(GameScene):
             if not obj.alive():
                 continue
 
+        self._resolve_player_world_collisions()
         self._resolve_player_obstacle_collisions()
         self._resolve_player_enemy_collisions()
 
         for sprite in self.camera_group.sprites():
             obj = sprite.owner
             if obj.active and isinstance(obj, DynamicObject):
-                new_layer = 2 + int(round(obj.pos.y))
+                new_layer = 2 + round(obj.pos.y)
                 if new_layer != getattr(obj, "render_layer", None):
-                    if hasattr(self.all_sprites, "change_layer"):
+                    if hasattr(self.camera_group, "change_layer") or hasattr(self.camera_group, "change_layer"):
                         self.camera_group.change_layer(sprite, new_layer)
-                    elif hasattr(self.all_sprites, "change_layer"):
-                        self.all_sprites.change_layer(sprite, new_layer)
                     obj.render_layer = new_layer
 
         hits = pygame.sprite.groupcollide(self.enemies_group, self.friend_projectiles_group, False, True)
@@ -127,56 +125,82 @@ class GameWorld(GameScene):
                     if hasattr(obstacle, "health"):
                         obstacle.health.take_damage(shot.damage)
 
-    def handle_events(self, events: List[pygame.event.Event]):
+    def handle_events(self, events: list[pygame.event.Event]):
         for obj in self.camera_group.sprites():
             if obj.active:
                 for event in events:
                     obj.process_event(event)
 
     def draw(self, surface: pygame.Surface):
-        if hasattr(self.all_sprites, "custom_draw"):
-            self.all_sprites.custom_draw(surface)
+        if hasattr(self.camera_group, "custom_draw"):
+            self.camera_group.custom_draw(surface)
         else:
-            self.all_sprites.draw(surface)
+            self.camera_group.draw(surface)
 
     def _iterate_objects(self):
-        for obj in self.all_sprites:
-            yield obj
+        yield from self.camera_group
 
     def _iterate_active_objects(self):
         for obj in self._iterate_objects():
             if obj.active:
                 yield obj
 
+    def _resolve_player_world_collisions(self):
+        if not hasattr(self, "target") or self.target is None:
+            return
+
+        player = self.target
+
+        if not isinstance(player, Player):
+            return
+
+        for collider in self.world_colliders:
+            if player.feet_hitbox.colliderect(collider):
+                player.pos.x = player.prev_pos.x
+                player.pos.y = player.prev_pos.y
+                player.sync_colliders()
+                if player.rect is not None:
+                    player._sprite.rect = player.rect.copy()
+                break
+
     def _resolve_player_obstacle_collisions(self):
         if not hasattr(self, "target") or self.target is None:
             return
 
         player = self.target
-        if not isinstance(player, GameObject):
+
+        if not isinstance(player, Player):
             return
         
         player_sprite = player._sprite
 
-        def collide_hitbox(p_sprite, o_sprite):
-            p_owner = p_sprite.owner
-            o_owner = o_sprite.owner
-            p_rect = p_owner.feet_hitbox if hasattr(p_owner, "feet_hitbox") else (p_owner.hitbox if hasattr(p_owner, "hitbox") else p_owner.rect)
-            o_rect = o_owner.rect
-            return p_rect.colliderect(o_rect)
+        pottential_collisions = pygame.sprite.spritecollide(player_sprite, self.obstacles, False)
+        if not pottential_collisions:
+            return
 
-        collisions = pygame.sprite.spritecollide(player_sprite, self.obstacles, False, collided=collide_hitbox)
-        if collisions:
-            if hasattr(player, "prev_pos"):
-                player.pos.x = player.prev_pos.x
-                player.pos.y = player.prev_pos.y
-                if hasattr(player, "hitbox"):
-                    player.hitbox.center = (round(player.pos.x), round(player.pos.y))
-                if hasattr(player, "feet_hitbox"):
-                    player.feet_hitbox.midbottom = player.hitbox.midbottom
 
-                player_sprite.rect.center = (round(player.pos.x), round(player.pos.y))
-                    
+        actual_collision = False
+
+        for obstacle_sprites in pottential_collisions:
+            obstacle = obstacle_sprites.owner
+
+            obstacle_hitboxes = getattr(obstacle, "hitboxes", [obstacle.rect])
+            for hitbox in obstacle_hitboxes:
+                if player.feet_hitbox.colliderect(hitbox):
+                    actual_collision = True
+                    break
+
+            if actual_collision:
+                break
+
+        if actual_collision:
+            player.pos.x = player.prev_pos.x
+            player.pos.y = player.prev_pos.y
+            player.sync_colliders()
+            if player.rect is not None:
+                player._sprite.rect = player.rect.copy()
+
+
     def _resolve_player_enemy_collisions(self):
         if not hasattr(self, "target") or self.target is None:
             return

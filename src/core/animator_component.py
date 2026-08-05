@@ -1,10 +1,12 @@
 from typing import List, Dict, Optional
 import pygame
 
+from core.game_object import GameObject
+
 
 class AnimatorComponent:
 
-    def __init__(self, owner: pygame.sprite.Sprite):
+    def __init__(self, owner: GameObject):
         self.owner = owner
         self.animations: Dict[str, Dict[str, object]] = {}
         self.current: Optional[str] = None

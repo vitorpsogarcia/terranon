@@ -1,16 +1,23 @@
 import pygame
+
 from core.enums.directions_enum import DirectionsEnum
 from core.enums.game_event_enum import GameEventEnum
 from core.enums.projectile.projectile_types_enum import ProjectileTypesEnum
 from core.enums.projectile.projectile_variant_enum import ProjectileVariantEnum
 from core.event_manager import EventManager
-from core.settings.settings import ASSETS_FOLDER, PLAYER_KEYS, SCALE_PLAYER, PLAYER_BASE_SPEED
+from core.settings.settings import (
+    ASSETS_FOLDER,
+    PLAYER_BASE_SPEED,
+    PLAYER_KEYS,
+    SCALE_PLAYER,
+)
 from entities.character.characters import Character
 from utils.image import load_image
 
+
 class Player(Character):
-    def __init__(self, axle_x: float, axle_y: float, *groups: pygame.sprite.Group):
-        super().__init__((axle_x, axle_y), PLAYER_BASE_SPEED, *groups)
+    def __init__(self, position: pygame.Vector2, *groups: pygame.sprite.Group):
+        super().__init__(position, PLAYER_BASE_SPEED, *groups)
         self.scale = SCALE_PLAYER
         self._last_direction = DirectionsEnum.SOUTH
         self._is_running = False
@@ -19,15 +26,16 @@ class Player(Character):
         self._time_between_shots = 0.3
         self._shot_timer = 0.0
 
-        self.hitbox = pygame.Rect(self.pos.x, self.pos.y, 30, 60)
-        self.feet_hitbox = pygame.Rect(self.pos.x, self.pos.y, 30, 20)
+        self.hitbox = pygame.Rect(self.pos.x, self.pos.y, 15, 30)
+        self.feet_hitbox = pygame.Rect(self.pos.x, self.pos.y, 15, 10)
 
         self._setup_animations()
         self.animator.play(f"idle_{self._last_direction.text}")
         self.animator.update(0.0)
         if self.rect is not None:
             self.rect.topleft = (round(self.pos.x), round(self.pos.y))
-    
+
+
     def on_death(self):
         on_death = super().on_death()
         EventManager.get_instance().emit(GameEventEnum.GAME_OVER)
@@ -39,9 +47,11 @@ class Player(Character):
     def frame_width(self) -> int:
         return self.image.get_width() if self.image else 0
     
+
     @property
     def frame_height(self) -> int:
         return self.image.get_height() if self.image else 0
+
 
     def process_event(self, event: pygame.event.Event):
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
@@ -132,7 +142,6 @@ class Player(Character):
             )
 
             EventManager.get_instance().emit(GameEventEnum.PLAY_SFX, "effects/shoot.wav")
-
 
 
     def update(self, dt: float):
