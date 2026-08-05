@@ -12,17 +12,13 @@ from core.game_world import GameWorld
 from core.sound_manager import SoundManager
 from core.states.base_state import BaseState
 from entities.base_structure import BaseStructure
-from entities.enemy import Enemy
-from entities.enemy_spawner import EnemySpawner
-from core.enums.enemy_spawner_enum import EnemySpawnerEnum
 
 if TYPE_CHECKING:
     from core.state_manager import StateManager
-from entities.character.player import Player
-from entities.obstacle import Obstacle
-from core.game_object import StaticObject
 from core.enums.map_enums import MapsEnum, WaypointsEnum
+from core.game_object import StaticObject
 from core.map.map_manager import MapManager
+from entities.character.player import Player
 
 
 class MapBackground(StaticObject):
@@ -38,6 +34,9 @@ class MapBackground(StaticObject):
 
 
 class PlayState(BaseState):
+    _logger = logging.getLogger("PlayState")
+    _show_debug = False
+
     def __init__(self, state_manager: "StateManager", screen_size: tuple[int, int]):
         super().__init__(state_manager, screen_size)
         self.world: GameWorld | None = None
@@ -51,7 +50,7 @@ class PlayState(BaseState):
         try:
             SoundManager().play_music("Crashsite-Defense.wav")
         except Exception as e:
-            logging.error(f"{e}")
+            self._logger.error(f"{e}")
         
         EventManager.get_instance().subscribe(GameEventEnum.GAME_OVER, self._game_over)
         EventManager.get_instance().subscribe(
@@ -73,26 +72,22 @@ class PlayState(BaseState):
             spawnpoint = current_map._waypoints[WaypointsEnum.PLAYER_SPAWNPOINT]
             player_x, player_y = spawnpoint.position.x, spawnpoint.position.y
             
-        player = Player(player_x, player_y)
-        w_player, h_player = player.frame_width, player.frame_height
+        player = Player(pygame.Vector2(player_x, player_y))
         
         player.pos = pygame.math.Vector2(player_x, player_y)
         if player.rect is not None:
             player.rect.topleft = player.pos
+
+
+        for objects_list in current_map.render_objects:
+            for obj in objects_list:
+                self.world.add_object(obj)
         
         self.world.add_object(player)
         self.world.set_target(player)
         
         self.base = BaseStructure(500, 300)
         self.world.add_object(self.base)
-
-        for _ in range(50):
-            random_x = random.randint(-1000, 2000)
-            random_y = random.randint(-1000, 2000)
-            
-            obs = Obstacle(random_x, random_y)
-            self.world.add_object(obs)
-
         
         self.initialized = True
     
