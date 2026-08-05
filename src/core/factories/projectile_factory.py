@@ -7,6 +7,7 @@ from core.event_manager import EventManager
 from core.factories.factory import Factory
 from entities.projectiles.projectile import Projectile
 
+
 class ProjectileFactory(Factory):
 
     def __init__(self, *args, **kwargs):

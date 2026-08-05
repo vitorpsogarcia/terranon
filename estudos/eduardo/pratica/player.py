@@ -1,6 +1,7 @@
 import pygame
 from settings import *
 
+
 class Player(pygame.sprite.Sprite):
     def __init__(self, x: float, y:float, spritesheet_path: str):
         """

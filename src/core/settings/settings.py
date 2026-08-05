@@ -1,7 +1,8 @@
-from os import path
 from pathlib import Path
 
 import pygame
+
+from utils.resource_path import resource_path
 
 SCREEN_WIDTH = 1056
 SCREEN_HEIGHT = 720
@@ -11,9 +12,9 @@ DELTA_TIME = 0.1
 
 FRAME_WIDTH_PLAYER = 48
 FRAME_HEIGHT_PLAYER = 48
-SCALE_PLAYER = 1.5
+SCALE_PLAYER = 0.75
 
-ASSETS_FOLDER = Path(path.join(path.dirname(__file__), '..', '..', '..', 'assets'))
+ASSETS_FOLDER = Path(resource_path("assets"))
 
 ANIMATIONS_FRAME_COUNT = 8
 

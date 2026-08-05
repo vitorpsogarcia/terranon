@@ -1,10 +1,11 @@
-from typing import Callable, Optional
+from collections.abc import Callable
+
 
 class HealthComponent:
     def __init__(
         self, 
         max_hp: float, 
-        on_death_callback: Optional[Callable[[], None]] = None,
+        on_death_callback: Callable[[], None] | None = None,
         iframes_duration: float = 0.5
     ):
         self.max_hp = max_hp
@@ -35,8 +36,7 @@ class HealthComponent:
             return
             
         self.current_hp += amount
-        if self.current_hp > self.max_hp:
-            self.current_hp = self.max_hp
+        self.current_hp = min(self.current_hp, self.max_hp)
     
     def update(self, dt: float):
         if self.is_invulnerable:

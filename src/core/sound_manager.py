@@ -1,4 +1,3 @@
-from ast import Dict
 
 import pygame
 
@@ -7,7 +6,7 @@ from core.enums.game_event_enum import GameEventEnum
 from core.event_manager import EventManager
 from core.exceptions.asset_not_found_exception import AssetNotFoundException
 from core.settings.settings import ASSETS_FOLDER
-from typing import Dict
+
 
 class SoundManager:
 
@@ -15,7 +14,7 @@ class SoundManager:
 
     def __new__(cls):
         if cls._instance is None:
-            cls._instance = super(SoundManager, cls).__new__(cls)
+            cls._instance = super().__new__(cls)
             cls._instance._initialized = False
         return cls._instance
 
@@ -24,13 +23,13 @@ class SoundManager:
             return
         pygame.mixer.init()
 
-        self.volumes: Dict[str, float] = {
+        self.volumes: dict[str, float] = {
             "master": 1.0,
             "music": 1.0,
             "sfx": 0.8
         }
 
-        self._sfx_counts: Dict [str, int] = {}
+        self._sfx_counts: dict [str, int] = {}
         self._initialized = True
 
         EventManager.get_instance().subscribe(GameEventEnum.PLAY_SFX, self._on_play_sfx)

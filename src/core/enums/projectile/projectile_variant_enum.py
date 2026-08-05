@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class ProjectileVariantEnum(Enum):
     DEFAULT = ("default", 4)
 

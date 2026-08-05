@@ -1,14 +1,6 @@
-from enum import Enum
+from core.enums.abstract_enum import AbstractEnum
 
 
-class WaypointsEnum(Enum):
+class WaypointsEnum(AbstractEnum):
     PLAYER_SPAWNPOINT = 'player_spawnpoint'
     BASE = 'base'
-
-
-    @staticmethod
-    def get_by_text(text: str):
-        for enum in WaypointsEnum:
-            if enum.value == text:
-                return enum
-        return None
