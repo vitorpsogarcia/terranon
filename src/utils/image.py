@@ -5,6 +5,7 @@ import pygame
 
 from utils.resource_path import resource_path
 
+
 def load_image(image_path: os.PathLike | str, size: tuple[int, int] | None = None, scale: float | None = None) -> pygame.Surface:
     caminho_imagem = resource_path(str(image_path))
 

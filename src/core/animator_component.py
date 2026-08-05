@@ -1,4 +1,4 @@
-from typing import List, Dict, Optional
+
 import pygame
 
 from core.game_object import GameObject
@@ -8,13 +8,13 @@ class AnimatorComponent:
 
     def __init__(self, owner: GameObject):
         self.owner = owner
-        self.animations: Dict[str, Dict[str, object]] = {}
-        self.current: Optional[str] = None
+        self.animations: dict[str, dict[str, object]] = {}
+        self.current: str | None = None
         self._frame_index: int = 0
         self._time_acc: float = 0.0
         self._angle = 0
 
-    def add_animation(self, state_name: str, frames_list: List[pygame.Surface], frame_duration: float):
+    def add_animation(self, state_name: str, frames_list: list[pygame.Surface], frame_duration: float):
         if not frames_list:
             raise ValueError("frames_list deve conter pelo menos uma Surface")
         if frame_duration <= 0:
@@ -41,7 +41,7 @@ class AnimatorComponent:
         anim = self.animations.get(self.current)
         if not anim:
             return
-        frames: List[pygame.Surface] = anim["frames"]
+        frames: list[pygame.Surface] = anim["frames"]
         duration: float = anim["duration"]
 
         if len(frames) <= 1:
@@ -61,7 +61,7 @@ class AnimatorComponent:
         anim = self.animations.get(self.current)
         if not anim:
             return
-        frames: List[pygame.Surface] = anim["frames"]
+        frames: list[pygame.Surface] = anim["frames"]
         frame = frames[self._frame_index % len(frames)]
         prev_rect = getattr(self.owner, "rect", None)
         prev_center = prev_rect.center if prev_rect else None

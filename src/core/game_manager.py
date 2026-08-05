@@ -1,11 +1,10 @@
 import pygame
 
+from core.debug_manager import DebugManager
 from core.input_manager import InputManager
 from core.settings.colors import Colors
 from core.settings.settings import FPS
 from core.states.base_state import BaseState
-from core.states.play_state import PlayState
-from core.debug_manager import DebugManager
 
 
 class GameManager:

@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class EnemySpawnerEnum(Enum):
     SPWN_ALPHA = "SPWN_ALPHA"
     SPWN_BETA = "SPWN_BETA"

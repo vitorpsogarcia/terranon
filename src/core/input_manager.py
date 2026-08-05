@@ -1,14 +1,16 @@
 import pygame
-from core.settings.settings import PLAYER_KEYS
+
 from core.debug_manager import DebugManager
 from core.enums.debug_option_enum import DebugOption
+from core.settings.settings import PLAYER_KEYS
+
 
 class InputManager:
     _instance = None
 
     def __new__(cls):
         if cls._instance is None:
-            cls._instance = super(InputManager, cls).__new__(cls)
+            cls._instance = super().__new__(cls)
             cls._instance.keys = None
             cls._instance.mouse_buttons = None
             cls._instance.f3_pressed = False

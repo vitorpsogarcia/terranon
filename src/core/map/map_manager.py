@@ -13,12 +13,18 @@ class MapManager:
     _instance = None
     _current_map: Map | None = None
     _current_map_enum: MapsEnum | None = None
-    _maps: dict[MapsEnum, Map] = {}
+    _maps: dict[MapsEnum, Map]
 
     _logger = logging.getLogger("MapManager")
 
     def __init__(self):
         raise RuntimeError("MapManager is a static class and cannot be instantiated.")
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            cls._maps = {}
+        return cls._instance
 
     @classmethod
     def _is_map_valid(cls, map_enum: MapsEnum) -> bool:

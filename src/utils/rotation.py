@@ -1,6 +1,7 @@
 import math
 
 import pygame
+
 from core.enums.directions_enum import DirectionsEnum
 
 

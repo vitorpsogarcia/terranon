@@ -1,9 +1,10 @@
 
+from math import atan2, degrees
 from pathlib import Path
 
 import pygame
-from math import degrees, atan2
 from pygame import Vector2
+
 from core.animator_component import AnimatorComponent
 from core.asset_manager import AssetManager
 from core.enums.projectile.projectile_types_enum import ProjectileTypesEnum

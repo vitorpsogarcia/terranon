@@ -1,17 +1,16 @@
-from typing import TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING
 
 from core.enums.game_state_enum import GameStateEnum
 
-
 if TYPE_CHECKING:
-    from core.states.base_state import BaseState
     from core.game_manager import GameManager
+    from core.states.base_state import BaseState
 
 
 class StateManager:
     def __init__(self, game_manager: "GameManager | None" = None):
-        self.game_manager: "GameManager | None" = game_manager
-        self.states: Dict[str, "BaseState"] = {}
+        self.game_manager: GameManager | None = game_manager
+        self.states: dict[str, BaseState] = {}
     
     def register_state(self, state_name: GameStateEnum, state):
         self.states[state_name.value] = state

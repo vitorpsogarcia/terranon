@@ -1,9 +1,10 @@
-import pygame
 from typing import TYPE_CHECKING
 
+import pygame
+
 from core.enums.game_state_enum import GameStateEnum
-from core.states.base_state import BaseState
 from core.settings.colors import Colors
+from core.states.base_state import BaseState
 
 if TYPE_CHECKING:
     from core.state_manager import StateManager
@@ -35,7 +36,6 @@ class MenuState(BaseState):
             if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
                 self.state_manager.change_to(GameStateEnum.PLAY)
                 print("Enter pressed - Start Game")
-        pass
 
     def draw(self, surface):
         if self.title_text is None or self.instruction_text is None:

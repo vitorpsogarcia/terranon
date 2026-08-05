@@ -88,7 +88,7 @@ class MainWorldMap(Map):
                 )
 
             to_waypoint = None
-            if "is_last" in item.properties and item.properties["is_last"]:
+            if item.properties.get("is_last"):
                 to_waypoint = self._waypoints.get(WaypointsEnum.BASE)
 
             polyline = Polyline(route_id, points, to_waypoint=to_waypoint)
