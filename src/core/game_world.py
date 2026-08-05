@@ -42,9 +42,7 @@ class GameWorld(GameScene):
 
     def set_target(self, target: GameObject):
         self.target = target
-        if not hasattr(self.camera_group, "set_target"):
-            raise AttributeError("CameraGroup deve possuir um método 'set_target'.")
-        self.camera_group.set_target(target)
+        self.camera_group.target = target
         self.player_group.add(target._sprite)
 
     def add_object(self, obj: GameObject):
