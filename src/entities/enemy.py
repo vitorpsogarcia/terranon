@@ -1,8 +1,10 @@
 import pygame
+
 from core.map.waypoints.polyline import Polyline
 from core.map.waypoints.waypoint import Waypoint
 from entities.character.characters import Character
 from utils.direction import get_direction_str_by_vector
+
 
 class Enemy(Character):
     current_waypoint: Waypoint

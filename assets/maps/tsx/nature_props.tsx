@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.10" tiledversion="1.12.1" name="nature_props" tilewidth="70" tileheight="98" tilecount="34" columns="0">
+<tileset version="1.10" tiledversion="1.12.2" name="nature_props" tilewidth="70" tileheight="98" tilecount="34" columns="0">
  <grid orientation="orthogonal" width="1" height="1"/>
  <tile id="0">
   <image source="../Assets/decorations/nature_props/bush_1.png" width="35" height="27"/>
@@ -91,7 +91,7 @@
  <tile id="29">
   <image source="../Assets/decorations/nature_props/small_bush_2.png" width="16" height="13"/>
  </tile>
- <tile id="30">
+ <tile id="30" type="tree_lg_1">
   <image source="../Assets/decorations/nature_props/tree_lg_1.png" width="70" height="98"/>
   <objectgroup draworder="index" id="3">
    <object id="2" x="23.625" y="78.75" width="20.625" height="15.375"/>
@@ -103,7 +103,7 @@
    <object id="1" x="24.1875" y="79.8125" width="20.625" height="14.375"/>
   </objectgroup>
  </tile>
- <tile id="32">
+ <tile id="32" type="tree_sm_1">
   <image source="../Assets/decorations/nature_props/tree_sm_1.png" width="38" height="74"/>
   <objectgroup draworder="index" id="2">
    <object id="1" x="13.3125" y="61.6875" width="12.625" height="9.125"/>

@@ -1,36 +1,42 @@
-from typing import Dict, TypedDict
+from typing import ClassVar, TypedDict
 
 import pygame
 
 from core.exceptions.asset_not_found_exception import AssetNotFoundException
+from core.settings.settings import ASSETS_FOLDER
 from utils.image import load_image
 
-from core.settings.settings import ASSETS_FOLDER
 
 class AssetsDict(TypedDict):
-    images: Dict[str, pygame.Surface]
-    fonts: Dict[str, pygame.font.Font]
-    sounds: Dict[str, pygame.mixer.Sound]
+    images: dict[str, pygame.Surface]
+    fonts: dict[str, pygame.font.Font]
+    sounds: dict[str, pygame.mixer.Sound]
+
 
 class AssetManager:
     _instance = None
-    _assets: AssetsDict = {
-        "images": {},
-        "fonts": {},
-        "sounds": {}
-    }
-    _sound_cache = {}
+    _assets: ClassVar[AssetsDict] = {"images": {}, "fonts": {}, "sounds": {}}
+    _sound_cache: ClassVar[dict[str, pygame.mixer.Sound]] = {}
 
     def __new__(cls):
         if cls._instance is None:
-            cls._instance = super(AssetManager, cls).__new__(cls)
+            cls._instance = super().__new__(cls)
         return cls._instance
 
     @classmethod
-    def load_image(cls, name: str, path: str, size: tuple[int, int] | None = None, scale: float | None = None, **kwargs):
+    def load_image(
+        cls,
+        name: str,
+        path: str,
+        size: tuple[int, int] | None = None,
+        scale: float | None = None,
+        **kwargs,
+    ):
         if name not in cls._assets["images"]:
             try:
-                image = load_image(ASSETS_FOLDER / "images" / path, size=size, scale=scale, **kwargs)
+                image = load_image(
+                    ASSETS_FOLDER / "images" / path, size=size, scale=scale, **kwargs
+                )
                 cls._assets["images"][name] = image
                 return image
             except (pygame.error, FileNotFoundError):
@@ -39,10 +45,10 @@ class AssetManager:
 
     @classmethod
     def get_image(cls, name: str) -> pygame.Surface:
-        asset =  cls._assets["images"].get(name)
+        asset = cls._assets["images"].get(name)
         if asset is None:
             raise AssetNotFoundException(name, message="Image not loaded")
-    
+
         return asset
 
     @classmethod
@@ -62,7 +68,7 @@ class AssetManager:
         if font is None:
             raise AssetNotFoundException(name, message="Font not loaded")
         return font
-    
+
     @classmethod
     def get_sound(cls, path: str) -> pygame.mixer.Sound:
         if path not in cls._sound_cache:
@@ -71,4 +77,9 @@ class AssetManager:
                 cls._sound_cache[path] = sound
             except (pygame.error, FileNotFoundError):
                 raise AssetNotFoundException(path)
-        return cls._sound_cache.get(path)
+
+        sound = cls._sound_cache.get(path)
+        if sound is None:
+            raise AssetNotFoundException(path, message="Sound not loaded")
+
+        return sound

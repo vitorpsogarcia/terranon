@@ -1,4 +1,3 @@
-import logging
 
 from core.map.waypoints.waypoint import Waypoint
 

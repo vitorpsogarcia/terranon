@@ -1,6 +1,7 @@
 import pygame
-from settings import *
 from player import Player
+from settings import *
+
 
 class Game:
     def __init__(self, tela):
