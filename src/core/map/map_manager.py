@@ -1,11 +1,13 @@
 import logging
 
+from core.asset_manager import AssetManager
 from core.enums.map_enums import MapsEnum
 
 from core.exceptions.map_not_existent_exception import MapNotExistentException
 from core.game_world import GameWorld
 from core.map.map import Map
 from core.map.maps.main_world import MainWorldMap
+from core.settings.maps_assets import NATURE_PROPS
 
 class MapManager:
     _instance = None
@@ -34,9 +36,12 @@ class MapManager:
         if cls._instance is not None:
             raise RuntimeError("MapManager has already been initialized.")
 
+        cls._load_props()
+
         cls._maps = {
             MapsEnum.MAIN_WORLD: MainWorldMap()
         }
+
 
         cls._logger.info("MapManager initialized successfully.")
 
@@ -60,3 +65,21 @@ class MapManager:
 
         cls._current_map = map
         cls._current_map_enum = map_enum
+
+
+    @classmethod
+    def _load_props(cls):
+        cls._logger.info("Loading props...")
+        cls._load_nature_props()
+        cls._logger.info("Props loaded successfully.")
+
+
+    @classmethod
+    def _load_nature_props(cls):
+        cls._logger.info("Loading nature props...")
+        
+        for file in NATURE_PROPS.glob('*.png'):
+            name = file.stem
+            AssetManager.load_image(name, str(file))
+
+        cls._logger.info("Nature props loaded successfully.")

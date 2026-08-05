@@ -10,7 +10,7 @@ from core.map.waypoints.polyline import Polyline
 from core.map.waypoints.waypoint import Waypoint
 from core.settings.settings import ASSETS_FOLDER
 from entities.enemy_spawner import EnemySpawner
-
+from entities.nature.tree import Tree
 
 main_world_path = (ASSETS_FOLDER / 'maps' / 'tmx' / 'main_world.tmx').as_posix()
 
@@ -42,6 +42,9 @@ class MainWorldMap(Map):
             self._process_enemy_paths_layer(enemy_routes_layer)
         if spawners_layer:
             self._process_spawners_layer(spawners_layer)
+
+        self._process_objects_layer()
+
 
     def _process_ground_layer(self, layer):
         self._logger.info("Processing ground layer...")
@@ -116,3 +119,56 @@ class MainWorldMap(Map):
                 self._logger.info(f"Spawner '{spawner_name}' processed successfully.")
         self._enemy_spawners = spawners
         self._logger.info("Spawners layer processed successfully.")
+
+
+    def _process_objects_layer(self):
+        trees_layer = self.tiled_map.get_layer_by_name(MapLayersEnum.TREES.value)
+        collision_layer = self.tiled_map.get_layer_by_name(MapLayersEnum.COLLISION.value)
+
+        if trees_layer:
+            self._process_trees_layer(trees_layer)
+
+        if collision_layer:
+            self._process_collision_layer(collision_layer)
+        
+
+    def _process_trees_layer(self, layer):
+        self._logger.info("Planting trees...")
+        trees = []
+
+        sorted_by_y = sorted(layer, key=lambda item: item.y)
+
+        for item in sorted_by_y:
+            tree_type = item.properties.get('type')
+            colliders = item.properties.get('colliders', False)
+
+            relative_hitboxes = []
+            if colliders:
+                for col in colliders:
+                    # Cria o hitbox com coordenadas relativas à origem da árvore (definido no Tiled)
+                    relative_hitbox = pygame.Rect(col.x, col.y, col.width, col.height)
+                    relative_hitboxes.append(relative_hitbox)
+
+                    # O sistema de colisor do mapa ainda precisa das coordenadas absolutas
+                    absolute_hitbox = relative_hitbox.move(item.x, item.y)
+                    self.add_collider(absolute_hitbox)
+
+            if tree_type is None:
+                continue
+            
+            # Passa a lista de hitboxes RELATIVOS para a árvore
+            tree = Tree(pygame.math.Vector2(item.x, item.y), tree_type, relative_hitboxes)
+            trees.append(tree)
+        self._trees = trees
+
+        self.add_list_render_object(trees)
+        self._logger.info("Trees planted successfully.")
+
+    def _process_collision_layer(self, layer):
+        self._logger.info("Processing collision layer...")
+        colliders = []
+        for item in layer:
+            collider = pygame.Rect(item.x, item.y, item.width, item.height)
+            colliders.append(collider)
+            self.add_collider(collider)
+        self._logger.info("Collision layer processed successfully.")

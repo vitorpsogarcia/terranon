@@ -6,3 +6,5 @@ class MapLayersEnum(Enum):
     WAYPOINTS = 'waypoints'
     GROUND = 'ground'
     SPAWNERS = 'spawners'
+    TREES = 'trees'
+    COLLISION = 'collision'
