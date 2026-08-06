@@ -1,3 +1,5 @@
+import pygame
+
 from entities.character.goblin import Goblin
 
 
@@ -8,10 +10,10 @@ class EnemyFactory:
     }
 
     @classmethod
-    def create_enemy(self,enemy_type: str, x: float, y: float, path: list):
+    def create_enemy(self,enemy_type: str, position: pygame.Vector2, path: list):
         enemy_class = EnemyFactory._registry.get(enemy_type)
 
         if enemy_class is None:
             raise ValueError(f"Inimigo desconhecido: {enemy_type}")
 
-        return enemy_class(x, y, path=path)
+        return enemy_class(position, path=path)

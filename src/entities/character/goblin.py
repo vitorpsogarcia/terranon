@@ -1,12 +1,15 @@
+import pygame
+
 from core.enums.directions_enum import DirectionsEnum
 from core.settings.settings import ASSETS_FOLDER
 from entities.enemy import Enemy
 from utils.image import load_image
 
+
 class Goblin(Enemy):
 
-    def __init__(self, x: float, y: float, path: list, speed: float = 80.0, damage: int = 10, *groups):
-        super().__init__(x, y, path, speed, *groups)
+    def __init__(self, position: pygame.Vector2, path: list, speed: float = 80.0, damage: int = 10, *groups):
+        super().__init__(position.x, position.y, path, speed, *groups)
         
         self.health.max_hp = 50.0
         self.damage = damage
