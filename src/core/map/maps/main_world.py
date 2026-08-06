@@ -126,7 +126,7 @@ class MainWorldMap(Map):
                     continue
 
                 enemy_spawner = EnemySpawner(
-                    spawner_name, item.x, item.y, path, spawn_interval=8.0
+                    spawner_name, item.x, item.y, path
                 )
                 spawners[EnemySpawnerEnum(spawner_name)] = enemy_spawner
 
