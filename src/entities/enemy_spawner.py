@@ -6,13 +6,12 @@ from core.enums.game_event_enum import GameEventEnum
 from core.event_manager import EventManager
 from core.game_object import StaticObject
 from core.map.waypoints.polyline import Polyline
-from entities.character.goblin import Goblin
-from entities.enemy import Enemy
+from entities.enemy_factory import EnemyFactory
 
 
 class EnemySpawner(StaticObject):
-    def __init__(self, spawner_id: str, x: float, y: float, path: Polyline, *groups: pygame.sprite.Group):
-        super().__init__((x, y), *groups)
+    def __init__(self, spawner_id: str, position: pygame.Vector2 , path: Polyline,  *groups: pygame.sprite.Group, spawn_interval: float = 5.0,):
+        super().__init__(position, *groups)
         self.spawner_id = spawner_id
         self.path = path
         self.image = pygame.Surface((32, 32)).convert_alpha()
@@ -22,9 +21,9 @@ class EnemySpawner(StaticObject):
     def update(self, dt: float):
         super().update(dt)
 
-    def spawn_enemy(self, enemy_type: str = "default"):
+    def spawn_enemy(self, enemy_type: str = "goblin"):
         if enemy_type == EnemyEnum.WEAK_BASIC:
-            new_enemy_goblin = Goblin(self.pos.x, self.pos.y, path=self.path)
+            new_enemy_goblin = EnemyFactory.create_enemy(enemy_type, self.pos, self.path)
         else:
             new_enemy_goblin = Enemy(self.pos.x, self.pos.y, path=self.path)
             
