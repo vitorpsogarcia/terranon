@@ -4,8 +4,8 @@ import pygame
 
 from core.camera_group import CameraGroup
 from core.enums.game_event_enum import GameEventEnum
-from core.event_manager import EventManager
 from core.game_object import DynamicObject, GameObject
+from core.manager.event_manager import EventManager
 from entities.character.player import Player
 from entities.enemy import Enemy
 from entities.enemy_spawner import EnemySpawner

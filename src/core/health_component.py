@@ -3,18 +3,18 @@ from collections.abc import Callable
 
 class HealthComponent:
     def __init__(
-        self, 
-        max_hp: float, 
+        self,
+        max_hp: float,
         on_death_callback: Callable[[], None] | None = None,
-        iframes_duration: float = 0.5
+        iframes_duration: float = 0.5,
     ):
         self.max_hp = max_hp
         self.current_hp = max_hp
-        
+
         self.is_invulnerable = False
         self.invulnerability_timer = 0.0
         self.iframes_duration = iframes_duration
-        
+
         self.is_dead = False
         self.on_death_callback = on_death_callback
 
@@ -23,7 +23,7 @@ class HealthComponent:
             return
 
         self.current_hp -= amount
-        
+
         if self.current_hp <= 0:
             self.current_hp = 0
             self.die()
@@ -34,10 +34,10 @@ class HealthComponent:
     def heal(self, amount: float):
         if self.is_dead or amount <= 0:
             return
-            
+
         self.current_hp += amount
         self.current_hp = min(self.current_hp, self.max_hp)
-    
+
     def update(self, dt: float):
         if self.is_invulnerable:
             self.invulnerability_timer -= dt

@@ -4,7 +4,7 @@ from core.enums.directions_enum import DirectionsEnum
 from core.enums.game_event_enum import GameEventEnum
 from core.enums.projectile.projectile_types_enum import ProjectileTypesEnum
 from core.enums.projectile.projectile_variant_enum import ProjectileVariantEnum
-from core.event_manager import EventManager
+from core.manager.event_manager import EventManager
 from core.settings.settings import (
     ASSETS_FOLDER,
     PLAYER_BASE_SPEED,
