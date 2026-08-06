@@ -1,8 +1,6 @@
 from pygame import Vector2
 
 
-from pygame.math import Vector2
-
 def get_direction_str_by_vector(vector: Vector2) -> str | None:
     if vector.length() == 0:
         return None

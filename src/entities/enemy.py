@@ -8,7 +8,15 @@ from utils.direction import get_direction_str_by_vector
 
 class Enemy(Character):
     current_waypoint: Waypoint
-    def __init__(self, x: float, y: float, path: Polyline, speed: float = 50.0, *groups: pygame.sprite.Group):
+
+    def __init__(
+        self,
+        x: float,
+        y: float,
+        path: Polyline,
+        speed: float = 50.0,
+        *groups: pygame.sprite.Group,
+    ):
         super().__init__((x, y), speed, *groups)
 
         self.scale = 0.3
@@ -16,13 +24,13 @@ class Enemy(Character):
         self.path = path
         self.current_waypoint = self.path.get_start_waypoint()
         self.hitbox = pygame.Rect(self.pos.x, self.pos.y, 30, 60)
-        
+
         if self.image is None:
             self.image = pygame.Surface((20, 48)).convert_alpha()
             self.image.fill((111, 0, 0))
-            self.rect = self.image.get_rect(topleft=(round(self.pos.x), round(self.pos.y)))
-
-        
+            self.rect = self.image.get_rect(
+                topleft=(round(self.pos.x), round(self.pos.y))
+            )
 
     def update(self, dt: float):
         next_waypoint = self.path.get_next_waypoint(self.current_waypoint)
@@ -45,10 +53,10 @@ class Enemy(Character):
         else:
             self.direction = pygame.math.Vector2(0, 0)
             estado_animacao = "idle"
-            
+
             # TODO: Disparar evento de Dano à Base (vitor: Depende, e se o inimigo não estiver sobre a base? Seria melhor deixar para o colisor da base lidar com isso)
             # EventManager.get_instance().emit(GameEventEnum.BASE_DAMAGED, dano=10)
-            
+
             self.health.take_damage(9999)
 
         self.current_state = estado_animacao
@@ -59,3 +67,5 @@ class Enemy(Character):
         super().update(dt)
 
         self.hitbox.center = (round(self.pos.x), round(self.pos.y))
+        if self.rect is not None:
+            self.rect.center = self.hitbox.center
