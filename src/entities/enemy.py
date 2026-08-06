@@ -68,6 +68,8 @@ class Enemy(Character):
 
         super().update(dt)
         self.hitbox.center = (round(self.pos.x), round(self.pos.y))
+        if self.rect is not None:
+            self.rect.center = self.hitbox.center
 
     def on_death(self):
         super().on_death()
