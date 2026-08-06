@@ -86,6 +86,9 @@ class GameWorld(GameScene):
         )
         for enemy_sprite, shots in hits.items():
             enemy = enemy_sprite.owner
+            if not isinstance(enemy, Enemy):
+                return
+
             for shot_sprite in shots:
                 shot = shot_sprite.owner
                 enemy.health.take_damage(shot.damage)

@@ -7,12 +7,14 @@ class HealthComponent:
         max_hp: float,
         on_death_callback: Callable[[], None] | None = None,
         iframes_duration: float = 0.5,
+        allow_invulnerability: bool = False,
     ):
         self.max_hp = max_hp
         self.current_hp = max_hp
 
         self.is_invulnerable = False
         self.invulnerability_timer = 0.0
+        self.allow_invulnerability = allow_invulnerability
         self.iframes_duration = iframes_duration
 
         self.is_dead = False
@@ -22,12 +24,13 @@ class HealthComponent:
         if self.is_dead or self.is_invulnerable or amount <= 0:
             return
 
+        print(f"Taking damage: {amount} | Current HP: {self.current_hp}")
         self.current_hp -= amount
 
         if self.current_hp <= 0:
             self.current_hp = 0
             self.die()
-        else:
+        elif self.allow_invulnerability:
             self.is_invulnerable = True
             self.invulnerability_timer = self.iframes_duration
 

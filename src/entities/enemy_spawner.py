@@ -5,7 +5,6 @@ from core.game_object import StaticObject
 from core.manager.event_manager import EventManager
 from core.map.waypoints.polyline import Polyline
 from entities.character.goblin import Goblin
-from entities.enemy import Enemy
 
 
 class EnemySpawner(StaticObject):
@@ -36,5 +35,5 @@ class EnemySpawner(StaticObject):
             self.spawn_timer = 0.0
 
     def spawn_enemy(self, enemy_type: str = "default"):
-        new_enemy = Goblin(self.pos, path=self.path, max_hp=10, points=10)
+        new_enemy = Goblin(self.pos, path=self.path)
         EventManager.get_instance().emit(GameEventEnum.ENEMY_SPAWNED, new_enemy)

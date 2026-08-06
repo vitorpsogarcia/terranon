@@ -19,7 +19,7 @@ class Enemy(Character):
         *groups: pygame.sprite.Group,
         speed: float = 50.0,
         points: int = 5,
-        max_hp: int = 100,
+        max_hp: float = 100.0,
     ):
         super().__init__(position, speed, *groups, max_hp=max_hp)
         self.scale = 0.3

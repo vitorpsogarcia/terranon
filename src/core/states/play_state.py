@@ -82,9 +82,6 @@ class PlayState(BaseState):
         self.world.add_object(player)
         self.world.set_target(player)
 
-        self.base = BaseStructure(500, 300)
-        self.world.add_object(self.base)
-
         self.initialized = True
 
     def exit(self):
