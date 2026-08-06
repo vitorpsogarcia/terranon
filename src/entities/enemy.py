@@ -22,9 +22,11 @@ class Enemy(Character):
         max_hp: int = 100,
     ):
         super().__init__(position, speed, *groups, max_hp=max_hp)
+        self.scale = 0.3
 
         self.path = path
         self.current_waypoint = self.path.get_start_waypoint()
+        self.hitbox = pygame.Rect(self.pos.x, self.pos.y, 30, 60)
 
         if self.image is None:
             self.image = pygame.Surface((20, 48)).convert_alpha()
@@ -65,6 +67,7 @@ class Enemy(Character):
             self.last_direction = dir_str
 
         super().update(dt)
+        self.hitbox.center = (round(self.pos.x), round(self.pos.y))
 
     def on_death(self):
         super().on_death()
