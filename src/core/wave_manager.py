@@ -13,9 +13,8 @@ class WaveManager:
         self.current_delay_timer = 0.0
 
         self.current_wave_script = [
-            {"time": 5.0, "spawner": EnemySpawnerEnum.SPWN_GAMA.value, "enemy": EnemyEnum.WEAK_BASIC, "qtd": 3},
-            {"time": 15.0, "spawner": EnemySpawnerEnum.SPWN_ALPHA.value, "enemy": EnemyEnum.WEAK_FAST, "qtd": 5},
-            {"time": 15.0, "spawner": EnemySpawnerEnum.SPWN_DELTA.value, "enemy": EnemyEnum.WEAK_BASIC, "qtd": 5}
+            {"time": 5.0, "spawner": EnemySpawnerEnum.SPWN_GAMA.value, "enemy": EnemyEnum.GOBLIN, "qtd": 3},
+            {"time": 15.0, "spawner": EnemySpawnerEnum.SPWN_DELTA.value, "enemy": EnemyEnum.GOBLIN, "qtd": 5}
         ]
         
         self.current_wave_script.sort(key=lambda x: x["time"])

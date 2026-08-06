@@ -2,5 +2,4 @@
 from enum import Enum
 
 class EnemyEnum(Enum):
-    WEAK_BASIC = "weak_basic"
-    WEAK_FAST = "weak_fast"
+    GOBLIN = "goblin"
