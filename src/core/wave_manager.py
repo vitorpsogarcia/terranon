@@ -1,6 +1,8 @@
 # src/core/wave_manager.py
 from core.enums.enemy_enum import EnemyEnum
 from core.enums.enemy_spawner_enum import EnemySpawnerEnum
+from core.event_manager import EventManager
+from core.enums.game_event_enum import GameEventEnum
 
 
 class WaveManager:
@@ -13,14 +15,16 @@ class WaveManager:
         self.current_delay_timer = 0.0
 
         self.current_wave_script = [
-            {"time": 5.0, "spawner": EnemySpawnerEnum.SPWN_GAMA.value, "enemy": EnemyEnum.GOBLIN, "qtd": 3},
-            {"time": 15.0, "spawner": EnemySpawnerEnum.SPWN_DELTA.value, "enemy": EnemyEnum.GOBLIN, "qtd": 5}
+            {"time": 1.0, "spawner": EnemySpawnerEnum.SPWN_ALPHA.value, "enemy": EnemyEnum.GOBLIN, "qtd": 10},
+            {"time": 2.0, "spawner": EnemySpawnerEnum.SPWN_GAMA.value, "enemy": EnemyEnum.GOBLIN, "qtd": 10},
+            {"time": 1.0, "spawner": EnemySpawnerEnum.SPWN_BETA.value, "enemy": EnemyEnum.GOBLIN, "qtd": 10},
+            {"time": 2.0, "spawner": EnemySpawnerEnum.SPWN_DELTA.value, "enemy": EnemyEnum.GOBLIN, "qtd": 10}
         ]
         
         self.current_wave_script.sort(key=lambda x: x["time"])
+        EventManager.get_instance().subscribe(event=GameEventEnum.RESET_WAVES, listener=self.reset)
 
     def update(self, dt: float):
-        # 1. PROCESSA A FILA DE SPAWN (Loop com delay)
         if self.pending_spawns:
             self.current_delay_timer += dt
             if self.current_delay_timer >= self.spawn_delay:
@@ -50,3 +54,7 @@ class WaveManager:
                 
                 self.current_event_index += 1
                 self.current_event_index += 1
+    
+    def reset(self):
+        self.wave_timer = 0.0
+        self.current_event_index = 0
