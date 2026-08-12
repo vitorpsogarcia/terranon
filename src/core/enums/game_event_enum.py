@@ -10,6 +10,7 @@ class GameEventEnum(Enum):
     WAVE_STARTED = "WAVE_STARTED"
     WAVE_ENDED = "WAVE_ENDED"
     ENEMY_SPAWNED = "ENEMY_SPAWNED"
+    RESET_WAVES = "RESET_WAVES"
 
     def __str__(self):
         return self.value
