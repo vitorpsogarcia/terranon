@@ -12,6 +12,7 @@ from core.manager.event_manager import EventManager
 from core.manager.sound_manager import SoundManager
 from core.map.map_backgroud import MapBackground
 from core.states.base_state import BaseState
+from core.wave_manager import WaveManager
 from entities.base_structure import BaseStructure
 
 if TYPE_CHECKING:
@@ -82,6 +83,8 @@ class PlayState(BaseState):
         self.world.add_object(player)
         self.world.set_target(player)
 
+        self.wave_manager = WaveManager(self.world.spawners)
+
         self.initialized = True
 
     def exit(self):
@@ -97,6 +100,9 @@ class PlayState(BaseState):
     def update(self, delta_time):
         if self.world is not None:
             self.world.update(delta_time)
+
+        if hasattr(self, "wave_manager"):
+            self.wave_manager.update(delta_time)
 
     def _change_state(self, new_state: GameStateEnum):
         self.state_manager.change_to(new_state)
