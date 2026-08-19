@@ -2,7 +2,6 @@ import pygame
 
 from core.enums.enemy_enum import EnemyEnum
 from core.enums.game_event_enum import GameEventEnum
-from core.event_manager import EventManager
 from core.factories.enemy_factory import EnemyFactory
 from core.game_object import StaticObject
 from core.manager.event_manager import EventManager

@@ -24,7 +24,6 @@ class HealthComponent:
         if self.is_dead or self.is_invulnerable or amount <= 0:
             return
 
-        print(f"Taking damage: {amount} | Current HP: {self.current_hp}")
         self.current_hp -= amount
 
         if self.current_hp <= 0:
