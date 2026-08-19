@@ -3,12 +3,12 @@ from typing import TYPE_CHECKING
 import pygame
 
 from core.enums.game_state_enum import GameStateEnum
+from core.manager.sound_manager import SoundManager
 from core.settings.colors import Colors
-from core.sound_manager import SoundManager
 from core.states.base_state import BaseState
 
 if TYPE_CHECKING:
-    from core.state_manager import StateManager
+    from core.manager.state_manager import StateManager
 
 
 class GameOverState(BaseState):

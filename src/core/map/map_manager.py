@@ -1,9 +1,9 @@
 import logging
 
-from core.asset_manager import AssetManager
 from core.enums.map_enums import MapsEnum
 from core.exceptions.map_not_existent_exception import MapNotExistentException
 from core.game_world import GameWorld
+from core.manager.asset_manager import AssetManager
 from core.map.map import Map
 from core.map.maps.main_world import MainWorldMap
 from core.settings.maps_assets import NATURE_PROPS

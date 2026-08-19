@@ -4,8 +4,8 @@ import pygame
 
 from core.camera_group import CameraGroup
 from core.enums.game_event_enum import GameEventEnum
-from core.event_manager import EventManager
 from core.game_object import DynamicObject, GameObject
+from core.manager.event_manager import EventManager
 from entities.character.player import Player
 from entities.enemy import Enemy
 from entities.enemy_spawner import EnemySpawner
@@ -86,9 +86,12 @@ class GameWorld(GameScene):
         )
         for enemy_sprite, shots in hits.items():
             enemy = enemy_sprite.owner
+            if not isinstance(enemy, Enemy):
+                return
+
             for shot_sprite in shots:
                 shot = shot_sprite.owner
-                enemy.health.take_damage(shot.damage)
+                enemy.take_damage(shot.damage)
 
         enemy_obstacle_hits = pygame.sprite.groupcollide(
             self.obstacles, self.enemy_projectiles_group, False, True

@@ -1,21 +1,20 @@
 import pygame
 
 from core.enums.game_event_enum import GameEventEnum
-from core.event_manager import EventManager
 from core.game_object import StaticObject
 from core.health_component import HealthComponent
+from core.manager.event_manager import EventManager
 
 
 class BaseStructure(StaticObject):
-    def __init__(self, x: float, y: float, *groups: pygame.sprite.Group):
-        super().__init__((x, y), *groups)
+    def __init__(self, position: pygame.Vector2, *groups: pygame.sprite.Group):
+        super().__init__(position, *groups)
 
         self.image = pygame.Surface((64, 64)).convert_alpha()
         self.image.fill((0, 0, 255))
         self.rect = self.image.get_rect(topleft=(round(self.pos.x), round(self.pos.y)))
 
-        self.health = HealthComponent(
-            max_hp=500.0, on_death_callback=self.on_death)
+        self.health = HealthComponent(max_hp=500.0, on_death_callback=self.on_death)
 
     def update(self, dt: float):
         self.health.update(dt)
@@ -26,4 +25,3 @@ class BaseStructure(StaticObject):
         self.kill()
         print("A BASE CAIU! GAME OVER!")
         EventManager.get_instance().emit(GameEventEnum.GAME_OVER)
-        

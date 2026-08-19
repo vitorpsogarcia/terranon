@@ -11,11 +11,16 @@ class Character(DynamicObject):
         initial_position: pygame.Vector2,
         speed: float = 100.0,
         *groups: pygame.sprite.Group,
+        max_hp: float = 100.0,
+        allow_invulnerability: bool = False,
     ):
         super().__init__(initial_position, *groups)
         self.animator = AnimatorComponent(self)
         self.health = HealthComponent(
-            max_hp=100.0, on_death_callback=self.on_death, iframes_duration=0.5
+            max_hp=max_hp,
+            on_death_callback=self.on_death,
+            iframes_duration=0.5,
+            allow_invulnerability=allow_invulnerability,
         )
         self.speed = speed
         self.direction = pygame.math.Vector2(0, 0)
