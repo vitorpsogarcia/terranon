@@ -91,7 +91,7 @@ class GameWorld(GameScene):
 
             for shot_sprite in shots:
                 shot = shot_sprite.owner
-                enemy.health.take_damage(shot.damage)
+                enemy.take_damage(shot.damage)
 
         enemy_obstacle_hits = pygame.sprite.groupcollide(
             self.obstacles, self.enemy_projectiles_group, False, True

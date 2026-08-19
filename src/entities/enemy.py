@@ -71,6 +71,13 @@ class Enemy(Character):
         if self.rect is not None:
             self.rect.center = self.hitbox.center
 
-    def on_death(self):
+    def on_death(self, by_player: bool = True):
         super().on_death()
-        EventManager().emit(GameEventEnum.ENEMY_KILLED, self._points)
+
+        if by_player:
+            EventManager().emit(GameEventEnum.ENEMY_KILLED, self._points)
+
+    def take_damage(self, amount: float, by_player: bool = True):
+        self.health.take_damage(amount)
+        if self.health.is_dead:
+            self.on_death(by_player=by_player)
