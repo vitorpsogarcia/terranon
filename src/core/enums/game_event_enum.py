@@ -11,10 +11,9 @@ class GameEventEnum(Enum):
 
     ENEMY_SPAWNED = "ENEMY_SPAWNED"
     ENEMY_KILLED = "ENEMY_KILLED"
-
     SPAWN_PROJECTILE = "SPAWN_PROJECTILE"
-
     SPEND_POINTS = "SPEND_POINTS"
+    RESET_WAVES = "RESET_WAVES"
 
     def __str__(self):
         return self.value
