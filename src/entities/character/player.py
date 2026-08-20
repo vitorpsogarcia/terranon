@@ -4,7 +4,7 @@ from core.enums.directions_enum import DirectionsEnum
 from core.enums.game_event_enum import GameEventEnum
 from core.enums.projectile.projectile_types_enum import ProjectileTypesEnum
 from core.enums.projectile.projectile_variant_enum import ProjectileVariantEnum
-from core.event_manager import EventManager
+from core.manager.event_manager import EventManager
 from core.settings.settings import (
     ASSETS_FOLDER,
     PLAYER_BASE_SPEED,
@@ -17,7 +17,9 @@ from utils.image import load_image
 
 class Player(Character):
     def __init__(self, position: pygame.Vector2, *groups: pygame.sprite.Group):
-        super().__init__(position, PLAYER_BASE_SPEED, *groups)
+        super().__init__(
+            position, PLAYER_BASE_SPEED, *groups, allow_invulnerability=True
+        )
         self.scale = SCALE_PLAYER
         self._last_direction = DirectionsEnum.SOUTH
         self._is_running = False

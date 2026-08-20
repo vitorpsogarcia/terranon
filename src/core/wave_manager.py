@@ -1,8 +1,8 @@
 # src/core/wave_manager.py
 from core.enums.enemy_enum import EnemyEnum
 from core.enums.enemy_spawner_enum import EnemySpawnerEnum
-from core.event_manager import EventManager
 from core.enums.game_event_enum import GameEventEnum
+from core.manager.event_manager import EventManager
 
 
 class WaveManager:
@@ -25,9 +25,11 @@ class WaveManager:
                 "enemy": EnemyEnum.GOBLIN, "qtd": 10}
         ]
 
+
         self.current_wave_script.sort(key=lambda x: x["time"])
         EventManager.get_instance().subscribe(
-            event=GameEventEnum.RESET_WAVES, listener=self.reset)
+            event=GameEventEnum.RESET_WAVES, listener=self.reset
+        )
 
     def update(self, dt: float):
         if self.active_batches:
@@ -55,6 +57,7 @@ class WaveManager:
 
         while self.current_event_index < len(self.current_wave_script):
             next_event = self.current_wave_script[self.current_event_index]
+
 
             if self.wave_timer >= next_event["time"]:
                 self.active_batches.append({

@@ -2,8 +2,8 @@ import logging
 
 import pygame
 
-from core.debug_manager import DebugManager
 from core.game_object import GameObject, StaticObject
+from core.manager.debug_manager import DebugManager
 
 
 class CameraGroup(pygame.sprite.LayeredUpdates):

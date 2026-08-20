@@ -1,9 +1,9 @@
 import pygame
 
-from core.debug_manager import DebugManager
-from core.event_manager import EventManager
+from core.manager.event_manager import EventManager
 from core.enums.debug_option_enum import DebugOption
 from core.enums.game_event_enum import GameEventEnum
+from core.manager.debug_manager import DebugManager
 from core.settings.settings import PLAYER_KEYS
 
 
@@ -27,7 +27,7 @@ class InputManager:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_F3:
                 self.f3_pressed = True
-            
+
             if self.f3_pressed:
                 if event.key == pygame.K_c:
                     DebugManager.toggle_option(DebugOption.COLLIDERS)
@@ -46,9 +46,9 @@ class InputManager:
         """Retorna True se a tecla configurada para a ação estiver pressionada."""
         if self.keys is None:
             return False
-            
+
         key_code = PLAYER_KEYS.get(action_name)
         if key_code is not None:
             return self.keys[key_code]
-            
+
         return False

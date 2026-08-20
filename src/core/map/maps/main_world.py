@@ -126,7 +126,10 @@ class MainWorldMap(Map):
                     continue
 
                 enemy_spawner = EnemySpawner(
-                    spawner_name, pygame.math.Vector2(item.x, item.y), path, spawn_interval=8.0
+                    spawner_name,
+                    pygame.math.Vector2(item.x, item.y),
+                    path,
+                    spawn_interval=8.0,
                 )
                 spawners[EnemySpawnerEnum(spawner_name)] = enemy_spawner
 

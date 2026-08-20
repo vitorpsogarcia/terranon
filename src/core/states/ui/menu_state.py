@@ -7,11 +7,10 @@ from core.settings.colors import Colors
 from core.states.base_state import BaseState
 
 if TYPE_CHECKING:
-    from core.state_manager import StateManager
+    from core.manager.state_manager import StateManager
 
 
 class MenuState(BaseState):
-
     def __init__(self, state_manager: "StateManager", screen_size: tuple[int, int]):
         super().__init__(state_manager, screen_size)
 
@@ -23,7 +22,9 @@ class MenuState(BaseState):
 
     def enter(self):
         self.title_text = self.font.render("Menu State", True, Colors.text.primary)
-        self.instruction_text = self.small_font.render("Press Enter to Start", True, Colors.text.primary)
+        self.instruction_text = self.small_font.render(
+            "Press Enter to Start", True, Colors.text.primary
+        )
 
     def exit(self):
         pass
@@ -42,6 +43,18 @@ class MenuState(BaseState):
             return
 
         surface.fill(Colors.ui.background)
-        
-        surface.blit(self.title_text, (self.screen_size[0] // 2 - self.title_text.get_width() // 2, self.screen_size[1] // 3))
-        surface.blit(self.instruction_text, (self.screen_size[0] // 2 - self.instruction_text.get_width() // 2, self.screen_size[1] // 2))
+
+        surface.blit(
+            self.title_text,
+            (
+                self.screen_size[0] // 2 - self.title_text.get_width() // 2,
+                self.screen_size[1] // 3,
+            ),
+        )
+        surface.blit(
+            self.instruction_text,
+            (
+                self.screen_size[0] // 2 - self.instruction_text.get_width() // 2,
+                self.screen_size[1] // 2,
+            ),
+        )

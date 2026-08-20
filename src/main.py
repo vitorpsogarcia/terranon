@@ -3,11 +3,11 @@ import logging
 import pygame
 
 from core.enums.game_state_enum import GameStateEnum
-from core.event_manager import EventManager
-from core.game_manager import GameManager
+from core.manager.event_manager import EventManager
+from core.manager.game_manager import GameManager
+from core.manager.state_manager import StateManager
 from core.map.map_manager import MapManager
 from core.settings.settings import SCREEN_HEIGHT, SCREEN_NAME, SCREEN_WIDTH
-from core.state_manager import StateManager
 from core.states.play_state import PlayState
 from core.states.ui.game_over import GameOverState
 from core.states.ui.inventory_state import InventoryState
@@ -15,24 +15,28 @@ from core.states.ui.menu_state import MenuState
 
 
 def main():
-    logging.basicConfig(level=logging.INFO, datefmt='%m/%d/%Y %I:%M:%S %p', format='%(asctime)s [%(levelname)s] [%(name)s]\t%(message)s')
+    logging.basicConfig(
+        level=logging.INFO,
+        datefmt="%m/%d/%Y %I:%M:%S %p",
+        format="%(asctime)s [%(levelname)s] [%(name)s]\t%(message)s",
+    )
     pygame.init()
     pygame.display.set_caption(SCREEN_NAME)
     tela = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
     MapManager.initialize()
     EventManager.initialize()
-    
+
     game_manager = GameManager(tela)
     state_manager = StateManager(game_manager)
-    
+
     play_state = PlayState(state_manager, (SCREEN_WIDTH, SCREEN_HEIGHT))
     menu_state = MenuState(state_manager, (SCREEN_WIDTH, SCREEN_HEIGHT))
     inventory_state = InventoryState(state_manager, (SCREEN_WIDTH, SCREEN_HEIGHT))
     game_over_state = GameOverState(state_manager, (SCREEN_WIDTH, SCREEN_HEIGHT))
 
     inventory_state.set_play_state(play_state)
-    
+
     state_manager.register_state(GameStateEnum.MENU, menu_state)
     state_manager.register_state(GameStateEnum.PLAY, play_state)
     state_manager.register_state(GameStateEnum.INVENTORY, inventory_state)
@@ -41,6 +45,7 @@ def main():
     state_manager.change_to(GameStateEnum.MENU)
 
     game_manager.on_execute()
-    
+
+
 if __name__ == "__main__":
     main()
