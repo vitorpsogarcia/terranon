@@ -28,5 +28,5 @@ class EnemySpawner(StaticObject):
         super().update(dt)
 
     def spawn_enemy(self, enemy_type: EnemyEnum = EnemyEnum.GOBLIN):
-        new_enemy = EnemyFactory.create_enemy(enemy_type, self.pos, self.path)
-        EventManager.get_instance().emit(GameEventEnum.ENEMY_SPAWNED, new_enemy)
+        new_enemy = EnemyFactory().create_enemy(enemy_type, self.pos, self.path)
+        EventManager().emit(GameEventEnum.ENEMY_SPAWNED, new_enemy)

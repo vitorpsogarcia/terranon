@@ -56,7 +56,9 @@ class Projectile(DynamicObject):
         for i in range(self._variant.frames):
             frame_path = projectile_path / f"{i}.png"
             frame_name = f"{self._name}.{i}"
-            frame = AssetManager.load_image(frame_name, str(frame_path), size=(20, 20))
+            frame = AssetManager().load_image(
+                frame_name, str(frame_path), size=(20, 20)
+            )
 
             if frame is not None:
                 frames.append(frame)

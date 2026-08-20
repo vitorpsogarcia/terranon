@@ -55,4 +55,4 @@ class CameraGroup(pygame.sprite.LayeredUpdates):
 
                 surface.blit(sprite.image, offset_pos)
 
-        DebugManager.draw_world_debug(surface, self)
+        DebugManager().draw_world_debug(surface, self)

@@ -5,5 +5,5 @@ from core.game_world import GameWorld
 
 class FactoriesLoader:
     def __init__(self, world: GameWorld):
-        ProjectileFactory.initialize(world)
+        ProjectileFactory(world)
         EnemyFactory()

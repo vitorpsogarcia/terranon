@@ -35,7 +35,7 @@ class MainBase(Obstacle):
         self.active = False
         self.kill()
         print("A BASE CAIU! GAME OVER!")
-        EventManager.get_instance().emit(GameEventEnum.GAME_OVER)
+        EventManager().emit(GameEventEnum.GAME_OVER)
 
     def on_collision(self, other: GameObject):
         if isinstance(other, Enemy):

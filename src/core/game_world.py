@@ -189,7 +189,7 @@ class GameWorld(GameScene):
             player.apply_knockback(enemy.pos, force=1500.0)
 
             try:
-                EventManager.get_instance().emit(
+                EventManager().emit(
                     GameEventEnum.PLAY_SFX, filename="effects/damage.mp3"
                 )
             except Exception as e:

@@ -42,9 +42,7 @@ class WaveManager:
         ]
 
         self.current_wave_script.sort(key=lambda x: x["time"])
-        EventManager.get_instance().subscribe(
-            event=GameEventEnum.RESET_WAVES, listener=self.reset
-        )
+        EventManager().subscribe(event=GameEventEnum.RESET_WAVES, listener=self.reset)
 
     def update(self, dt: float):
         if self.pending_spawns:

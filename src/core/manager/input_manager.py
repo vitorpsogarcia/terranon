@@ -30,13 +30,13 @@ class InputManager:
 
             if self.f3_pressed:
                 if event.key == pygame.K_c:
-                    DebugManager.toggle_option(DebugOption.COLLIDERS)
+                    DebugManager().toggle_option(DebugOption.COLLIDERS)
                 elif event.key == pygame.K_s:
-                    DebugManager.toggle_option(DebugOption.PLAYER_STATUS)
+                    DebugManager().toggle_option(DebugOption.PLAYER_STATUS)
                 elif event.key == pygame.K_d:
-                    DebugManager.toggle_option(DebugOption.CREATURE_DIRECTIONS)
+                    DebugManager().toggle_option(DebugOption.CREATURE_DIRECTIONS)
                 elif event.key == pygame.K_z:
-                    EventManager.get_instance().emit(GameEventEnum.RESET_WAVES)
+                    EventManager().emit(GameEventEnum.RESET_WAVES)
 
         elif event.type == pygame.KEYUP:
             if event.key == pygame.K_F3:

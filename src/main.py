@@ -24,8 +24,8 @@ def main():
     pygame.display.set_caption(SCREEN_NAME)
     tela = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
-    MapManager.initialize()
-    EventManager.initialize()
+    MapManager()
+    EventManager()
 
     game_manager = GameManager(tela)
     state_manager = StateManager(game_manager)

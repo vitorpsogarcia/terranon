@@ -16,5 +16,5 @@ class Tree(Obstacle):
         self._type = type
         self.relative_hitboxes = hitboxes
 
-        self.image = AssetManager.get_image(self._type)
+        self.image = AssetManager().get_image(self._type)
         self.rect = self.image.get_rect(topleft=initial_position)

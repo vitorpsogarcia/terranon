@@ -38,7 +38,7 @@ class Player(Character):
 
     def on_death(self):
         on_death = super().on_death()
-        EventManager.get_instance().emit(GameEventEnum.GAME_OVER)
+        EventManager().emit(GameEventEnum.GAME_OVER)
 
         return on_death
 
@@ -132,7 +132,7 @@ class Player(Character):
             else:
                 direction = pygame.math.Vector2(0, 1)
 
-            EventManager.get_instance().emit(
+            EventManager().emit(
                 GameEventEnum.SPAWN_PROJECTILE,
                 position=start_pos,
                 direction=direction,
@@ -141,9 +141,7 @@ class Player(Character):
                 friendly=True,
             )
 
-            EventManager.get_instance().emit(
-                GameEventEnum.PLAY_SFX, "effects/shoot.wav"
-            )
+            EventManager().emit(GameEventEnum.PLAY_SFX, "effects/shoot.wav")
 
     def update(self, dt: float):
         if not self.is_knockedback:

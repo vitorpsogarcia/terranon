@@ -43,17 +43,15 @@ class PlayState(BaseState):
 
         EconomyManager()
 
-        EventManager.get_instance().subscribe(GameEventEnum.GAME_OVER, self._game_over)
-        EventManager.get_instance().subscribe(
-            GameEventEnum.ENEMY_SPAWNED, self._on_enemy_spawned
-        )
+        EventManager().subscribe(GameEventEnum.GAME_OVER, self._game_over)
+        EventManager().subscribe(GameEventEnum.ENEMY_SPAWNED, self._on_enemy_spawned)
 
         self.world = GameWorld(self.screen_size)
 
         FactoriesLoader(self.world)
 
-        MapManager.change_map(MapsEnum.MAIN_WORLD, self.world)
-        current_map = MapManager.get_map(MapsEnum.MAIN_WORLD)
+        MapManager().change_map(MapsEnum.MAIN_WORLD, self.world)
+        current_map = MapManager().get_map(MapsEnum.MAIN_WORLD)
 
         if current_map and current_map._ground_image:
             bg = MapBackground(pygame.math.Vector2(0, 0), current_map._ground_image)
@@ -93,12 +91,8 @@ class PlayState(BaseState):
     def exit(self):
         self.initialized = False
         SoundManager().stop_music()
-        EventManager.get_instance().unsubscribe(
-            GameEventEnum.GAME_OVER, self._game_over
-        )
-        EventManager.get_instance().unsubscribe(
-            GameEventEnum.ENEMY_SPAWNED, self._on_enemy_spawned
-        )
+        EventManager().unsubscribe(GameEventEnum.GAME_OVER, self._game_over)
+        EventManager().unsubscribe(GameEventEnum.ENEMY_SPAWNED, self._on_enemy_spawned)
 
     def update(self, delta_time):
         if self.world is not None:

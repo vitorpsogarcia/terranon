@@ -56,7 +56,7 @@ class GameManager:
         if self.current_state:
             self.current_state.draw(self.tela)
 
-        DebugManager.draw_ui_debug(
+        DebugManager().draw_ui_debug(
             self.tela, self.current_state, self.clock, self.debug_font
         )
 

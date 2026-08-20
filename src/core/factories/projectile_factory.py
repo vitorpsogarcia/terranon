@@ -12,9 +12,7 @@ class ProjectileFactory(Factory):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        EventManager.get_instance().subscribe(
-            GameEventEnum.SPAWN_PROJECTILE, self.create_projectile
-        )
+        EventManager().subscribe(GameEventEnum.SPAWN_PROJECTILE, self.create_projectile)
 
     def create_projectile(
         self,

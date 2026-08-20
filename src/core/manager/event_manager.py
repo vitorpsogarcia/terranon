@@ -1,36 +1,15 @@
 from core.enums.game_event_enum import GameEventEnum
 from core.exceptions.event_not_valid_exception import EventNotValidException
+from core.singleton_meta import SingletonMeta
 
 
-class EventManager:
-    _instance = None
-    _initialized = False
+class EventManager(metaclass=SingletonMeta):
     _events_listeners: dict[GameEventEnum, list]
 
     def __init__(self):
-        if not hasattr(self, "_events_listeners"):
-            self._events_listeners = {}
-
-    def __new__(cls, *args, **kwargs):
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-            cls._instance._events_listeners = {}
-        return cls._instance
-
-    @classmethod
-    def get_instance(cls):
-        return cls()
-
-    @classmethod
-    def initialize(cls):
-        if cls._initialized:
-            raise ValueError(f"{cls.__name__} has already been initialized.")
-
-        instance = cls.get_instance()
+        self._events_listeners = {}
         for event in GameEventEnum:
-            instance._events_listeners[event] = []
-
-        cls._initialized = True
+            self._events_listeners[event] = []
 
     def _validate_event(self, event: GameEventEnum):
         if event not in self._events_listeners:

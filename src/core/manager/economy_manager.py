@@ -2,40 +2,21 @@ import logging
 
 from core.enums.game_event_enum import GameEventEnum
 from core.manager.event_manager import EventManager
+from core.singleton_meta import SingletonMeta
 
 
-class EconomyManager:
+class EconomyManager(metaclass=SingletonMeta):
     _logger = logging.getLogger("EconomyManager")
 
-    _instance: "EconomyManager"
     _current_points: int
     _total_points: int
 
     def __init__(self):
-        if hasattr(self, "_initialized") and self._initialized:
-            return
-
         self._current_points = 0
         self._total_points = 0
 
-        EventManager.get_instance().subscribe(
-            GameEventEnum.SPEND_POINTS, self.spend_points
-        )
-
-        EventManager.get_instance().subscribe(
-            GameEventEnum.ENEMY_KILLED, self.add_points
-        )
-
-        self._initialized = True
-
-    def __new__(cls, *args, **kwargs):
-        if not hasattr(cls, "_instance"):
-            cls._instance = super().__new__(cls)
-        return cls._instance
-
-    @classmethod
-    def get_instance(cls):
-        return cls()
+        EventManager().subscribe(GameEventEnum.SPEND_POINTS, self.spend_points)
+        EventManager().subscribe(GameEventEnum.ENEMY_KILLED, self.add_points)
 
     @property
     def current_points(self):
