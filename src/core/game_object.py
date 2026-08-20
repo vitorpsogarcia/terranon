@@ -90,6 +90,9 @@ class GameObject(ABC):
         """Verifica se o objeto ainda está ativo."""
         return self._sprite.alive()
 
+    def on_collision(self, other: "GameObject"):
+        """Método chamado quando ocorre uma colisão com outro GameObject (override se necessário)."""
+
 
 class StaticObject(GameObject):
     def __init__(self, initial_position: pygame.Vector2, *groups: pygame.sprite.Group):

@@ -7,7 +7,7 @@ from core.settings.colors import Colors
 from core.states.base_state import BaseState
 
 if TYPE_CHECKING:
-    from core.state_manager import StateManager
+    from core.manager.state_manager import StateManager
     from core.states.play_state import PlayState
 
 

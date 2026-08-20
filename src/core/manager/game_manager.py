@@ -1,7 +1,7 @@
 import pygame
 
-from core.debug_manager import DebugManager
-from core.input_manager import InputManager
+from core.manager.debug_manager import DebugManager
+from core.manager.input_manager import InputManager
 from core.settings.colors import Colors
 from core.settings.settings import FPS
 from core.states.base_state import BaseState
@@ -56,7 +56,9 @@ class GameManager:
         if self.current_state:
             self.current_state.draw(self.tela)
 
-        DebugManager.draw_ui_debug(self.tela, self.current_state, self.clock, self.debug_font)
+        DebugManager.draw_ui_debug(
+            self.tela, self.current_state, self.clock, self.debug_font
+        )
 
         pygame.display.flip()
 

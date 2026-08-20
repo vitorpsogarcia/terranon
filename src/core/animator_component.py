@@ -1,11 +1,11 @@
-
 import pygame
 
 from core.game_object import GameObject
 
 
+# O animator component deve ser o responsável por gerenciar as animações e desenhar na tela.
+# Reorganizar para não depender do sprite que está do game object
 class AnimatorComponent:
-
     def __init__(self, owner: GameObject):
         self.owner = owner
         self.animations: dict[str, dict[str, object]] = {}
@@ -14,7 +14,9 @@ class AnimatorComponent:
         self._time_acc: float = 0.0
         self._angle = 0
 
-    def add_animation(self, state_name: str, frames_list: list[pygame.Surface], frame_duration: float):
+    def add_animation(
+        self, state_name: str, frames_list: list[pygame.Surface], frame_duration: float
+    ):
         if not frames_list:
             raise ValueError("frames_list deve conter pelo menos uma Surface")
         if frame_duration <= 0:
@@ -73,7 +75,7 @@ class AnimatorComponent:
             self.owner.rect = self.owner.image.get_rect(center=prev_center)
         else:
             self.owner.rect = self.owner.image.get_rect()
-    
+
     def set_angle(self, angle: float):
         self._angle = angle
         if self.current is not None:
