@@ -1,10 +1,11 @@
 import pygame
 
 from core.enums.game_event_enum import GameEventEnum
-from core.game_object import StaticObject
+from core.game_object import GameObject, StaticObject
 from core.health_component import HealthComponent
 from core.manager.event_manager import EventManager
 from core.settings.settings import MAIN_BASE_SIZE
+from entities.enemy import Enemy
 
 
 class MainBase(StaticObject):
@@ -32,3 +33,8 @@ class MainBase(StaticObject):
         self.kill()
         print("A BASE CAIU! GAME OVER!")
         EventManager.get_instance().emit(GameEventEnum.GAME_OVER)
+
+    def on_collision(self, other: GameObject):
+        if isinstance(other, Enemy):
+            self.health.take_damage(other.health.current_hp)
+            other.health.die()
