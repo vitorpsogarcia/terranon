@@ -47,10 +47,10 @@ class MapManager:
         cls._logger.info("MapManager initialized successfully.")
 
     @classmethod
-    def get_map(cls, map_enum: MapsEnum) -> Map | None:
+    def get_map(cls, map_enum: MapsEnum) -> Map:
         cls._logger.info(f"Getting map: {map_enum.value}")
         if not cls._is_map_valid(map_enum):
-            return
+            raise MapNotExistentException(map_enum.value)
         return cls._maps[map_enum]
 
     @classmethod

@@ -13,7 +13,7 @@ from core.manager.sound_manager import SoundManager
 from core.map.map_backgroud import MapBackground
 from core.states.base_state import BaseState
 from core.wave_manager import WaveManager
-from entities.base_structure import MainBase
+from entities.structures.main_base import MainBase
 
 if TYPE_CHECKING:
     from core.manager.state_manager import StateManager
