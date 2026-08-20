@@ -80,33 +80,7 @@ class GameWorld(GameScene):
         self._resolve_player_world_collisions()
         self._resolve_player_obstacle_collisions()
         self._resolve_player_enemy_collisions()
-
-        hits = pygame.sprite.groupcollide(
-            self.enemies_group, self.friend_projectiles_group, False, True
-        )
-        for enemy_sprite, shots in hits.items():
-            enemy = enemy_sprite.owner
-            if not isinstance(enemy, Enemy):
-                return
-
-            for shot_sprite in shots:
-                shot = shot_sprite.owner
-                enemy.take_damage(shot.damage)
-
-        enemy_obstacle_hits = pygame.sprite.groupcollide(
-            self.obstacles, self.enemy_projectiles_group, False, True
-        )
-        friend_obstacle_hits = pygame.sprite.groupcollide(
-            self.obstacles, self.friend_projectiles_group, False, True
-        )
-
-        for hits_dict in [enemy_obstacle_hits, friend_obstacle_hits]:
-            for obstacle_sprite, shots in hits_dict.items():
-                obstacle = obstacle_sprite.owner
-                for shot_sprite in shots:
-                    shot = shot_sprite.owner
-                    if hasattr(obstacle, "health"):
-                        obstacle.health.take_damage(shot.damage)
+        self._resolve_collisions(self.enemies_group, self.friend_projectiles_group)
 
     def handle_events(self, events: list[pygame.event.Event]):
         for obj in self.camera_group.sprites():
@@ -215,6 +189,21 @@ class GameWorld(GameScene):
                 )
             except Exception as e:
                 print(f"Erro ao reproduzir som de hit: {e}")
+
+    def _resolve_collisions(
+        self, group1: pygame.sprite.Group, group2: pygame.sprite.Group
+    ):
+        hits = pygame.sprite.groupcollide(group1, group2, False, False)
+
+        for sprite1, sprites2 in hits.items():
+            print("Collision!")
+            obj1 = sprite1.owner
+            for sprite2 in sprites2:
+                obj2 = sprite2.owner
+                if hasattr(obj1, "on_collision"):
+                    obj1.on_collision(obj2)
+                if hasattr(obj2, "on_collision"):
+                    obj2.on_collision(obj1)
 
     def _add_obj_to_group(self, obj: GameObject):
         if isinstance(obj, Projectile):
