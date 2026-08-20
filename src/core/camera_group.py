@@ -3,7 +3,7 @@ import logging
 import pygame
 
 from core.debug_manager import DebugManager
-from core.game_object import GameObject, StaticObject
+from core.game_object import GameObject
 
 
 class CameraGroup(pygame.sprite.LayeredUpdates):
@@ -13,10 +13,12 @@ class CameraGroup(pygame.sprite.LayeredUpdates):
     def __init__(self):
         super().__init__()
         self.display_surface = pygame.display.get_surface()
-        if self.display_surface is not None:
-            self.half_w = self.display_surface.get_size()[0] // 2
-            self.half_h = self.display_surface.get_size()[1] // 2
         self.offset = pygame.math.Vector2()
+
+        self.zoom = 0.75
+        self.zoom_speed = 0.1
+        self.zoom_min = 0.5
+        self.zoom_max = 2.0
         self._target = None
 
     @property
@@ -30,29 +32,32 @@ class CameraGroup(pygame.sprite.LayeredUpdates):
     def target(self, target):
         self._target = target
 
-    def custom_draw(self, surface: pygame.Surface):
-        if self.target.rect is None:
+    def handle_zoom(self, scroll_amount):
+        self.zoom -= scroll_amount * self.zoom_speed
+        self.zoom = max(self.zoom_min, min(self.zoom_max, self.zoom))
+
+    def custom_draw(self, surface: pygame.Surface, player=None):
+        if player is None:
+            player = self._target
+
+        if player is None or player.rect is None:
+            self.draw(surface)
             return
 
-        self.offset.x = self.target.rect.centerx - self.half_w
-        self.offset.y = self.target.rect.centery - self.half_h
+        dummy_width = int(self.display_surface.get_width() * self.zoom)
+        dummy_height = int(self.display_surface.get_height() * self.zoom)
 
-        target_pos, target_layer = self.target.pos, self.target.render_layer
+        self.offset.x = player.rect.centerx - (dummy_width // 2)
+        self.offset.y = player.rect.centery - (dummy_height // 2)
 
-        for sprite in self.sprites():
-            owner = getattr(sprite, "owner", None)
-            if owner is not None:
-                offset_pos = sprite.rect.topleft - self.offset
+        dummy_surface = pygame.Surface((dummy_width, dummy_height))
+        dummy_surface.fill((20, 20, 20))
 
-                if isinstance(owner, StaticObject):
-                    distance = target_pos.distance_to(owner.pos)
-                    if distance < 200 and (
-                        target_layer - 75 < owner.render_layer < target_layer + 75
-                    ):
-                        owner._sprite.opacity = 128
-                    else:
-                        owner._sprite.opacity = 255
+        for sprite in sorted(self.sprites(), key= lambda spr: spr.render_layer):
+            offset_pos = sprite.rect.topleft - self.offset
+            dummy_surface.blit(sprite.image, offset_pos)
 
-                surface.blit(sprite.image, offset_pos)
+        scaled_surface = pygame.transform.scale(dummy_surface, self.display_surface.get_size())
 
+        self.display_surface.blit(scaled_surface, (0, 0))
         DebugManager.draw_world_debug(surface, self)
