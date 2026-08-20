@@ -6,7 +6,6 @@ from entities.obstacle import Obstacle
 from utils.position import calculate_distance
 
 TURRET_SIZE = 50
-HALF_SIZE = TURRET_SIZE / 2
 
 
 class GenericTower(Obstacle):
@@ -17,9 +16,11 @@ class GenericTower(Obstacle):
         range=100,
         damage=10,
         fire_rate=1.0,
+        turret_size=TURRET_SIZE,
     ):
+        half_size = turret_size / 2
         position = pygame.Vector2(
-            round(position.x - HALF_SIZE), round(position.y - HALF_SIZE)
+            round(position.x - half_size), round(position.y - half_size)
         )
         super().__init__(position, *groups)
 
@@ -27,14 +28,12 @@ class GenericTower(Obstacle):
         self.damage = damage
         self.fire_rate = fire_rate
 
-        self.image = pygame.Surface((TURRET_SIZE, TURRET_SIZE)).convert_alpha()
+        self.image = pygame.Surface((turret_size, turret_size)).convert_alpha()
         self.image.fill(Colors.debug.turret)
         self.rect = self.image.get_rect(center=(round(self.pos.x), round(self.pos.y)))
         self._fixed_opacity = True
         self.target: GameObject | None = None
         self.cooldown = 0.0
-
-        self.relative_hitboxes = [pygame.Rect(0, 0, TURRET_SIZE, TURRET_SIZE)]
 
     def update(self, dt: float):
         super().update(dt)

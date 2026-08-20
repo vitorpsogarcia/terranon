@@ -1,3 +1,4 @@
+import logging
 from typing import ClassVar
 
 import pygame
@@ -9,6 +10,7 @@ from core.singleton_meta import SingletonMeta
 from entities.character.player import Player
 from entities.enemy import Enemy
 from entities.enemy_spawner import EnemySpawner
+from entities.nature.world_collider import WorldCollider
 from entities.obstacle import Obstacle
 from entities.projectiles.projectile import Projectile
 from entities.structures.main_base import MainBase
@@ -16,6 +18,8 @@ from entities.structures.towers.generic_tower import GenericTower
 
 
 class SpatialManager(metaclass=SingletonMeta):
+    _logger = logging.getLogger("SpatialManager")
+
     obstacles = pygame.sprite.Group()
     dynamic_group = pygame.sprite.Group()
     player_group = pygame.sprite.GroupSingle()
@@ -25,7 +29,7 @@ class SpatialManager(metaclass=SingletonMeta):
     enemies_group = pygame.sprite.Group()
 
     spawners: ClassVar[dict[str, EnemySpawner]] = {}
-    world_colliders: ClassVar[list[pygame.Rect]] = []
+    world_colliders: ClassVar[list[WorldCollider]] = []
 
     def add_obj_to_group(self, obj: GameObject):
         if isinstance(obj, Projectile):
@@ -41,7 +45,7 @@ class SpatialManager(metaclass=SingletonMeta):
 
         elif isinstance(obj, EnemySpawner):
             if obj.spawner_id in self.spawners:
-                raise ValueError(f"Spawner ID já existe: {obj.spawner_id}")
+                self._logger.error(f"Spawner ID já existe: {obj.spawner_id}")
             self.spawners[obj.spawner_id] = obj
 
         elif isinstance(obj, Obstacle):
@@ -63,10 +67,11 @@ class SpatialManager(metaclass=SingletonMeta):
                 self.enemies_group.remove(obj._sprite)
 
         elif isinstance(obj, EnemySpawner):
-            if obj.spawner_id in self.spawners:
-                raise ValueError(f"Spawner ID já existe: {obj.spawner_id}")
-            self.spawners[obj.spawner_id] = obj
-            del self.spawners[obj.spawner_id]
+            if obj.spawner_id not in self.spawners:
+                self._logger.error(f"Spawner ID não encontrado: {obj.spawner_id}")
+            else:
+                self.spawners[obj.spawner_id] = obj
+                del self.spawners[obj.spawner_id]
 
         elif isinstance(obj, Obstacle):
             self.obstacles.remove(obj._sprite)
@@ -89,7 +94,11 @@ class SpatialManager(metaclass=SingletonMeta):
             return
 
         for collider in self.world_colliders:
-            if target.feet_hitbox.colliderect(collider):
+            if collider.rect is None:
+                self._logger.warning(f"Collider sem rect: {collider}")
+                continue
+
+            if target.feet_hitbox.colliderect(collider.rect):
                 target.pos.x = target.prev_pos.x
                 target.pos.y = target.prev_pos.y
                 target.sync_colliders()
@@ -165,7 +174,7 @@ class SpatialManager(metaclass=SingletonMeta):
                     GameEventEnum.PLAY_SFX, filename="effects/damage.mp3"
                 )
             except Exception as e:
-                print(f"Erro ao reproduzir som de hit: {e}")
+                self._logger.error(f"Erro ao reproduzir som de hit: {e}")
 
     def _resolve_collisions(
         self,

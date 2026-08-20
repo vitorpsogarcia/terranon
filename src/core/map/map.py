@@ -8,9 +8,11 @@ from core.enums.enemy_spawner_enum import EnemySpawnerEnum
 from core.enums.map_enums.waypoints_enum import WaypointsEnum
 from core.game_object import GameObject
 from core.game_world import GameWorld
+from core.manager.spatial_manager import SpatialManager
 from core.map.waypoints.polyline import Polyline
 from core.map.waypoints.waypoint import Waypoint
 from entities.enemy_spawner import EnemySpawner
+from entities.nature.world_collider import WorldCollider
 
 
 class Map(ABC):
@@ -20,7 +22,7 @@ class Map(ABC):
     _waypoints: dict[WaypointsEnum, Waypoint]
     _enemy_spawners: dict[EnemySpawnerEnum, EnemySpawner]
     _enemy_paths: dict[int, Polyline]
-    _world_colliders: list[pygame.Rect]
+    _world_colliders: list[WorldCollider]
     _render_objects: list[list[GameObject]]
 
     def __init__(self, map_path: str):
@@ -35,7 +37,7 @@ class Map(ABC):
     def _process_map(self): ...
 
     @property
-    def world_colliders(self) -> list[pygame.Rect]:
+    def world_colliders(self) -> list[WorldCollider]:
         return self._world_colliders
 
     @property
@@ -57,7 +59,7 @@ class Map(ABC):
             for obj in list_objects:
                 world.add_object(obj)
 
-        world.world_colliders.extend(self.world_colliders)
+        SpatialManager().world_colliders.extend(self.world_colliders)
 
     def get_enemy_path_by_id(self, route_id: int) -> Polyline | None:
         try:
@@ -66,5 +68,5 @@ class Map(ABC):
             self._logger.error(f"Enemy path not found for route ID: {route_id}")
             return None
 
-    def add_collider(self, collider: pygame.Rect):
+    def add_collider(self, collider: WorldCollider):
         self._world_colliders.append(collider)

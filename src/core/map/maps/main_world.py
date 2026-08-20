@@ -11,6 +11,7 @@ from core.map.waypoints.waypoint import Waypoint
 from core.settings.settings import ASSETS_FOLDER
 from entities.enemy_spawner import EnemySpawner
 from entities.nature.tree import Tree
+from entities.nature.world_collider import WorldCollider
 
 main_world_path = (ASSETS_FOLDER / "maps" / "tmx" / "main_world.tmx").as_posix()
 
@@ -168,7 +169,8 @@ class MainWorldMap(Map):
 
                     # O sistema de colisor do mapa ainda precisa das coordenadas absolutas
                     absolute_hitbox = relative_hitbox.move(item.x, item.y)
-                    self.add_collider(absolute_hitbox)
+                    pos = pygame.Vector2(absolute_hitbox.topleft)
+                    self.add_collider(WorldCollider(pos, col.width, col.height))
 
             if tree_type is None:
                 continue
@@ -187,7 +189,8 @@ class MainWorldMap(Map):
         self._logger.info("Processing collision layer...")
         colliders = []
         for item in layer:
-            collider = pygame.Rect(item.x, item.y, item.width, item.height)
+            position = pygame.math.Vector2(item.x, item.y)
+            collider = WorldCollider(position, item.width, item.height)
             colliders.append(collider)
             self.add_collider(collider)
         self._logger.info("Collision layer processed successfully.")

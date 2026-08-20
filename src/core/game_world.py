@@ -6,6 +6,7 @@ from core.camera_group import CameraGroup
 from core.enums.game_event_enum import GameEventEnum
 from core.game_object import DynamicObject, GameObject
 from core.manager.event_manager import EventManager
+from core.manager.spatial_manager import SpatialManager
 from entities.character.player import Player
 from entities.enemy import Enemy
 from entities.enemy_spawner import EnemySpawner
@@ -33,15 +34,6 @@ class GameWorld(GameScene):
     def __init__(self, screen_size: tuple[int, int]):
         self.camera_group = CameraGroup()
         self.screen_size = screen_size
-        self.obstacles = pygame.sprite.Group()
-        self.dynamic_group = pygame.sprite.Group()
-        self.player_group = pygame.sprite.GroupSingle()
-        self.friend_projectiles_group = pygame.sprite.Group()
-        self.enemy_projectiles_group = pygame.sprite.Group()
-        self.structures_group = pygame.sprite.Group()
-        self.enemies_group = pygame.sprite.Group()
-        self.spawners: dict[str, EnemySpawner] = {}
-        self.world_colliders: list[pygame.Rect] = []
 
     def set_target(self, target: GameObject):
         self.target = target
@@ -51,7 +43,7 @@ class GameWorld(GameScene):
     def add_object(self, obj: GameObject):
         layer = getattr(obj, "render_layer", 0)
 
-        self._add_obj_to_group(obj)
+        SpatialManager().add_obj_to_group(obj)
 
         if isinstance(obj, DynamicObject) and obj.rect is not None:
             layer = round(obj.rect.bottom)
@@ -210,26 +202,3 @@ class GameWorld(GameScene):
                     obj1.on_collision(obj2)
                 if hasattr(obj2, "on_collision"):
                     obj2.on_collision(obj1)
-
-    def _add_obj_to_group(self, obj: GameObject):
-        if isinstance(obj, Projectile):
-            if obj.friendly:
-                self.friend_projectiles_group.add(obj._sprite)
-            else:
-                self.enemy_projectiles_group.add(obj._sprite)
-
-        elif isinstance(obj, DynamicObject):
-            self.dynamic_group.add(obj._sprite)
-            if isinstance(obj, Enemy):
-                self.enemies_group.add(obj._sprite)
-
-        elif isinstance(obj, EnemySpawner):
-            if obj.spawner_id in self.spawners:
-                raise ValueError(f"Spawner ID já existe: {obj.spawner_id}")
-            self.spawners[obj.spawner_id] = obj
-
-        elif isinstance(obj, Obstacle):
-            self.obstacles.add(obj._sprite)
-
-        if isinstance(obj, (MainBase, GenericTower)):
-            self.structures_group.add(obj._sprite)

@@ -4,6 +4,7 @@ from core.enums.debug_option_enum import DebugOption
 from core.manager.economy_manager import EconomyManager
 from core.settings.colors import Colors
 from core.singleton_meta import SingletonMeta
+from entities.nature.world_collider import WorldCollider
 
 
 class DebugManager(metaclass=SingletonMeta):
