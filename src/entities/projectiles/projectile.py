@@ -7,8 +7,9 @@ from pygame import Vector2
 from core.animator_component import AnimatorComponent
 from core.enums.projectile.projectile_types_enum import ProjectileTypesEnum
 from core.enums.projectile.projectile_variant_enum import ProjectileVariantEnum
-from core.game_object import DynamicObject
+from core.game_object import DynamicObject, GameObject
 from core.manager.asset_manager import AssetManager
+from entities.enemy import Enemy
 
 
 class Projectile(DynamicObject):
@@ -73,3 +74,11 @@ class Projectile(DynamicObject):
 
         super().update(dt)
         self.animator.update(dt)
+
+    def on_collision(self, other: GameObject):
+        if other is None:
+            return
+
+        if isinstance(other, Enemy) and self.friendly:
+            other.health.take_damage(self.damage)
+            self.kill()

@@ -11,6 +11,7 @@ from entities.enemy import Enemy
 from entities.enemy_spawner import EnemySpawner
 from entities.obstacle import Obstacle
 from entities.projectiles.projectile import Projectile
+from entities.structures.main_base import MainBase
 
 
 class GameScene(ABC):
@@ -36,6 +37,7 @@ class GameWorld(GameScene):
         self.player_group = pygame.sprite.GroupSingle()
         self.friend_projectiles_group = pygame.sprite.Group()
         self.enemy_projectiles_group = pygame.sprite.Group()
+        self.base_group = pygame.sprite.Group()
         self.enemies_group = pygame.sprite.Group()
         self.spawners: dict[str, EnemySpawner] = {}
         self.world_colliders: list[pygame.Rect] = []
@@ -80,33 +82,8 @@ class GameWorld(GameScene):
         self._resolve_player_world_collisions()
         self._resolve_player_obstacle_collisions()
         self._resolve_player_enemy_collisions()
-
-        hits = pygame.sprite.groupcollide(
-            self.enemies_group, self.friend_projectiles_group, False, True
-        )
-        for enemy_sprite, shots in hits.items():
-            enemy = enemy_sprite.owner
-            if not isinstance(enemy, Enemy):
-                return
-
-            for shot_sprite in shots:
-                shot = shot_sprite.owner
-                enemy.take_damage(shot.damage)
-
-        enemy_obstacle_hits = pygame.sprite.groupcollide(
-            self.obstacles, self.enemy_projectiles_group, False, True
-        )
-        friend_obstacle_hits = pygame.sprite.groupcollide(
-            self.obstacles, self.friend_projectiles_group, False, True
-        )
-
-        for hits_dict in [enemy_obstacle_hits, friend_obstacle_hits]:
-            for obstacle_sprite, shots in hits_dict.items():
-                obstacle = obstacle_sprite.owner
-                for shot_sprite in shots:
-                    shot = shot_sprite.owner
-                    if hasattr(obstacle, "health"):
-                        obstacle.health.take_damage(shot.damage)
+        self._resolve_collisions(self.enemies_group, self.friend_projectiles_group)
+        self._resolve_collisions(self.enemies_group, self.base_group)
 
     def handle_events(self, events: list[pygame.event.Event]):
         for obj in self.camera_group.sprites():
@@ -216,6 +193,20 @@ class GameWorld(GameScene):
             except Exception as e:
                 print(f"Erro ao reproduzir som de hit: {e}")
 
+    def _resolve_collisions(
+        self, group1: pygame.sprite.Group, group2: pygame.sprite.Group
+    ):
+        hits = pygame.sprite.groupcollide(group1, group2, False, False)
+
+        for sprite1, sprites2 in hits.items():
+            obj1 = sprite1.owner
+            for sprite2 in sprites2:
+                obj2 = sprite2.owner
+                if hasattr(obj1, "on_collision"):
+                    obj1.on_collision(obj2)
+                if hasattr(obj2, "on_collision"):
+                    obj2.on_collision(obj1)
+
     def _add_obj_to_group(self, obj: GameObject):
         if isinstance(obj, Projectile):
             if obj.friendly:
@@ -235,3 +226,6 @@ class GameWorld(GameScene):
 
         elif isinstance(obj, Obstacle):
             self.obstacles.add(obj._sprite)
+
+        elif isinstance(obj, MainBase):
+            self.base_group.add(obj._sprite)

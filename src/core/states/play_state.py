@@ -13,7 +13,7 @@ from core.manager.sound_manager import SoundManager
 from core.map.map_backgroud import MapBackground
 from core.states.base_state import BaseState
 from core.wave_manager import WaveManager
-from entities.base_structure import BaseStructure
+from entities.structures.main_base import MainBase
 
 if TYPE_CHECKING:
     from core.manager.state_manager import StateManager
@@ -67,7 +67,7 @@ class PlayState(BaseState):
                 basepoint = current_map._waypoints[WaypointsEnum.BASE]
                 base_x, base_y = basepoint.position.x, basepoint.position.y
 
-                base = BaseStructure(pygame.Vector2(base_x, base_y))
+                base = MainBase(pygame.Vector2(base_x, base_y))
                 self.world.add_object(base)
 
         player = Player(pygame.Vector2(player_x, player_y))
