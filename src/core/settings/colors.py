@@ -59,3 +59,8 @@ class Colors:
         hitbox: Color = (255, 255, 0)  # Yellow
         feet_hitbox: Color = (0, 255, 255)  # Cyan
         direction_vector: Color = (94, 234, 212)  # Teal
+
+        turret: Color = (251, 191, 36)
+        turret_range: Color = (16, 185, 129)
+
+        base: Color = (3, 105, 161)

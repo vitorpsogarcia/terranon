@@ -13,6 +13,7 @@ class GameObject(ABC):
     relative_hitboxes: list[pygame.Rect]
     _sprite: EntitySprite
     _fixed_layer: bool
+    _fixed_opacity: bool
 
     def __init__(self, initial_position: pygame.Vector2, *groups: pygame.sprite.Group):
         self._sprite = EntitySprite(self, *groups)
@@ -22,6 +23,7 @@ class GameObject(ABC):
         self.rect = None
         self.relative_hitboxes = []
         self._fixed_layer = False
+        self._fixed_opacity = False
 
     @property
     def image(self):

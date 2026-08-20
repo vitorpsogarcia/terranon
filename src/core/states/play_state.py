@@ -14,6 +14,7 @@ from core.map.map_backgroud import MapBackground
 from core.states.base_state import BaseState
 from core.wave_manager import WaveManager
 from entities.structures.main_base import MainBase
+from entities.structures.towers.generic_tower import GenericTower
 
 if TYPE_CHECKING:
     from core.manager.state_manager import StateManager
@@ -85,6 +86,8 @@ class PlayState(BaseState):
 
         self.wave_manager = WaveManager(self.world.spawners)
 
+        self._load_debug_objects()
+
         self.initialized = True
 
     def exit(self):
@@ -132,3 +135,11 @@ class PlayState(BaseState):
         """Callback acionado quando um ninho cria um inimigo."""
         if self.world:
             self.world.add_object(enemy)
+
+    def _load_debug_objects(self):
+        if self.world is None:
+            return
+
+        generic_turret = GenericTower(pygame.Vector2(8563, 5950))
+
+        self.world.add_object(generic_turret)

@@ -14,6 +14,8 @@ class EntitySprite(pygame.sprite.Sprite):
 
     @opacity.setter
     def opacity(self, value):
+        if self.owner._fixed_opacity:
+            return
         value = max(0, min(255, value))
         self._opacity = value
 

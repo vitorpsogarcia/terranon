@@ -12,6 +12,7 @@ from entities.enemy_spawner import EnemySpawner
 from entities.obstacle import Obstacle
 from entities.projectiles.projectile import Projectile
 from entities.structures.main_base import MainBase
+from entities.structures.towers.generic_tower import GenericTower
 
 
 class GameScene(ABC):
@@ -37,7 +38,7 @@ class GameWorld(GameScene):
         self.player_group = pygame.sprite.GroupSingle()
         self.friend_projectiles_group = pygame.sprite.Group()
         self.enemy_projectiles_group = pygame.sprite.Group()
-        self.base_group = pygame.sprite.Group()
+        self.structures_group = pygame.sprite.Group()
         self.enemies_group = pygame.sprite.Group()
         self.spawners: dict[str, EnemySpawner] = {}
         self.world_colliders: list[pygame.Rect] = []
@@ -83,7 +84,8 @@ class GameWorld(GameScene):
         self._resolve_player_obstacle_collisions()
         self._resolve_player_enemy_collisions()
         self._resolve_collisions(self.enemies_group, self.friend_projectiles_group)
-        self._resolve_collisions(self.enemies_group, self.base_group)
+        self._resolve_collisions(self.enemies_group, self.structures_group)
+        self._resolve_collisions(self.friend_projectiles_group, self.structures_group)
 
     def handle_events(self, events: list[pygame.event.Event]):
         for obj in self.camera_group.sprites():
@@ -194,7 +196,9 @@ class GameWorld(GameScene):
                 print(f"Erro ao reproduzir som de hit: {e}")
 
     def _resolve_collisions(
-        self, group1: pygame.sprite.Group, group2: pygame.sprite.Group
+        self,
+        group1: pygame.sprite.Group,
+        group2: pygame.sprite.Group,
     ):
         hits = pygame.sprite.groupcollide(group1, group2, False, False)
 
@@ -227,5 +231,5 @@ class GameWorld(GameScene):
         elif isinstance(obj, Obstacle):
             self.obstacles.add(obj._sprite)
 
-        elif isinstance(obj, MainBase):
-            self.base_group.add(obj._sprite)
+        if isinstance(obj, (MainBase, GenericTower)):
+            self.structures_group.add(obj._sprite)
