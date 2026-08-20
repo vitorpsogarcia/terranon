@@ -11,10 +11,8 @@ from utils.image import load_image
 class Goblin(Enemy):
     def __init__(self, pos: pygame.Vector2, path: Polyline, *groups):
         super().__init__(pos, path, *groups, speed=80, max_hp=20)
-
         self.damage = 5.0
         self.scale = 0.1
-
         self._last_direction = DirectionsEnum.NORTH
         self.last_direction = self._last_direction.text
         self.current_state = "walking"
