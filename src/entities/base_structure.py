@@ -4,15 +4,22 @@ from core.enums.game_event_enum import GameEventEnum
 from core.game_object import StaticObject
 from core.health_component import HealthComponent
 from core.manager.event_manager import EventManager
+from core.settings.settings import MAIN_BASE_SIZE
 
 
-class BaseStructure(StaticObject):
+class MainBase(StaticObject):
     def __init__(self, position: pygame.Vector2, *groups: pygame.sprite.Group):
+
+        # Ajusta a posição para o centro da bases
+        position.x = round(position.x - MAIN_BASE_SIZE / 2)
+        position.y = round(position.y - MAIN_BASE_SIZE / 2)
         super().__init__(position, *groups)
 
-        self.image = pygame.Surface((64, 64)).convert_alpha()
+        self.image = pygame.Surface((MAIN_BASE_SIZE, MAIN_BASE_SIZE)).convert_alpha()
         self.image.fill((0, 0, 255))
-        self.rect = self.image.get_rect(topleft=(round(self.pos.x), round(self.pos.y)))
+
+        self.rect = self.image.get_rect(center=(round(self.pos.x), round(self.pos.y)))
+        self.relative_hitboxes = [pygame.Rect(0, 0, MAIN_BASE_SIZE, MAIN_BASE_SIZE)]
 
         self.health = HealthComponent(max_hp=500.0, on_death_callback=self.on_death)
 
