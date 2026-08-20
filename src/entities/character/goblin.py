@@ -1,9 +1,9 @@
 import pygame
 
-from core.asset_manager import AssetManager
+from core.manager.asset_manager import AssetManager
 from core.enums.directions_enum import DirectionsEnum
 from core.map.waypoints.polyline import Polyline
-from core.settings.settings import ASSETS_FOLDER
+from core.settings.settings import ASSETS_FOLDER, GOBLIN_SCALE
 from entities.enemy import Enemy
 from utils.image import load_image
 
@@ -12,7 +12,7 @@ class Goblin(Enemy):
     def __init__(self, pos: pygame.Vector2, path: Polyline, *groups):
         super().__init__(pos, path, *groups, speed=80, max_hp=20)
         self.damage = 5.0
-        self.scale = 0.1
+        self.scale = GOBLIN_SCALE
         self._last_direction = DirectionsEnum.NORTH
         self.last_direction = self._last_direction.text
         self.current_state = "walking"
@@ -24,7 +24,7 @@ class Goblin(Enemy):
     @classmethod
     def preload_assets(cls):
         """Carrega e salva os frames do Goblin no AssetManager"""
-        escala_goblin = 0.3 
+        escala_goblin = GOBLIN_SCALE
         
         for direction in DirectionsEnum.four_direction_list():
             dir_val = direction.text

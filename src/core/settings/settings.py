@@ -35,3 +35,5 @@ PLAYER_KEYS = {
     "RUN": pygame.K_LSHIFT,
     "SHOOT": pygame.MOUSEBUTTONDOWN,
 }
+
+GOBLIN_SCALE = 0.1
