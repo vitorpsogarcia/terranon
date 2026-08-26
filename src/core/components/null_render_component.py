@@ -7,5 +7,4 @@ class NullRenderComponent(BaseRenderComponent):
         super().__init__(owner)
 
     def draw(self, surface: pygame.Surface, offset: pygame.math.Vector2):
-        # O poder do Null Object: não faz absolutamente nada, poupando processamento
         pass
