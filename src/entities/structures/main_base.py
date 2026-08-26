@@ -2,7 +2,7 @@ import pygame
 
 from core.enums.game_event_enum import GameEventEnum
 from core.game_object import GameObject, StaticObject
-from core.health_component import HealthComponent
+from core.components.health_component import HealthComponent
 from core.manager.event_manager import EventManager
 from core.settings.settings import MAIN_BASE_SIZE
 from entities.enemy import Enemy

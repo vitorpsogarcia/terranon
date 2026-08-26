@@ -1,8 +1,8 @@
 import pygame
 
-from core.animator_component import AnimatorComponent
+from core.components.animator_component import AnimatorComponent
 from core.game_object import DynamicObject
-from core.health_component import HealthComponent
+from core.components.health_component import HealthComponent
 
 
 class Character(DynamicObject):
