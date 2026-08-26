@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-
 import pygame
 from pygame.math import Vector2
 
@@ -15,46 +14,22 @@ class GameObject(ABC):
     _fixed_layer: bool
 
     def __init__(self, initial_position: pygame.Vector2, *groups: pygame.sprite.Group):
-        self._sprite = EntitySprite(self, *groups)
         self.pos = Vector2(*initial_position)
         self.active = True
-        self.image = None
-        self.rect = None
+        self.hitbox = pygame.Rect(self.pos.x, self.pos.y, 32, 32)
+        self.rect = self.hitbox
         self.relative_hitboxes = []
         self._fixed_layer = False
-
-    @property
-    def image(self):
-        return self._sprite.image
-
-    @image.setter
-    def image(self, value: pygame.Surface | None):
-        self._sprite.image = value
-
-        if value is not None:
-            self.rect = value.get_rect()
-        else:
-            self.rect = None
-
-    @property
-    def rect(self):
-        return self._sprite.rect
-
-    @rect.setter
-    def rect(self, value):
-        self._sprite.rect = value
+        self._sprite = EntitySprite(self, *groups)
 
     @property
     def hitboxes(self) -> list[pygame.Rect]:
-        """
-        Calcula as posições absolutas das hitboxes com base na posição atual do objeto e retorna uma nova lista de Rects.
-        """
-        if self.rect is None:
+        if self.hitbox is None:
             return []
 
         absolute_hitboxes = []
         for rel_box in self.relative_hitboxes:
-            abs_box = rel_box.move(self.rect.topleft)
+            abs_box = rel_box.move(self.hitbox.topleft)
             absolute_hitboxes.append(abs_box)
         return absolute_hitboxes
 
@@ -69,10 +44,9 @@ class GameObject(ABC):
         self._render_layer = value
 
     def sync_colliders(self):
-        if self.rect is None:
-            return
-
-        self.rect.center = (round(self.pos.x), round(self.pos.y))
+        if self.hitbox is not None:
+            self.hitbox.center = (round(self.pos.x), round(self.pos.y))
+            self.rect.center = self.hitbox.center
 
     @abstractmethod
     def update(self, dt: float):
