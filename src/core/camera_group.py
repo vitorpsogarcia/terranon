@@ -35,10 +35,14 @@ class CameraGroup(pygame.sprite.LayeredUpdates):
         self.zoom -= scroll_amount * self.zoom_speed
         self.zoom = max(self.zoom_min, min(self.zoom_max, self.zoom))
 
-    def screen_to_world(self, screen_pos: pygame.Vector2 | tuple[float, float]) -> pygame.Vector2:
+    def screen_to_world(
+        self, screen_pos: pygame.Vector2 | tuple[float, float]
+    ) -> pygame.Vector2:
         return pygame.math.Vector2(screen_pos) * self.zoom + self.offset
 
-    def world_to_screen(self, world_pos: pygame.Vector2 | tuple[float, float]) -> pygame.Vector2:
+    def world_to_screen(
+        self, world_pos: pygame.Vector2 | tuple[float, float]
+    ) -> pygame.Vector2:
         if self.zoom == 0:
             return pygame.math.Vector2(world_pos) - self.offset
         return (pygame.math.Vector2(world_pos) - self.offset) / self.zoom
@@ -62,10 +66,13 @@ class CameraGroup(pygame.sprite.LayeredUpdates):
         for sprite in self.sprites():
             owner = getattr(sprite, "owner", None)
             if owner is not None:
-                if hasattr(owner, "render_component") and owner.render_component is not None:
+                if (
+                    hasattr(owner, "render_component")
+                    and owner.render_component is not None
+                ):
                     owner.render_component.draw(dummy_surface, self.offset)
 
-        DebugManager.draw_world_debug(dummy_surface, self)
+        DebugManager().draw_world_debug(dummy_surface, self)
 
         scaled_surface = pygame.transform.scale(dummy_surface, surface.get_size())
 

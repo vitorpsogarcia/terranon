@@ -17,12 +17,12 @@ class EnemyFactory:
         for enemy_class in cls._registry.values():
             if hasattr(enemy_class, "preload_assets"):
                 enemy_class.preload_assets()
+
     @classmethod
     def get_enemy_by_type(cls, enemy_type: EnemyEnum):
         if enemy_type not in cls._registry:
             raise EnemyTypeNotFoundException(enemy_type)
         return cls._registry.get(enemy_type)
-
 
     @classmethod
     def create_enemy(

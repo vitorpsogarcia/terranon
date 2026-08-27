@@ -91,4 +91,3 @@ class GameWorld(GameScene):
         for obj in self._iterate_objects():
             if obj.active:
                 yield obj
-

@@ -15,16 +15,31 @@ class WaveManager:
         self.current_delay_timer = 0.0
 
         self.current_wave_script = [
-            {"time": 1.0, "spawner": EnemySpawnerEnum.SPWN_ALPHA.value,
-                "enemy": EnemyEnum.GOBLIN, "qtd": 10},
-            {"time": 2.0, "spawner": EnemySpawnerEnum.SPWN_GAMA.value,
-                "enemy": EnemyEnum.GOBLIN, "qtd": 10},
-            {"time": 1.0, "spawner": EnemySpawnerEnum.SPWN_BETA.value,
-                "enemy": EnemyEnum.GOBLIN, "qtd": 10},
-            {"time": 2.0, "spawner": EnemySpawnerEnum.SPWN_DELTA.value,
-                "enemy": EnemyEnum.GOBLIN, "qtd": 10}
+            {
+                "time": 1.0,
+                "spawner": EnemySpawnerEnum.SPWN_ALPHA.value,
+                "enemy": EnemyEnum.GOBLIN,
+                "qtd": 10,
+            },
+            {
+                "time": 2.0,
+                "spawner": EnemySpawnerEnum.SPWN_GAMA.value,
+                "enemy": EnemyEnum.GOBLIN,
+                "qtd": 10,
+            },
+            {
+                "time": 1.0,
+                "spawner": EnemySpawnerEnum.SPWN_BETA.value,
+                "enemy": EnemyEnum.GOBLIN,
+                "qtd": 10,
+            },
+            {
+                "time": 2.0,
+                "spawner": EnemySpawnerEnum.SPWN_DELTA.value,
+                "enemy": EnemyEnum.GOBLIN,
+                "qtd": 10,
+            },
         ]
-
 
         self.current_wave_script.sort(key=lambda x: x["time"])
         EventManager().subscribe(event=GameEventEnum.RESET_WAVES, listener=self.reset)
@@ -33,7 +48,6 @@ class WaveManager:
         if self.active_batches:
             self.current_delay_timer += dt
             if self.current_delay_timer >= self.spawn_delay:
-
                 for batch in self.active_batches[:]:
                     spawner_id = batch["spawner"]
                     enemy_type = batch["enemy"]
@@ -41,8 +55,7 @@ class WaveManager:
                     if spawner_id in self.spawners:
                         self.spawners[spawner_id].spawn_enemy(enemy_type)
                     else:
-                        print(
-                            f"Aviso: Ninho {spawner_id} não encontrado no mapa!")
+                        print(f"Aviso: Ninho {spawner_id} não encontrado no mapa!")
 
                     batch["remaining"] -= 1
 
@@ -56,12 +69,11 @@ class WaveManager:
         while self.current_event_index < len(self.current_wave_script):
             next_event = self.current_wave_script[self.current_event_index]
 
-
             if self.wave_timer >= next_event["time"]:
                 self.active_batches.append({
                     "spawner": next_event["spawner"],
                     "enemy": next_event["enemy"],
-                    "remaining": next_event["qtd"]
+                    "remaining": next_event["qtd"],
                 })
 
                 self.current_event_index += 1

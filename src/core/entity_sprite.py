@@ -15,10 +15,9 @@ class EntitySprite(pygame.sprite.Sprite):
     def update(self, dt: float):
         if not self.owner.active:
             return
-        
+
         self.owner.update(dt)
-        fonte_fisica = getattr(self.owner, 'hitbox',
-                               getattr(self.owner, 'rect', None))
+        fonte_fisica = getattr(self.owner, "hitbox", getattr(self.owner, "rect", None))
 
         if fonte_fisica is not None:
             self.rect.size = fonte_fisica.size

@@ -71,11 +71,19 @@ class Player(Entity):
 
     @property
     def frame_width(self) -> int:
-        return self.animator.current_frame.get_width() if self.animator.current_frame else 0
+        return (
+            self.animator.current_frame.get_width()
+            if self.animator.current_frame
+            else 0
+        )
 
     @property
     def frame_height(self) -> int:
-        return self.animator.current_frame.get_height() if self.animator.current_frame else 0
+        return (
+            self.animator.current_frame.get_height()
+            if self.animator.current_frame
+            else 0
+        )
 
     def process_event(self, event: pygame.event.Event):
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:

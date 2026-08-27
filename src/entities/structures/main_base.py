@@ -24,7 +24,9 @@ class MainBase(Obstacle):
         self.image.fill(Colors.debug.base)
         self.render_component = StaticRenderComponent(self, self.image)
 
-        self.hitbox = pygame.Rect(self.pos.x, self.pos.y, MAIN_BASE_SIZE, MAIN_BASE_SIZE)
+        self.hitbox = pygame.Rect(
+            self.pos.x, self.pos.y, MAIN_BASE_SIZE, MAIN_BASE_SIZE
+        )
         self.rect = self.hitbox
         self.relative_hitboxes = [pygame.Rect(0, 0, MAIN_BASE_SIZE, MAIN_BASE_SIZE)]
 

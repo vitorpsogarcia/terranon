@@ -36,7 +36,7 @@ def main():
     )
     state_manager.register_state(
         GameStateEnum.PLAY,
-        lambda: PlayState(state_manager, (SCREEN_WIDTH, SCREEN_HEIGHT)),
+        lambda: PlayState(state_manager, game_manager, (SCREEN_WIDTH, SCREEN_HEIGHT)),
     )
     state_manager.register_state(
         GameStateEnum.INVENTORY,
