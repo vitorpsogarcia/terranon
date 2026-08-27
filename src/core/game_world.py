@@ -57,8 +57,8 @@ class GameWorld(GameScene):
     def update(self, dt: float):
         for sprite in self.camera_group.sprites():
             obj = sprite.owner
-            if obj.active and hasattr(obj, "update"):
-                obj.update(dt)
+            if obj.active and hasattr(sprite, "update"):
+                sprite.update(dt)
 
             if obj.active and obj.rect is not None and isinstance(obj, DynamicObject):
                 new_layer = round(obj.rect.bottom)
@@ -91,3 +91,4 @@ class GameWorld(GameScene):
         for obj in self._iterate_objects():
             if obj.active:
                 yield obj
+

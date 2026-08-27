@@ -34,6 +34,7 @@ class Player(Entity):
             MovementComponent(self, speed=PLAYER_BASE_SPEED)
         )
         self.animator = self.add_component(AnimatorComponent(self))
+        self.render_component = self.animator
         self.direction = pygame.math.Vector2(0, 0)
         self.scale = SCALE_PLAYER
         self._last_direction = DirectionsEnum.SOUTH
@@ -43,6 +44,7 @@ class Player(Entity):
         self._shot_timer = 0.0
 
         self.hitbox = pygame.Rect(self.pos.x, self.pos.y, 15, 30)
+        self.rect = self.hitbox
         self.feet_hitbox = pygame.Rect(self.pos.x, self.pos.y, 15, 10)
 
         self._setup_animations()
@@ -69,11 +71,11 @@ class Player(Entity):
 
     @property
     def frame_width(self) -> int:
-        return self.image.get_width() if self.image else 0
+        return self.animator.current_frame.get_width() if self.animator.current_frame else 0
 
     @property
     def frame_height(self) -> int:
-        return self.image.get_height() if self.image else 0
+        return self.animator.current_frame.get_height() if self.animator.current_frame else 0
 
     def process_event(self, event: pygame.event.Event):
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
@@ -142,14 +144,21 @@ class Player(Entity):
         mouse_pos = pygame.math.Vector2(pygame.mouse.get_pos())
 
         if self.rect is not None:
-            camera_offset = pygame.math.Vector2(0, 0)
+            camera_group = None
             for group in self._sprite.groups():
                 if hasattr(group, "offset"):
-                    camera_offset = group.offset
+                    camera_group = group
                     break
 
             start_pos = pygame.math.Vector2(self.rect.center)
-            world_mouse_pos = mouse_pos + camera_offset
+            if camera_group is not None and hasattr(camera_group, "screen_to_world"):
+                world_mouse_pos = camera_group.screen_to_world(mouse_pos)
+            elif camera_group is not None:
+                zoom = getattr(camera_group, "zoom", 1.0)
+                world_mouse_pos = (mouse_pos * zoom) + camera_group.offset
+            else:
+                world_mouse_pos = mouse_pos
+
             direction = world_mouse_pos - start_pos
 
             if direction.length() > 0:

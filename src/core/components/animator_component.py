@@ -1,22 +1,19 @@
 import pygame
-
+from core.components.base_render_component import BaseRenderComponent
 from core.game_object import GameObject
 
 
-# O animator component deve ser o responsável por gerenciar as animações e desenhar na tela.
-# Reorganizar para não depender do sprite que está do game object
-class AnimatorComponent:
+class AnimatorComponent(BaseRenderComponent):  # 1. Herda do contrato base
     def __init__(self, owner: GameObject):
-        self.owner = owner
+        super().__init__(owner)
         self.animations: dict[str, dict[str, object]] = {}
         self.current: str | None = None
         self._frame_index: int = 0
         self._time_acc: float = 0.0
         self._angle = 0
+        self.current_frame: pygame.Surface | None = None
 
-    def add_animation(
-        self, state_name: str, frames_list: list[pygame.Surface], frame_duration: float
-    ):
+    def add_animation(self, state_name: str, frames_list: list[pygame.Surface], frame_duration: float):
         if not frames_list:
             raise ValueError("frames_list deve conter pelo menos uma Surface")
         if frame_duration <= 0:
@@ -65,18 +62,24 @@ class AnimatorComponent:
             return
         frames: list[pygame.Surface] = anim["frames"]
         frame = frames[self._frame_index % len(frames)]
-        prev_rect = getattr(self.owner, "rect", None)
-        prev_center = prev_rect.center if prev_rect else None
 
-        frame = pygame.transform.rotate(frame, self._angle)
+        if self._angle != 0:
+            frame = pygame.transform.rotate(frame, self._angle)
 
-        self.owner.image = frame
-        if prev_center:
-            self.owner.rect = self.owner.image.get_rect(center=prev_center)
-        else:
-            self.owner.rect = self.owner.image.get_rect()
+        self.current_frame = frame
 
     def set_angle(self, angle: float):
         self._angle = angle
         if self.current is not None:
             self._apply_frame()
+            
+    def draw(self, surface: pygame.Surface, offset: pygame.math.Vector2):
+        if self.current_frame is None:
+            return
+
+        draw_rect = self.current_frame.get_rect(
+            center=(round(self.owner.pos.x), round(self.owner.pos.y)))
+
+        draw_rect.topleft = (draw_rect.x - offset.x, draw_rect.y - offset.y)
+
+        surface.blit(self.current_frame, draw_rect)

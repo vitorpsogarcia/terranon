@@ -38,18 +38,12 @@ class Enemy(Entity):
         self.movement = self.add_component(MovementComponent(self, speed=speed))
         self.path_follower = self.add_component(PathFollowerComponent(self, path))
         self.animator = self.add_component(AnimatorComponent(self))
+        self.render_component = self.animator
         self.direction = pygame.math.Vector2(0, 0)
 
         self.scale = 0.3
         self.hitbox = pygame.Rect(self.pos.x, self.pos.y, 30, 60)
-
-        if self.image is None:
-            self.image = pygame.Surface((20, 48)).convert_alpha()
-            self.image.fill((111, 0, 0))
-            self.rect = self.image.get_rect(
-                topleft=(round(self.pos.x), round(self.pos.y))
-            )
-
+        self.rect = self.hitbox
         self._points = points
         self.current_state = "idle"
         self.last_direction = "south"

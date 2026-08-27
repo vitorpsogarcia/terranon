@@ -6,6 +6,7 @@ from core.factories.enemy_factory import EnemyFactory
 from core.game_object import StaticObject
 from core.manager.event_manager import EventManager
 from core.map.waypoints.polyline import Polyline
+from core.components.null_render_component import NullRenderComponent
 
 
 class EnemySpawner(StaticObject):
@@ -20,9 +21,7 @@ class EnemySpawner(StaticObject):
         super().__init__(position, *groups)
         self.spawner_id = spawner_id
         self.path = path
-        self.image = pygame.Surface((32, 32)).convert_alpha()
-        self.image.fill((100, 0, 100))
-        self.rect = self.image.get_rect(center=(round(self.pos.x), round(self.pos.y)))
+        self.render_component = NullRenderComponent(self)
 
     def update(self, dt: float):
         super().update(dt)

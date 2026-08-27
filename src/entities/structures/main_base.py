@@ -1,8 +1,9 @@
 import pygame
 
 from core.enums.game_event_enum import GameEventEnum
-from core.game_object import GameObject
+from core.game_object import GameObject, StaticObject
 from core.components.health_component import HealthComponent
+from core.components.static_render_component import StaticRenderComponent
 from core.manager.event_manager import EventManager
 from core.settings.colors import Colors
 from core.settings.settings import MAIN_BASE_SIZE
@@ -21,8 +22,10 @@ class MainBase(Obstacle):
 
         self.image = pygame.Surface((MAIN_BASE_SIZE, MAIN_BASE_SIZE)).convert_alpha()
         self.image.fill(Colors.debug.base)
+        self.render_component = StaticRenderComponent(self, self.image)
 
-        self.rect = self.image.get_rect(center=(round(self.pos.x), round(self.pos.y)))
+        self.hitbox = pygame.Rect(self.pos.x, self.pos.y, MAIN_BASE_SIZE, MAIN_BASE_SIZE)
+        self.rect = self.hitbox
         self.relative_hitboxes = [pygame.Rect(0, 0, MAIN_BASE_SIZE, MAIN_BASE_SIZE)]
 
         self.health = HealthComponent(max_hp=500.0, on_death_callback=self.on_death)

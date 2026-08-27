@@ -27,6 +27,7 @@ class Projectile(DynamicObject):
     ):
         super().__init__((position.x, position.y), *groups)
         self.animator = AnimatorComponent(self)
+        self.render_component = self.animator
         self.friendly = friendly
         self.direction = direction
         self.speed = speed
@@ -36,8 +37,9 @@ class Projectile(DynamicObject):
         self._variant = variant
         self._name = f"projectile.{self._type.value}.{self._variant.variant_name}"
 
-        self.rect = pygame.Rect(0, 0, 4, 4)
-        self.rect.center = (round(position.x), round(position.y))
+        self.hitbox = pygame.Rect(0, 0, 4, 4)
+        self.hitbox.center = (round(position.x), round(position.y))
+        self.rect = self.hitbox
 
         self._setup_animations()
 
@@ -71,8 +73,9 @@ class Projectile(DynamicObject):
             self.kill()
 
         self.pos += self.direction * self.speed * dt
+        self.hitbox.center = (round(self.pos.x), round(self.pos.y))
         if self.rect:
-            self.rect.center = (round(self.pos.x), round(self.pos.y))
+            self.rect.center = self.hitbox.center
 
         super().update(dt)
         self.animator.update(dt)

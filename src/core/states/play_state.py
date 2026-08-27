@@ -7,6 +7,7 @@ from core.enums.game_state_enum import GameStateEnum
 from core.game_world import GameWorld
 from core.manager.economy_manager import EconomyManager
 from core.manager.event_manager import EventManager
+from core.manager.game_manager import GameManager
 from core.manager.sound_manager import SoundManager
 from core.enums.map_enums import MapsEnum
 from core.states.base_state import BaseState
@@ -20,10 +21,11 @@ class PlayState(BaseState):
     _logger = logging.getLogger("PlayState")
     _show_debug = False
 
-    def __init__(self, state_manager: "StateManager", screen_size: tuple[int, int]):
+    def __init__(self, state_manager: "StateManager", game_manager: "GameManager", screen_size: tuple[int, int]):
         super().__init__(state_manager, screen_size)
         self.world: GameWorld | None = None
         self.screen_size = screen_size
+        self.game_manager = game_manager
 
     def enter(self):
         try:
@@ -69,6 +71,7 @@ class PlayState(BaseState):
         self._change_state(GameStateEnum.GAME_OVER)
 
     def handle_events(self, events: list[pygame.event.Event]):
+
         for event in events:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_i:
@@ -77,6 +80,9 @@ class PlayState(BaseState):
                     self.state_manager.change_to(GameStateEnum.GAME_OVER)
                 elif event.key == pygame.K_ESCAPE:
                     self.state_manager.change_to(GameStateEnum.MENU)
+
+            if event.type == pygame.MOUSEWHEEL and self.world is not None:
+                self.world.camera_group.handle_zoom(event.y)
 
         if self.world is not None:
             self.world.handle_events(events)
