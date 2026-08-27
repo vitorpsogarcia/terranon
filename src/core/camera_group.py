@@ -1,5 +1,4 @@
 import logging
-
 import pygame
 
 from core.debug_manager import DebugManager
@@ -25,7 +24,6 @@ class CameraGroup(pygame.sprite.LayeredUpdates):
     def target(self):
         if self._target is None:
             raise AttributeError("Target is not set for CameraGroup.")
-
         return self._target
 
     @target.setter

@@ -3,6 +3,7 @@ from typing import ClassVar
 import pygame
 
 from core.enums.debug_option_enum import DebugOption
+from core.manager.economy_manager import EconomyManager
 from core.settings.colors import Colors
 
 
@@ -35,17 +36,19 @@ class DebugManager:
         for sprite in camera_group.sprites():
             if DebugManager.is_option_enabled(DebugOption.COLLIDERS):
                 owner = getattr(sprite, "owner", None)
-                # Renderiza o colisor (hitbox) em amarelo para visualização/debug
-                if hasattr(sprite, "hitbox"):
-                    hitboxes_rect = sprite.hitbox.copy()
-                    hitboxes_rect.topleft -= camera_group.offset
-                    pygame.draw.rect(surface, Colors.debug.hitbox, hitboxes_rect, 1)
 
-                if hasattr(owner, "hitboxes"):
-                    hitboxes_rect = sprite.owner.hitboxes.copy()
-                    for hitbox in hitboxes_rect:
-                        hitbox.topleft -= camera_group.offset
-                        pygame.draw.rect(surface, Colors.debug.hitbox, hitbox, 1)
+                has_relative = hasattr(owner, "relative_hitboxes") and len(owner.relative_hitboxes) > 0
+
+                if has_relative and hasattr(owner, "hitboxes"):
+                    hitboxes_list = sprite.owner.hitboxes
+                    for hitbox in hitboxes_list:
+                        hitbox_rect = hitbox.copy()
+                        hitbox_rect.topleft -= camera_group.offset
+                        pygame.draw.rect(surface, Colors.debug.hitbox, hitbox_rect, 1)
+                elif hasattr(sprite, "hitbox") and sprite.hitbox:
+                    hitbox_rect = sprite.hitbox.copy()
+                    hitbox_rect.topleft -= camera_group.offset
+                    pygame.draw.rect(surface, Colors.debug.hitbox, hitbox_rect, 1)
 
                 # Renderiza o colisor de pés (feet_hitbox) em azul claro para visualização/debug
                 if hasattr(sprite, "feet_hitbox"):
@@ -87,6 +90,7 @@ class DebugManager:
         ):
             camera_group = state.world.camera_group
             player = camera_group.target
+            points = EconomyManager().current_points, EconomyManager().total_points
 
             if player:
                 txt_pos = font.render(
@@ -113,3 +117,8 @@ class DebugManager:
                     Colors.text.primary,
                 )
                 surface.blit(txt_life, (10, 85))
+
+            txt_points = font.render(
+                f"Pontos: {points[0]}/{points[1]}", True, Colors.text.primary
+            )
+            surface.blit(txt_points, (10, 110))
