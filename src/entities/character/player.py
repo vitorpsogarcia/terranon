@@ -11,15 +11,30 @@ from core.settings.settings import (
     PLAYER_KEYS,
     SCALE_PLAYER,
 )
-from entities.character.characters import Character
+from core.entity import Entity
+from core.components.health_component import HealthComponent
+from core.components.movement_component import MovementComponent
+from core.components.animator_component import AnimatorComponent
 from utils.image import load_image
 
 
-class Player(Character):
+class Player(Entity):
     def __init__(self, position: pygame.Vector2, *groups: pygame.sprite.Group):
-        super().__init__(
-            position, PLAYER_BASE_SPEED, *groups, allow_invulnerability=True
+        super().__init__(position, *groups)
+
+        self.health = self.add_component(
+            HealthComponent(
+                max_hp=100.0,
+                on_death_callback=self.on_death,
+                iframes_duration=0.5,
+                allow_invulnerability=True,
+            )
         )
+        self.movement = self.add_component(
+            MovementComponent(self, speed=PLAYER_BASE_SPEED)
+        )
+        self.animator = self.add_component(AnimatorComponent(self))
+        self.direction = pygame.math.Vector2(0, 0)
         self.scale = SCALE_PLAYER
         self._last_direction = DirectionsEnum.SOUTH
         self._is_running = False
@@ -37,10 +52,20 @@ class Player(Character):
             self.rect.topleft = (round(self.pos.x), round(self.pos.y))
 
     def on_death(self):
-        on_death = super().on_death()
+        self.active = False
+        self.kill()
         EventManager().emit(GameEventEnum.GAME_OVER)
 
-        return on_death
+    @property
+    def speed(self):
+        return self.movement.speed
+
+    @speed.setter
+    def speed(self, value):
+        self.movement.speed = value
+
+    def apply_knockback(self, source_pos: pygame.math.Vector2, force: float):
+        self.movement.apply_knockback(source_pos, force)
 
     @property
     def frame_width(self) -> int:
@@ -144,11 +169,10 @@ class Player(Character):
             EventManager().emit(GameEventEnum.PLAY_SFX, "effects/shoot.wav")
 
     def update(self, dt: float):
-        if not self.is_knockedback:
+        if not self.movement.is_knockedback:
             self.handle_input()
         self._shot_timer += dt
 
-        self.prev_pos = self.pos.copy()
         if self.rect is not None:
             self.prev_rect = self.rect.copy()
         else:
@@ -159,7 +183,7 @@ class Player(Character):
         self.hitbox.center = (round(self.pos.x), round(self.pos.y))
         self.feet_hitbox.midbottom = self.hitbox.midbottom
 
-        if not self.is_knockedback:
+        if not self.movement.is_knockedback:
             state = "idle"
             if self.direction.x != 0 or self.direction.y != 0:
                 state = "running" if self._is_running else "walking"

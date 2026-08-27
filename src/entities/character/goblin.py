@@ -30,8 +30,6 @@ class Goblin(Enemy):
             self._current_anim = new_anim_name
             self.animator.play(self._current_anim)
 
-        self.animator.update(dt)
-
     def _setup_animations(self):
         goblin_root = ASSETS_FOLDER / "images" / "goblin-pack" / "frames"
 

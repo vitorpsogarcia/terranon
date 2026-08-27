@@ -116,6 +116,7 @@ class DynamicObject(GameObject):
         self.render_layer = 1
 
     def update(self, dt: float):
+        self.prev_pos = self.pos.copy()
         self.velocity += self.acceleration * dt
         self.velocity *= self.friction
 

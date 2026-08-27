@@ -4,7 +4,7 @@ from pathlib import Path
 import pygame
 from pygame import Vector2
 
-from core.animator_component import AnimatorComponent
+from core.components.animator_component import AnimatorComponent
 from core.enums.projectile.projectile_types_enum import ProjectileTypesEnum
 from core.enums.projectile.projectile_variant_enum import ProjectileVariantEnum
 from core.game_object import DynamicObject, GameObject
