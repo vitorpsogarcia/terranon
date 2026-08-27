@@ -36,16 +36,25 @@ class CameraGroup(pygame.sprite.LayeredUpdates):
         self.zoom -= scroll_amount * self.zoom_speed
         self.zoom = max(self.zoom_min, min(self.zoom_max, self.zoom))
 
+    def screen_to_world(self, screen_pos: pygame.Vector2 | tuple[float, float]) -> pygame.Vector2:
+        return pygame.math.Vector2(screen_pos) * self.zoom + self.offset
+
+    def world_to_screen(self, world_pos: pygame.Vector2 | tuple[float, float]) -> pygame.Vector2:
+        if self.zoom == 0:
+            return pygame.math.Vector2(world_pos) - self.offset
+        return (pygame.math.Vector2(world_pos) - self.offset) / self.zoom
+
     def custom_draw(self, surface: pygame.Surface, player=None):
         if player is None:
             player = self._target
 
         if player is None or player.rect is None:
             self.draw(surface)
+            DebugManager.draw_world_debug(surface, self)
             return
 
-        dummy_width = int(self.display_surface.get_width() * self.zoom)
-        dummy_height = int(self.display_surface.get_height() * self.zoom)
+        dummy_width = int(surface.get_width() * self.zoom)
+        dummy_height = int(surface.get_height() * self.zoom)
 
         self.offset.x = player.rect.centerx - (dummy_width // 2)
         self.offset.y = player.rect.centery - (dummy_height // 2)
@@ -53,11 +62,12 @@ class CameraGroup(pygame.sprite.LayeredUpdates):
         dummy_surface = pygame.Surface((dummy_width, dummy_height))
         dummy_surface.fill((20, 20, 20))
 
-        for sprite in sorted(self.sprites(), key= lambda spr: spr.render_layer):
+        for sprite in sorted(self.sprites(), key=lambda spr: spr.render_layer):
             offset_pos = sprite.rect.topleft - self.offset
             dummy_surface.blit(sprite.image, offset_pos)
 
-        scaled_surface = pygame.transform.scale(dummy_surface, self.display_surface.get_size())
+        DebugManager.draw_world_debug(dummy_surface, self)
 
-        self.display_surface.blit(scaled_surface, (0, 0))
-        DebugManager.draw_world_debug(surface, self)
+        scaled_surface = pygame.transform.scale(dummy_surface, surface.get_size())
+
+        surface.blit(scaled_surface, (0, 0))
