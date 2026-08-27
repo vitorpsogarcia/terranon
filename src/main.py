@@ -30,7 +30,7 @@ def main():
     game_manager = GameManager(tela)
     state_manager = StateManager(game_manager)
 
-    play_state = PlayState(state_manager, (SCREEN_WIDTH, SCREEN_HEIGHT))
+    play_state = PlayState(state_manager, game_manager, (SCREEN_WIDTH, SCREEN_HEIGHT))
     menu_state = MenuState(state_manager, (SCREEN_WIDTH, SCREEN_HEIGHT))
     inventory_state = InventoryState(state_manager, (SCREEN_WIDTH, SCREEN_HEIGHT))
     game_over_state = GameOverState(state_manager, (SCREEN_WIDTH, SCREEN_HEIGHT))

@@ -1,6 +1,8 @@
 import logging
+
 import pygame
-from core.game_object import GameObject, StaticObject
+
+from core.game_object import GameObject
 from core.manager.debug_manager import DebugManager
 
 
@@ -11,10 +13,12 @@ class CameraGroup(pygame.sprite.LayeredUpdates):
     def __init__(self):
         super().__init__()
         self.display_surface = pygame.display.get_surface()
-        if self.display_surface is not None:
-            self.half_w = self.display_surface.get_size()[0] // 2
-            self.half_h = self.display_surface.get_size()[1] // 2
         self.offset = pygame.math.Vector2()
+
+        self.zoom = 0.75
+        self.zoom_speed = 0.1
+        self.zoom_min = 0.5
+        self.zoom_max = 2.0
         self._target = None
 
     @property
@@ -27,28 +31,42 @@ class CameraGroup(pygame.sprite.LayeredUpdates):
     def target(self, target):
         self._target = target
 
-    def custom_draw(self, surface: pygame.Surface):
-        if self.target is None or not hasattr(self.target, 'pos'):
+    def handle_zoom(self, scroll_amount):
+        self.zoom -= scroll_amount * self.zoom_speed
+        self.zoom = max(self.zoom_min, min(self.zoom_max, self.zoom))
+
+    def screen_to_world(self, screen_pos: pygame.Vector2 | tuple[float, float]) -> pygame.Vector2:
+        return pygame.math.Vector2(screen_pos) * self.zoom + self.offset
+
+    def world_to_screen(self, world_pos: pygame.Vector2 | tuple[float, float]) -> pygame.Vector2:
+        if self.zoom == 0:
+            return pygame.math.Vector2(world_pos) - self.offset
+        return (pygame.math.Vector2(world_pos) - self.offset) / self.zoom
+
+    def custom_draw(self, surface: pygame.Surface, player=None):
+        if player is None:
+            player = self._target
+
+        if player is None or not hasattr(player, "pos"):
             return
 
-        self.offset.x = self.target.pos.x - self.half_w
-        self.offset.y = self.target.pos.y - self.half_h
+        dummy_width = int(surface.get_width() * self.zoom)
+        dummy_height = int(surface.get_height() * self.zoom)
 
-        target_pos, target_layer = self.target.pos, self.target.render_layer
+        self.offset.x = player.pos.x - (dummy_width // 2)
+        self.offset.y = player.pos.y - (dummy_height // 2)
+
+        dummy_surface = pygame.Surface((dummy_width, dummy_height))
+        dummy_surface.fill((20, 20, 20))
 
         for sprite in self.sprites():
             owner = getattr(sprite, "owner", None)
             if owner is not None:
-                
-                if isinstance(owner, StaticObject):
-                    distance = target_pos.distance_to(owner.pos)
-                    if distance < 200 and (target_layer - 75 < owner.render_layer < target_layer + 75):
-                        owner._sprite.opacity = 128
-                    else:
-                        owner._sprite.opacity = 255
-
                 if hasattr(owner, "render_component") and owner.render_component is not None:
-                    owner.render_component.draw(surface, self.offset)
-                # ------------------------------------------
+                    owner.render_component.draw(dummy_surface, self.offset)
 
-        DebugManager.draw_world_debug(surface, self)
+        DebugManager.draw_world_debug(dummy_surface, self)
+
+        scaled_surface = pygame.transform.scale(dummy_surface, surface.get_size())
+
+        surface.blit(scaled_surface, (0, 0))

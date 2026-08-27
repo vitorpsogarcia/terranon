@@ -118,14 +118,21 @@ class Player(Character):
         mouse_pos = pygame.math.Vector2(pygame.mouse.get_pos())
 
         if self.rect is not None:
-            camera_offset = pygame.math.Vector2(0, 0)
+            camera_group = None
             for group in self._sprite.groups():
                 if hasattr(group, "offset"):
-                    camera_offset = group.offset
+                    camera_group = group
                     break
 
             start_pos = pygame.math.Vector2(self.rect.center)
-            world_mouse_pos = mouse_pos + camera_offset
+            if camera_group is not None and hasattr(camera_group, "screen_to_world"):
+                world_mouse_pos = camera_group.screen_to_world(mouse_pos)
+            elif camera_group is not None:
+                zoom = getattr(camera_group, "zoom", 1.0)
+                world_mouse_pos = (mouse_pos * zoom) + camera_group.offset
+            else:
+                world_mouse_pos = mouse_pos
+
             direction = world_mouse_pos - start_pos
 
             if direction.length() > 0:
