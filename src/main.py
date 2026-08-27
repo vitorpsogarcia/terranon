@@ -30,17 +30,22 @@ def main():
     game_manager = GameManager(tela)
     state_manager = StateManager(game_manager)
 
-    play_state = PlayState(state_manager, (SCREEN_WIDTH, SCREEN_HEIGHT))
-    menu_state = MenuState(state_manager, (SCREEN_WIDTH, SCREEN_HEIGHT))
-    inventory_state = InventoryState(state_manager, (SCREEN_WIDTH, SCREEN_HEIGHT))
-    game_over_state = GameOverState(state_manager, (SCREEN_WIDTH, SCREEN_HEIGHT))
-
-    inventory_state.set_play_state(play_state)
-
-    state_manager.register_state(GameStateEnum.MENU, menu_state)
-    state_manager.register_state(GameStateEnum.PLAY, play_state)
-    state_manager.register_state(GameStateEnum.INVENTORY, inventory_state)
-    state_manager.register_state(GameStateEnum.GAME_OVER, game_over_state)
+    state_manager.register_state(
+        GameStateEnum.MENU,
+        lambda: MenuState(state_manager, (SCREEN_WIDTH, SCREEN_HEIGHT)),
+    )
+    state_manager.register_state(
+        GameStateEnum.PLAY,
+        lambda: PlayState(state_manager, (SCREEN_WIDTH, SCREEN_HEIGHT)),
+    )
+    state_manager.register_state(
+        GameStateEnum.INVENTORY,
+        lambda: InventoryState(state_manager, (SCREEN_WIDTH, SCREEN_HEIGHT)),
+    )
+    state_manager.register_state(
+        GameStateEnum.GAME_OVER,
+        lambda: GameOverState(state_manager, (SCREEN_WIDTH, SCREEN_HEIGHT)),
+    )
 
     state_manager.change_to(GameStateEnum.MENU)
 
