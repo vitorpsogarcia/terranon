@@ -6,10 +6,10 @@ import pygame
 from core.enums.game_event_enum import GameEventEnum
 from core.enums.game_state_enum import GameStateEnum
 from core.factories.factories_loader import FactoriesLoader
-from core.game_manager import GameManager
 from core.game_world import GameWorld
 from core.manager.economy_manager import EconomyManager
 from core.manager.event_manager import EventManager
+from core.manager.game_manager import GameManager
 from core.manager.sound_manager import SoundManager
 from core.map.map_backgroud import MapBackground
 from core.states.base_state import BaseState

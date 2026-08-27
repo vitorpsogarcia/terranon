@@ -1,8 +1,9 @@
 import logging
+
 import pygame
 
-from core.debug_manager import DebugManager
 from core.game_object import GameObject
+from core.manager.debug_manager import DebugManager
 
 
 class CameraGroup(pygame.sprite.LayeredUpdates):
@@ -46,23 +47,23 @@ class CameraGroup(pygame.sprite.LayeredUpdates):
         if player is None:
             player = self._target
 
-        if player is None or player.rect is None:
-            self.draw(surface)
-            DebugManager.draw_world_debug(surface, self)
+        if player is None or not hasattr(player, "pos"):
             return
 
         dummy_width = int(surface.get_width() * self.zoom)
         dummy_height = int(surface.get_height() * self.zoom)
 
-        self.offset.x = player.rect.centerx - (dummy_width // 2)
-        self.offset.y = player.rect.centery - (dummy_height // 2)
+        self.offset.x = player.pos.x - (dummy_width // 2)
+        self.offset.y = player.pos.y - (dummy_height // 2)
 
         dummy_surface = pygame.Surface((dummy_width, dummy_height))
         dummy_surface.fill((20, 20, 20))
 
-        for sprite in sorted(self.sprites(), key=lambda spr: spr.render_layer):
-            offset_pos = sprite.rect.topleft - self.offset
-            dummy_surface.blit(sprite.image, offset_pos)
+        for sprite in self.sprites():
+            owner = getattr(sprite, "owner", None)
+            if owner is not None:
+                if hasattr(owner, "render_component") and owner.render_component is not None:
+                    owner.render_component.draw(dummy_surface, self.offset)
 
         DebugManager.draw_world_debug(dummy_surface, self)
 
