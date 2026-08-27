@@ -37,17 +37,18 @@ class DebugManager:
             if DebugManager.is_option_enabled(DebugOption.COLLIDERS):
                 owner = getattr(sprite, "owner", None)
 
-                # Renderiza o colisor (hitbox) em amarelo para visualização/debug
-                if hasattr(sprite, "hitbox"):
-                    hitboxes_rect = sprite.hitbox.copy()
-                    hitboxes_rect.topleft -= camera_group.offset
-                    pygame.draw.rect(surface, Colors.debug.hitbox, hitboxes_rect, 1)
+                has_relative = hasattr(owner, "relative_hitboxes") and len(owner.relative_hitboxes) > 0
 
-                if hasattr(owner, "hitboxes"):
-                    hitboxes_rect = sprite.owner.hitboxes.copy()
-                    for hitbox in hitboxes_rect:
-                        hitbox.topleft -= camera_group.offset
-                        pygame.draw.rect(surface, Colors.debug.hitbox, hitbox, 1)
+                if has_relative and hasattr(owner, "hitboxes"):
+                    hitboxes_list = sprite.owner.hitboxes
+                    for hitbox in hitboxes_list:
+                        hitbox_rect = hitbox.copy()
+                        hitbox_rect.topleft -= camera_group.offset
+                        pygame.draw.rect(surface, Colors.debug.hitbox, hitbox_rect, 1)
+                elif hasattr(sprite, "hitbox") and sprite.hitbox:
+                    hitbox_rect = sprite.hitbox.copy()
+                    hitbox_rect.topleft -= camera_group.offset
+                    pygame.draw.rect(surface, Colors.debug.hitbox, hitbox_rect, 1)
 
                 # Renderiza o colisor de pés (feet_hitbox) em azul claro para visualização/debug
                 if hasattr(sprite, "feet_hitbox"):

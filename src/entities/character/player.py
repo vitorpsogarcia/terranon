@@ -28,6 +28,7 @@ class Player(Character):
         self._shot_timer = 0.0
 
         self.hitbox = pygame.Rect(self.pos.x, self.pos.y, 15, 30)
+        self.rect = self.hitbox
         self.feet_hitbox = pygame.Rect(self.pos.x, self.pos.y, 15, 10)
 
         self._setup_animations()
@@ -44,11 +45,11 @@ class Player(Character):
 
     @property
     def frame_width(self) -> int:
-        return self.image.get_width() if self.image else 0
+        return self.animator.current_frame.get_width() if self.animator.current_frame else 0
 
     @property
     def frame_height(self) -> int:
-        return self.image.get_height() if self.image else 0
+        return self.animator.current_frame.get_height() if self.animator.current_frame else 0
 
     def process_event(self, event: pygame.event.Event):
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:

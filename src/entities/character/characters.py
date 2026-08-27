@@ -26,6 +26,7 @@ class Character(DynamicObject):
         self.direction = pygame.math.Vector2(0, 0)
         self.is_knockedback = False
         self.knockback_timer = 0.0
+        self.render_component = self.animator
 
     def move(self, dt: float):
         if self.is_knockedback:
