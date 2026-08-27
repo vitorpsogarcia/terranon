@@ -67,8 +67,8 @@ class GameWorld(GameScene):
     def update(self, dt: float):
         for sprite in self.camera_group.sprites():
             obj = sprite.owner
-            if obj.active and hasattr(obj, "update"):
-                obj.update(dt)
+            if obj.active and hasattr(sprite, "update"):
+                sprite.update(dt)
 
             if obj.active and obj.rect is not None and isinstance(obj, DynamicObject):
                 new_layer = round(obj.rect.bottom)
@@ -196,7 +196,32 @@ class GameWorld(GameScene):
     def _resolve_collisions(
         self, group1: pygame.sprite.Group, group2: pygame.sprite.Group
     ):
-        hits = pygame.sprite.groupcollide(group1, group2, False, False)
+        def custom_collide(sprite1, sprite2):
+            obj1 = sprite1.owner
+            obj2 = sprite2.owner
+            
+            # Pega as hitboxes do obj1
+            if hasattr(obj1, "relative_hitboxes") and len(obj1.relative_hitboxes) > 0 and hasattr(obj1, "hitboxes"):
+                rects1 = obj1.hitboxes
+            else:
+                r = getattr(obj1, "hitbox", getattr(obj1, "rect", sprite1.rect))
+                rects1 = [r] if r else []
+                
+            # Pega as hitboxes do obj2
+            if hasattr(obj2, "relative_hitboxes") and len(obj2.relative_hitboxes) > 0 and hasattr(obj2, "hitboxes"):
+                rects2 = obj2.hitboxes
+            else:
+                r = getattr(obj2, "hitbox", getattr(obj2, "rect", sprite2.rect))
+                rects2 = [r] if r else []
+                
+            # Testa a colisão entre as listas
+            for r1 in rects1:
+                for r2 in rects2:
+                    if r1.colliderect(r2):
+                        return True
+            return False
+
+        hits = pygame.sprite.groupcollide(group1, group2, False, False, collided=custom_collide)
 
         for sprite1, sprites2 in hits.items():
             obj1 = sprite1.owner
