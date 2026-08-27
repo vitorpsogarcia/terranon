@@ -78,3 +78,8 @@ class WaveManager:
     def reset(self):
         self.wave_timer = 0.0
         self.current_event_index = 0
+        self.pending_spawns.clear()
+        self.current_delay_timer = 0.0
+
+    def destroy(self):
+        EventManager().unsubscribe(event=GameEventEnum.RESET_WAVES, listener=self.reset)

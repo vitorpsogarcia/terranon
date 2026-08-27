@@ -52,3 +52,7 @@ class EconomyManager(metaclass=SingletonMeta):
             return True
         else:
             return False
+
+    def reset(self):
+        self._current_points = 0
+        self._total_points = 0
