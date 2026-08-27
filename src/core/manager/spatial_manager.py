@@ -1,12 +1,9 @@
 import logging
-from typing import ClassVar
-
 import pygame
 
 from core.enums.game_event_enum import GameEventEnum
 from core.game_object import DynamicObject, GameObject
 from core.manager.event_manager import EventManager
-from core.singleton_meta import SingletonMeta
 from entities.character.player import Player
 from entities.enemy import Enemy
 from entities.enemy_spawner import EnemySpawner
@@ -17,19 +14,20 @@ from entities.structures.main_base import MainBase
 from entities.structures.towers.generic_tower import GenericTower
 
 
-class SpatialManager(metaclass=SingletonMeta):
+class SpatialManager:
     _logger = logging.getLogger("SpatialManager")
 
-    obstacles = pygame.sprite.Group()
-    dynamic_group = pygame.sprite.Group()
-    player_group = pygame.sprite.GroupSingle()
-    friend_projectiles_group = pygame.sprite.Group()
-    enemy_projectiles_group = pygame.sprite.Group()
-    structures_group = pygame.sprite.Group()
-    enemies_group = pygame.sprite.Group()
+    def __init__(self):
+        self.obstacles = pygame.sprite.Group()
+        self.dynamic_group = pygame.sprite.Group()
+        self.player_group = pygame.sprite.GroupSingle()
+        self.friend_projectiles_group = pygame.sprite.Group()
+        self.enemy_projectiles_group = pygame.sprite.Group()
+        self.structures_group = pygame.sprite.Group()
+        self.enemies_group = pygame.sprite.Group()
 
-    spawners: ClassVar[dict[str, EnemySpawner]] = {}
-    world_colliders: ClassVar[list[WorldCollider]] = []
+        self.spawners: dict[str, EnemySpawner] = {}
+        self.world_colliders: list[WorldCollider] = []
 
     def add_obj_to_group(self, obj: GameObject):
         if isinstance(obj, Projectile):

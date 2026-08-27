@@ -1,7 +1,6 @@
 from core.game_world import GameWorld
-from core.singleton_meta import SingletonMeta
 
 
-class Factory(metaclass=SingletonMeta):
+class Factory:
     def __init__(self, world: GameWorld):
         self.world = world

@@ -1,3 +1,5 @@
+from logging import Logger
+
 from pygame import Vector2
 
 from core.enums.game_event_enum import GameEventEnum
@@ -14,6 +16,11 @@ class ProjectileFactory(Factory):
 
         EventManager().subscribe(GameEventEnum.SPAWN_PROJECTILE, self.create_projectile)
 
+    def destroy(self):
+        EventManager().unsubscribe(
+            GameEventEnum.SPAWN_PROJECTILE, self.create_projectile
+        )
+
     def create_projectile(
         self,
         position: Vector2,
@@ -25,7 +32,9 @@ class ProjectileFactory(Factory):
         lifetime=1.5,
         friendly=False,
     ):
-
+        Logger("ProjectileFactory").info(
+            f"Creating projectile of type {type} and variant {variant} at position {position} with direction {direction}, speed {speed}, damage {damage}, lifetime {lifetime}, friendly {friendly}"
+        )
         projectile = Projectile(
             position, direction, speed, damage, lifetime, type, variant, friendly
         )
