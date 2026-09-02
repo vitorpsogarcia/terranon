@@ -1,5 +1,3 @@
-from logging import getLogger
-
 from pygame import Vector2
 
 from core.enums.game_event_enum import GameEventEnum
