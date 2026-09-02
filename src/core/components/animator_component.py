@@ -1,9 +1,11 @@
 import pygame
+
 from core.components.base_render_component import BaseRenderComponent
+from core.entity import Component
 from core.game_object import GameObject
 
 
-class AnimatorComponent(BaseRenderComponent):  # 1. Herda do contrato base
+class AnimatorComponent(BaseRenderComponent, Component):  # 1. Herda do contrato base
     def __init__(self, owner: GameObject):
         super().__init__(owner)
         self.animations: dict[str, dict[str, object]] = {}
@@ -13,7 +15,9 @@ class AnimatorComponent(BaseRenderComponent):  # 1. Herda do contrato base
         self._angle = 0
         self.current_frame: pygame.Surface | None = None
 
-    def add_animation(self, state_name: str, frames_list: list[pygame.Surface], frame_duration: float):
+    def add_animation(
+        self, state_name: str, frames_list: list[pygame.Surface], frame_duration: float
+    ):
         if not frames_list:
             raise ValueError("frames_list deve conter pelo menos uma Surface")
         if frame_duration <= 0:
@@ -72,14 +76,20 @@ class AnimatorComponent(BaseRenderComponent):  # 1. Herda do contrato base
         self._angle = angle
         if self.current is not None:
             self._apply_frame()
-            
+
     def draw(self, surface: pygame.Surface, offset: pygame.math.Vector2):
         if self.current_frame is None:
             return
 
         draw_rect = self.current_frame.get_rect(
-            center=(round(self.owner.pos.x), round(self.owner.pos.y)))
+            center=(round(self.owner.pos.x), round(self.owner.pos.y))
+        )
 
         draw_rect.topleft = (draw_rect.x - offset.x, draw_rect.y - offset.y)
 
-        surface.blit(self.current_frame, draw_rect)
+        if self._opacity < 255:
+            self.current_frame.set_alpha(self._opacity)
+            surface.blit(self.current_frame, draw_rect)
+            self.current_frame.set_alpha(255)
+        else:
+            surface.blit(self.current_frame, draw_rect)

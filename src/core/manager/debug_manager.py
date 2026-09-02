@@ -1,40 +1,32 @@
-from typing import ClassVar
-
 import pygame
 
 from core.enums.debug_option_enum import DebugOption
 from core.manager.economy_manager import EconomyManager
 from core.settings.colors import Colors
+from core.singleton_meta import SingletonMeta
+from entities.nature.world_collider import WorldCollider
 
 
-class DebugManager:
-    _debug_flags: ClassVar[dict[DebugOption, bool]] = {
-        option: False for option in DebugOption
-    }
+class DebugManager(metaclass=SingletonMeta):
+    def __init__(self):
+        self._debug_flags: dict[DebugOption, bool] = {
+            option: False for option in DebugOption
+        }
 
-    def __new__(cls):
-        if not hasattr(cls, "_instance"):
-            cls._instance = super().__new__(cls)
-            cls._debug_flags = {option: False for option in DebugOption}
-        return cls._instance
+    def is_option_enabled(self, option: DebugOption) -> bool:
+        return self._debug_flags.get(option, False)
 
-    @staticmethod
-    def is_option_enabled(option: DebugOption) -> bool:
-        return DebugManager._debug_flags.get(option, False)
+    def toggle_option(self, option: DebugOption):
+        self._debug_flags[option] = not self._debug_flags[option]
 
-    @staticmethod
-    def toggle_option(option: DebugOption):
-        DebugManager._debug_flags[option] = not DebugManager._debug_flags[option]
-
-    @staticmethod
-    def draw_world_debug(surface: pygame.Surface, camera_group):
+    def draw_world_debug(self, surface: pygame.Surface, camera_group):
         if not (
-            DebugManager.is_option_enabled(DebugOption.COLLIDERS)
-            or DebugManager.is_option_enabled(DebugOption.CREATURE_DIRECTIONS)
+            self.is_option_enabled(DebugOption.COLLIDERS)
+            or self.is_option_enabled(DebugOption.CREATURE_DIRECTIONS)
         ):
             return
         for sprite in camera_group.sprites():
-            if DebugManager.is_option_enabled(DebugOption.COLLIDERS):
+            if self.is_option_enabled(DebugOption.COLLIDERS):
                 owner = getattr(sprite, "owner", None)
 
                 has_relative = hasattr(owner, "relative_hitboxes") and len(owner.relative_hitboxes) > 0
@@ -56,7 +48,7 @@ class DebugManager:
                     feet_rect.topleft -= camera_group.offset
                     pygame.draw.rect(surface, Colors.debug.feet_hitbox, feet_rect, 1)
 
-            if DebugManager.is_option_enabled(DebugOption.CREATURE_DIRECTIONS):
+            if self.is_option_enabled(DebugOption.CREATURE_DIRECTIONS):
                 owner = getattr(sprite, "owner", None)
                 if owner is not None and hasattr(owner, "direction"):
                     direction_vector = owner.direction
@@ -79,12 +71,11 @@ class DebugManager:
                         [end_pos, left_wing, right_wing],
                     )
 
-    @staticmethod
-    def draw_ui_debug(surface: pygame.Surface, state, clock, font):
+    def draw_ui_debug(self, surface: pygame.Surface, state, clock, font):
         from core.states.play_state import PlayState
 
         if (
-            DebugManager.is_option_enabled(DebugOption.PLAYER_STATUS)
+            self.is_option_enabled(DebugOption.PLAYER_STATUS)
             and isinstance(state, PlayState)
             and state.world is not None
         ):
