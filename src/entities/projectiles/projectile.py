@@ -25,7 +25,7 @@ class Projectile(DynamicObject):
         friendly: bool = False,
         *groups: pygame.sprite.Group,
     ):
-        super().__init__((position.x, position.y), *groups)
+        super().__init__(position, *groups)
         self.animator = AnimatorComponent(self)
         self.render_component = self.animator
         self.friendly = friendly

@@ -1,12 +1,12 @@
 import pygame
 
+from core.components.null_render_component import NullRenderComponent
 from core.enums.enemy_enum import EnemyEnum
 from core.enums.game_event_enum import GameEventEnum
 from core.factories.enemy_factory import EnemyFactory
 from core.game_object import StaticObject
 from core.manager.event_manager import EventManager
 from core.map.waypoints.polyline import Polyline
-from core.components.null_render_component import NullRenderComponent
 
 
 class EnemySpawner(StaticObject):

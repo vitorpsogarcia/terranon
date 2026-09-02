@@ -1,5 +1,10 @@
+from typing import TypeVar
+
 import pygame
+
 from core.game_object import DynamicObject
+
+T = TypeVar("T", bound="Component")
 
 
 class Component:
@@ -16,7 +21,7 @@ class Entity(DynamicObject):
         super().__init__(initial_position, *groups)
         self.components: list[Component] = []
 
-    def add_component(self, component: Component) -> Component:
+    def add_component(self, component: T) -> T:
         self.components.append(component)
         return component
 

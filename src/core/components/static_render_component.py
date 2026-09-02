@@ -1,4 +1,5 @@
 import pygame
+
 from core.components.base_render_component import BaseRenderComponent
 
 
@@ -13,4 +14,9 @@ class StaticRenderComponent(BaseRenderComponent):
 
         draw_pos = self.owner.pos - offset
 
-        surface.blit(self.image, draw_pos)
+        if self._opacity < 255:
+            self.image.set_alpha(self._opacity)
+            surface.blit(self.image, draw_pos)
+            self.image.set_alpha(255)
+        else:
+            surface.blit(self.image, draw_pos)

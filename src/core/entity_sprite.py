@@ -10,7 +10,11 @@ class EntitySprite(pygame.sprite.Sprite):
         # não dar AttributeError no blit nativo antes da HU #93.
         self.image = pygame.Surface((0, 0))
         self.image.set_alpha(0)
-        self.rect = pygame.Rect(0, 0, 10, 10)
+        physic_source = getattr(self.owner, "hitbox", getattr(self.owner, "rect", None))
+        if physic_source is not None:
+            self.rect = physic_source.copy()
+        else:
+            self.rect = pygame.Rect(0, 0, 10, 10)
 
     def update(self, dt: float):
         if not self.owner.active:

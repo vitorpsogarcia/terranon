@@ -1,7 +1,9 @@
 import pygame
 
+from core.entity import Component
 
-class MovementComponent:
+
+class MovementComponent(Component):
     def __init__(self, owner: "Entity", speed: float = 100.0):
         self.owner = owner
         self.speed = speed

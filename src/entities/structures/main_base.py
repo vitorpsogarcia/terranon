@@ -1,9 +1,9 @@
 import pygame
 
-from core.enums.game_event_enum import GameEventEnum
-from core.game_object import GameObject, StaticObject
 from core.components.health_component import HealthComponent
 from core.components.static_render_component import StaticRenderComponent
+from core.enums.game_event_enum import GameEventEnum
+from core.game_object import GameObject
 from core.manager.event_manager import EventManager
 from core.settings.colors import Colors
 from core.settings.settings import MAIN_BASE_SIZE

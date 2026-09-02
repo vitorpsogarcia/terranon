@@ -1,4 +1,5 @@
 import logging
+
 import pygame
 
 from core.enums.game_event_enum import GameEventEnum

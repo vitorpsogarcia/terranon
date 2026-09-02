@@ -2,28 +2,36 @@ import logging
 from typing import TYPE_CHECKING
 
 import pygame
+
 from core.enums.game_event_enum import GameEventEnum
 from core.enums.game_state_enum import GameStateEnum
+from core.enums.map_enums import MapsEnum
 from core.game_world import GameWorld
 from core.manager.economy_manager import EconomyManager
 from core.manager.event_manager import EventManager
 from core.manager.game_manager import GameManager
 from core.manager.sound_manager import SoundManager
-from core.enums.map_enums import MapsEnum
 from core.states.base_state import BaseState
 from entities.structures.towers.generic_tower import GenericTower
 
 if TYPE_CHECKING:
     from core.manager.state_manager import StateManager
+    from entities.character.player import Player
 
 
 class PlayState(BaseState):
     _logger = logging.getLogger("PlayState")
     _show_debug = False
 
-    def __init__(self, state_manager: "StateManager", game_manager: "GameManager", screen_size: tuple[int, int]):
+    def __init__(
+        self,
+        state_manager: "StateManager",
+        game_manager: "GameManager",
+        screen_size: tuple[int, int],
+    ):
         super().__init__(state_manager, screen_size)
         self.world: GameWorld | None = None
+        self.player: Player | None = None
         self.screen_size = screen_size
         self.game_manager = game_manager
 
@@ -54,10 +62,15 @@ class PlayState(BaseState):
         if self.world:
             self.world.destroy()
             self.world = None
+        self.player = None
         EventManager().unsubscribe(GameEventEnum.GAME_OVER, self._game_over)
         EventManager().unsubscribe(GameEventEnum.ENEMY_SPAWNED, self._on_enemy_spawned)
 
     def update(self, delta_time):
+        if self.world is not None and self.player is not None:
+            mouse_pos = pygame.math.Vector2(pygame.mouse.get_pos())
+            self.player.aim_target = self.world.camera_group.screen_to_world(mouse_pos)
+
         if self.world is not None:
             self.world.update(delta_time)
 

@@ -1,4 +1,4 @@
-from logging import Logger
+from logging import getLogger
 
 from pygame import Vector2
 
@@ -32,9 +32,6 @@ class ProjectileFactory(Factory):
         lifetime=1.5,
         friendly=False,
     ):
-        Logger("ProjectileFactory").info(
-            f"Creating projectile of type {type} and variant {variant} at position {position} with direction {direction}, speed {speed}, damage {damage}, lifetime {lifetime}, friendly {friendly}"
-        )
         projectile = Projectile(
             position, direction, speed, damage, lifetime, type, variant, friendly
         )

@@ -1,4 +1,5 @@
 import pygame
+
 from core.components.base_render_component import BaseRenderComponent
 
 

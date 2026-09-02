@@ -1,5 +1,7 @@
 from typing import ClassVar
+
 import pygame
+
 from core.enums.enemy_enum import EnemyEnum
 from core.exceptions.enemy_type_not_found_exception import EnemyTypeNotFoundException
 from core.map.waypoints.polyline import Polyline
@@ -7,7 +9,7 @@ from entities.character.goblin import Goblin
 
 
 class EnemyFactory:
-    _registry: dict[EnemyEnum, object] = {
+    _registry: ClassVar[dict[EnemyEnum, object]] = {
         EnemyEnum.GOBLIN: Goblin,
     }
 

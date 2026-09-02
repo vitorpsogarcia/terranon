@@ -2,7 +2,7 @@ import logging
 
 import pygame
 
-from core.game_object import GameObject
+from core.game_object import GameObject, StaticObject
 from core.manager.debug_manager import DebugManager
 
 
@@ -60,12 +60,35 @@ class CameraGroup(pygame.sprite.LayeredUpdates):
         self.offset.x = player.pos.x - (dummy_width // 2)
         self.offset.y = player.pos.y - (dummy_height // 2)
 
+        target_pos = player.pos
+        target_layer = getattr(player, "render_layer", 0)
+
         dummy_surface = pygame.Surface((dummy_width, dummy_height))
         dummy_surface.fill((20, 20, 20))
 
         for sprite in self.sprites():
             owner = getattr(sprite, "owner", None)
             if owner is not None:
+                if isinstance(owner, StaticObject) and not getattr(
+                    owner, "_fixed_opacity", False
+                ):
+                    distance = target_pos.distance_to(owner.pos)
+                    if distance < 200 and (
+                        (target_layer - 75 < owner.render_layer < target_layer + 75)
+                        or (owner.render_layer < target_layer)
+                    ):
+                        if (
+                            hasattr(owner, "render_component")
+                            and owner.render_component is not None
+                        ):
+                            owner.render_component.opacity = 128
+                    else:
+                        if (
+                            hasattr(owner, "render_component")
+                            and owner.render_component is not None
+                        ):
+                            owner.render_component.opacity = 255
+
                 if (
                     hasattr(owner, "render_component")
                     and owner.render_component is not None

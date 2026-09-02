@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+
 import pygame
 from pygame.math import Vector2
 
@@ -18,7 +19,8 @@ class GameObject(ABC):
         self.pos = Vector2(*initial_position)
         self.active = True
         self.hitbox = pygame.Rect(self.pos.x, self.pos.y, 32, 32)
-        self.rect = self.hitbox
+        self.rect: pygame.Rect | None = self.hitbox
+        self.image: pygame.Surface | None = None
         self.relative_hitboxes = []
         self._fixed_layer = False
         self._fixed_opacity = False

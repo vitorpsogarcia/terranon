@@ -1,14 +1,14 @@
 import pygame
 
+from core.components.animator_component import AnimatorComponent
+from core.components.health_component import HealthComponent
+from core.components.movement_component import MovementComponent
 from core.components.path_follower_component import PathFollowerComponent
+from core.entity import Entity
 from core.enums.game_event_enum import GameEventEnum
 from core.manager.event_manager import EventManager
 from core.map.waypoints.polyline import Polyline
 from core.map.waypoints.waypoint import Waypoint
-from core.entity import Entity
-from core.components.health_component import HealthComponent
-from core.components.movement_component import MovementComponent
-from core.components.animator_component import AnimatorComponent
 from utils.direction import get_direction_str_by_vector
 
 
@@ -35,6 +35,7 @@ class Enemy(Entity):
                 allow_invulnerability=False,
             )
         )
+
         self.movement = self.add_component(MovementComponent(self, speed=speed))
         self.path_follower = self.add_component(PathFollowerComponent(self, path))
         self.animator = self.add_component(AnimatorComponent(self))
@@ -62,14 +63,14 @@ class Enemy(Entity):
         if self.rect is not None:
             self.rect.center = self.hitbox.center
 
-    def on_death(self, by_player: bool = True):
+    def on_death(self, by_player: bool = False):
         self.active = False
         self.kill()
 
         if by_player:
             EventManager().emit(GameEventEnum.ENEMY_KILLED, self._points)
 
-    def take_damage(self, amount: float, by_player: bool = True):
+    def take_damage(self, amount: float, by_player: bool = False):
         self.health.take_damage(amount)
         if self.health.is_dead:
             self.on_death(by_player=by_player)

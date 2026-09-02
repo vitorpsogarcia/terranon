@@ -2,8 +2,8 @@ import pygame
 
 from core.enums.map_enums import MapsEnum, WaypointsEnum
 from core.game_world import GameWorld
-from core.map.map_manager import MapManager
 from core.map.map_backgroud import MapBackground
+from core.map.map_manager import MapManager
 from core.wave_manager import WaveManager
 from entities.character.player import Player
 from entities.structures.main_base import MainBase

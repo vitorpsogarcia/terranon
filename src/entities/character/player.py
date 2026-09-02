@@ -1,5 +1,9 @@
 import pygame
 
+from core.components.animator_component import AnimatorComponent
+from core.components.health_component import HealthComponent
+from core.components.movement_component import MovementComponent
+from core.entity import Entity
 from core.enums.directions_enum import DirectionsEnum
 from core.enums.game_event_enum import GameEventEnum
 from core.enums.projectile.projectile_types_enum import ProjectileTypesEnum
@@ -11,10 +15,6 @@ from core.settings.settings import (
     PLAYER_KEYS,
     SCALE_PLAYER,
 )
-from core.entity import Entity
-from core.components.health_component import HealthComponent
-from core.components.movement_component import MovementComponent
-from core.components.animator_component import AnimatorComponent
 from utils.image import load_image
 
 
@@ -30,6 +30,7 @@ class Player(Entity):
                 allow_invulnerability=True,
             )
         )
+
         self.movement = self.add_component(
             MovementComponent(self, speed=PLAYER_BASE_SPEED)
         )
@@ -42,6 +43,7 @@ class Player(Entity):
         self._shooting = False
         self._time_between_shots = 0.3
         self._shot_timer = 0.0
+        self.aim_target: pygame.math.Vector2 | None = None
 
         self.hitbox = pygame.Rect(self.pos.x, self.pos.y, 15, 30)
         self.rect = self.hitbox
@@ -148,42 +150,39 @@ class Player(Entity):
         if direction is not None:
             self._last_direction = direction
 
+    def shoot_at(self, target_pos: pygame.math.Vector2):
+        if self.rect is None:
+            return
+
+        start_pos = pygame.math.Vector2(self.rect.center)
+        direction = target_pos - start_pos
+
+        if direction.length_squared() > 0:
+            direction = direction.normalize()
+        else:
+            direction = pygame.math.Vector2(0, 1)
+
+        EventManager().emit(
+            GameEventEnum.SPAWN_PROJECTILE,
+            position=start_pos,
+            direction=direction,
+            type=ProjectileTypesEnum.NORMAL,
+            variant=ProjectileVariantEnum.DEFAULT,
+            friendly=True,
+        )
+
+        EventManager().emit(GameEventEnum.PLAY_SFX, "effects/shoot.wav")
+
     def shoot(self):
-        mouse_pos = pygame.math.Vector2(pygame.mouse.get_pos())
-
-        if self.rect is not None:
-            camera_group = None
-            for group in self._sprite.groups():
-                if hasattr(group, "offset"):
-                    camera_group = group
-                    break
-
-            start_pos = pygame.math.Vector2(self.rect.center)
-            if camera_group is not None and hasattr(camera_group, "screen_to_world"):
-                world_mouse_pos = camera_group.screen_to_world(mouse_pos)
-            elif camera_group is not None:
-                zoom = getattr(camera_group, "zoom", 1.0)
-                world_mouse_pos = (mouse_pos * zoom) + camera_group.offset
-            else:
-                world_mouse_pos = mouse_pos
-
-            direction = world_mouse_pos - start_pos
-
-            if direction.length() > 0:
-                direction = direction.normalize()
-            else:
-                direction = pygame.math.Vector2(0, 1)
-
-            EventManager().emit(
-                GameEventEnum.SPAWN_PROJECTILE,
-                position=start_pos,
-                direction=direction,
-                type=ProjectileTypesEnum.NORMAL,
-                variant=ProjectileVariantEnum.DEFAULT,
-                friendly=True,
+        if self.aim_target is not None:
+            self.shoot_at(self.aim_target)
+        elif self.rect is not None:
+            facing = (
+                self.direction
+                if self.direction.length_squared() > 0
+                else pygame.math.Vector2(0, 1)
             )
-
-            EventManager().emit(GameEventEnum.PLAY_SFX, "effects/shoot.wav")
+            self.shoot_at(pygame.math.Vector2(self.rect.center) + facing * 100)
 
     def update(self, dt: float):
         if not self.movement.is_knockedback:

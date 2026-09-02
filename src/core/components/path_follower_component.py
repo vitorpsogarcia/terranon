@@ -1,10 +1,11 @@
 import pygame
 
+from core.entity import Component
 from core.map.waypoints.polyline import Polyline
 from core.map.waypoints.waypoint import Waypoint
 
 
-class PathFollowerComponent:
+class PathFollowerComponent(Component):
     def __init__(self, owner, path: Polyline, stop_distance: float = 5.0):
         self.owner = owner
         self.path = path

@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 import pygame
 
 from core.camera_group import CameraGroup
+from core.factories.enemy_factory import EnemyFactory
 from core.game_object import DynamicObject, GameObject
 from core.manager.spatial_manager import SpatialManager
 
@@ -29,6 +30,8 @@ class GameWorld(GameScene):
         from core.factories.projectile_factory import ProjectileFactory
 
         self.projectile_factory = ProjectileFactory(self)
+
+        EnemyFactory.preload_all_enemies()
 
     def destroy(self):
         self.projectile_factory.destroy()
