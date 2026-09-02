@@ -36,6 +36,7 @@ def main():
     game_over_state = GameOverState(state_manager, (SCREEN_WIDTH, SCREEN_HEIGHT))
 
     inventory_state.set_play_state(play_state)
+    menu_state.set_play_state(play_state)
 
     state_manager.register_state(GameStateEnum.MENU, menu_state)
     state_manager.register_state(GameStateEnum.PLAY, play_state)

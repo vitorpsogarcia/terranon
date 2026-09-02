@@ -10,6 +10,7 @@ from core.game_world import GameWorld
 from core.manager.economy_manager import EconomyManager
 from core.manager.event_manager import EventManager
 from core.manager.game_manager import GameManager
+from core.manager.highscore_manager import HighscoreManager
 from core.manager.sound_manager import SoundManager
 from core.map.map_backgroud import MapBackground
 from core.states.base_state import BaseState
@@ -33,6 +34,7 @@ class PlayState(BaseState):
         self.initialized = False
         self.screen_size = screen_size
         self.game_manager = game_manager
+        self.player_name: str = "Player"
 
     def enter(self):
         if self.initialized:
@@ -42,7 +44,7 @@ class PlayState(BaseState):
         except Exception as e:
             self._logger.error(f"{e}")
 
-        EconomyManager()
+        EconomyManager.get_instance().reset_points()
 
         EventManager.get_instance().subscribe(GameEventEnum.GAME_OVER, self._game_over)
         EventManager.get_instance().subscribe(
@@ -110,6 +112,8 @@ class PlayState(BaseState):
         self.state_manager.change_to(new_state)
 
     def _game_over(self):
+        final_score = EconomyManager.get_instance().total_points
+        HighscoreManager.get_instance().add_score(self.player_name, final_score)
         self.initialized = False
         self._change_state(GameStateEnum.GAME_OVER)
 
