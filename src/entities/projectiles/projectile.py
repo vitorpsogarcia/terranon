@@ -85,5 +85,5 @@ class Projectile(DynamicObject):
             return
 
         if isinstance(other, Enemy) and self.friendly:
-            other.health.take_damage(self.damage)
+            other.take_damage(self.damage, True)
             self.kill()
