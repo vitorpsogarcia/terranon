@@ -4,7 +4,7 @@ import pygame
 
 from core.camera_group import CameraGroup
 from core.factories.enemy_factory import EnemyFactory
-from core.game_object import DynamicObject, GameObject
+from core.game_object import GameObject
 from core.manager.spatial_manager import SpatialManager
 
 
@@ -41,17 +41,17 @@ class GameWorld(GameScene):
         self.camera_group.target = target
 
     def add_object(self, obj: GameObject):
-        layer = getattr(obj, "render_layer", 0)
+        layer = 0
+        if hasattr(obj, "render_component") and obj.render_component:
+            layer = obj.render_component.render_layer
 
         self.spatial_manager.add_obj_to_group(obj)
 
-        if isinstance(obj, DynamicObject) and obj.rect is not None:
-            layer = round(obj.rect.bottom)
+        if not getattr(obj, "_fixed_layer", False) and hasattr(obj, "_sprite"):
+            layer = round(obj._sprite.rect.bottom)
 
-        if not obj._fixed_layer and obj.rect is not None:
-            layer = round(obj.rect.bottom)
-
-        obj.render_layer = layer
+        if hasattr(obj, "render_component") and obj.render_component:
+            obj.render_component.render_layer = layer
         self.camera_group.add(obj._sprite, layer=layer)
 
     def remove_object(self, obj: GameObject):
@@ -63,11 +63,20 @@ class GameWorld(GameScene):
             if obj.active and hasattr(sprite, "update"):
                 sprite.update(dt)
 
-            if obj.active and obj.rect is not None and isinstance(obj, DynamicObject):
-                new_layer = round(obj.rect.bottom)
-                if new_layer != obj.render_layer:
+            if (
+                obj.active
+                and not getattr(obj, "_fixed_layer", False)
+                and hasattr(obj, "_sprite")
+            ):
+                new_layer = round(obj._sprite.rect.bottom)
+                current_layer = 0
+                if hasattr(obj, "render_component") and obj.render_component:
+                    current_layer = obj.render_component.render_layer
+
+                if new_layer != current_layer:
                     self.camera_group.change_layer(sprite, new_layer)
-                    obj.render_layer = new_layer
+                    if hasattr(obj, "render_component") and obj.render_component:
+                        obj.render_component.render_layer = new_layer
 
             if not obj.alive():
                 continue
