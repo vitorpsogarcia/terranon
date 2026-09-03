@@ -1,11 +1,13 @@
 import pygame
 
+from core.components.collider_component import ColliderComponent
 from core.components.static_render_component import StaticRenderComponent
-from core.game_object import StaticObject
+from core.enums.collider_tag_enum import ColliderTagEnum
+from core.game_object import GameObject
 from core.manager.asset_manager import AssetManager
 
 
-class Obstacle(StaticObject):
+class Obstacle(GameObject):
     def __init__(
         self,
         position: pygame.Vector2,
@@ -15,11 +17,6 @@ class Obstacle(StaticObject):
         image: pygame.Surface | None = None,
     ):
         super().__init__(position, *groups)
-        self.hitbox = pygame.Rect(
-            round(self.pos.x), round(self.pos.y), int(width), int(height)
-        )
-        self.rect = self.hitbox
-        self.relative_hitboxes = [pygame.Rect(0, 0, int(width), int(height))]
 
         if image is not None:
             self.image = image
@@ -31,4 +28,8 @@ class Obstacle(StaticObject):
             )
 
         self.render_component = StaticRenderComponent(self, self.image)
+        self.render_component.render_layer = 2
 
+        self.collider = ColliderComponent(self)
+        if width > 0 and height > 0:
+            self.collider.add_box(0, 0, width, height, tag=ColliderTagEnum.SOLID)

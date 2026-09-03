@@ -1,9 +1,11 @@
 import pygame
 
 from core.components.animator_component import AnimatorComponent
+from core.components.collider_component import ColliderComponent
 from core.components.health_component import HealthComponent
 from core.components.movement_component import MovementComponent
 from core.entity import Entity
+from core.enums.collider_tag_enum import ColliderTagEnum
 from core.enums.directions_enum import DirectionsEnum
 from core.enums.game_event_enum import GameEventEnum
 from core.enums.projectile.projectile_types_enum import ProjectileTypesEnum
@@ -45,15 +47,39 @@ class Player(Entity):
         self._shot_timer = 0.0
         self.aim_target: pygame.math.Vector2 | None = None
 
-        self.hitbox = pygame.Rect(self.pos.x, self.pos.y, 15, 30)
-        self.rect = self.hitbox
-        self.feet_hitbox = pygame.Rect(self.pos.x, self.pos.y, 15, 10)
+        self.collider = self.add_component(ColliderComponent(self))
+        self.body_box = self.collider.add_box(
+            -7.5, -15, 15, 30, tag=ColliderTagEnum.BODY
+        )
+        self.feet_box = self.collider.add_box(-7.5, 5, 15, 10, tag=ColliderTagEnum.FEET)
 
         self._setup_animations()
         self.animator.play(f"idle_{self._last_direction.text}")
         self.animator.update(0.0)
-        if self.rect is not None:
-            self.rect.topleft = (round(self.pos.x), round(self.pos.y))
+
+    @property
+    def hitbox(self) -> pygame.Rect:
+        return self.body_box.get_world_rect(self.transform.pos)
+
+    @hitbox.setter
+    def hitbox(self, value: pygame.Rect):
+        pass
+
+    @property
+    def feet_hitbox(self) -> pygame.Rect:
+        return self.feet_box.get_world_rect(self.transform.pos)
+
+    @feet_hitbox.setter
+    def feet_hitbox(self, value: pygame.Rect):
+        pass
+
+    @property
+    def rect(self) -> pygame.Rect:
+        return self.hitbox
+
+    @rect.setter
+    def rect(self, value: pygame.Rect):
+        pass
 
     def on_death(self):
         self.active = False
@@ -196,18 +222,12 @@ class Player(Entity):
 
         super().update(dt)
 
-        self.hitbox.center = (round(self.pos.x), round(self.pos.y))
-        self.feet_hitbox.midbottom = self.hitbox.midbottom
-
         if not self.movement.is_knockedback:
             state = "idle"
             if self.direction.x != 0 or self.direction.y != 0:
                 state = "running" if self._is_running else "walking"
 
             self.animator.play(f"{state}_{self._last_direction.text}")
-
-        if self.rect is not None:
-            self.rect.center = self.hitbox.center
 
         if self._shooting and self._shot_timer >= self._time_between_shots:
             self.shoot()

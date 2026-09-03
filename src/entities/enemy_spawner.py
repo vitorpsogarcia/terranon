@@ -4,14 +4,14 @@ from core.components.static_render_component import StaticRenderComponent
 from core.enums.enemy_enum import EnemyEnum
 from core.enums.game_event_enum import GameEventEnum
 from core.factories.enemy_factory import EnemyFactory
-from core.game_object import StaticObject
+from core.game_object import GameObject
 from core.manager.asset_manager import AssetManager
 from core.manager.event_manager import EventManager
 from core.map.waypoints.polyline import Polyline
 from core.settings.settings import MAIN_BASE_SIZE
 
 
-class EnemySpawner(StaticObject):
+class EnemySpawner(GameObject):
     def __init__(
         self,
         spawner_id: str,
@@ -32,17 +32,12 @@ class EnemySpawner(StaticObject):
             size=(MAIN_BASE_SIZE, MAIN_BASE_SIZE),
         )
         self.render_component = StaticRenderComponent(self, self.image)
-
-        self.hitbox = pygame.Rect(
-            self.pos.x, self.pos.y, MAIN_BASE_SIZE, MAIN_BASE_SIZE
-        )
-        self.rect = self.hitbox
-        self.relative_hitboxes = [pygame.Rect(0, 0, MAIN_BASE_SIZE, MAIN_BASE_SIZE)]
+        self.render_component.render_layer = 2
 
     def update(self, dt: float):
         super().update(dt)
 
     def spawn_enemy(self, enemy_type: EnemyEnum = EnemyEnum.GOBLIN):
-        spawn_pos = pygame.math.Vector2(self.rect.center) if self.rect else self.pos
+        spawn_pos = self.render_component.center()
         new_enemy = EnemyFactory.create_enemy(enemy_type, spawn_pos, self.path)
         EventManager().emit(GameEventEnum.ENEMY_SPAWNED, new_enemy)
