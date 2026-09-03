@@ -1,9 +1,9 @@
 import pygame
 
-from core.manager.event_manager import EventManager
 from core.enums.debug_option_enum import DebugOption
 from core.enums.game_event_enum import GameEventEnum
 from core.manager.debug_manager import DebugManager
+from core.manager.event_manager import EventManager
 from core.settings.settings import PLAYER_KEYS
 
 
@@ -37,6 +37,8 @@ class InputManager:
                     DebugManager().toggle_option(DebugOption.CREATURE_DIRECTIONS)
                 elif event.key == pygame.K_z:
                     EventManager().emit(GameEventEnum.RESET_WAVES)
+                elif event.key == pygame.K_t:
+                    DebugManager().toggle_option(DebugOption.TARGETING_LINES)
 
         elif event.type == pygame.KEYUP:
             if event.key == pygame.K_F3:

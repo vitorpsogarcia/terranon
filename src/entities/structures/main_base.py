@@ -30,10 +30,6 @@ class MainBase(Obstacle):
         self._fixed_opacity = True
 
         self.collider.add_box(
-            0, 0, MAIN_BASE_SIZE, MAIN_BASE_SIZE, tag=ColliderTagEnum.BODY
-        )
-
-        self.collider.add_box(
             MAIN_BASE_SIZE // 6,
             MAIN_BASE_SIZE - (MAIN_BASE_SIZE // 2),
             MAIN_BASE_SIZE // 1.5,

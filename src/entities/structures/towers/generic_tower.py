@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 import pygame
 
 from core.components.static_render_component import StaticRenderComponent
@@ -5,22 +7,27 @@ from core.enums.collider_tag_enum import ColliderTagEnum
 from core.enums.game_event_enum import GameEventEnum
 from core.enums.projectile.projectile_types_enum import ProjectileTypesEnum
 from core.enums.projectile.projectile_variant_enum import ProjectileVariantEnum
-from core.game_object import GameObject
 from core.manager.asset_manager import AssetManager
 from core.manager.event_manager import EventManager
 from core.manager.spatial_manager import SpatialManager
 from entities.obstacle import Obstacle
 from utils.position import calculate_distance
 
+if TYPE_CHECKING:
+    from core.game_object import GameObject
+
 TURRET_SIZE = 64
+TURRET_ID_PREFIX = "S_GT_"
 
 
 class GenericTower(Obstacle):
+    id_ct = 0
+
     def __init__(
         self,
         position: pygame.Vector2,
         *groups: pygame.sprite.Group,
-        range=200,
+        range=100,
         damage=10,
         fire_rate=10.0,
         turret_size=TURRET_SIZE,
@@ -40,6 +47,9 @@ class GenericTower(Obstacle):
         self.range = range
         self.damage = damage
         self.fire_rate = fire_rate
+
+        self.id = f"{TURRET_ID_PREFIX}{GenericTower.id_ct}"
+        GenericTower.id_ct += 1
 
         self.image = AssetManager().load_image(
             name=f"generic_tower_{turret_size}",
@@ -73,12 +83,14 @@ class GenericTower(Obstacle):
 
             if enemy is not None:
                 self.target = enemy
+                enemy.set_turret_target(self)
         else:
             if (
                 not self.target.active
                 or calculate_distance(self.target.transform.pos, self._center)
                 > self.range
             ):
+                self.target.clear_turret_target()
                 self.target = None
             else:
                 self.cooldown -= dt

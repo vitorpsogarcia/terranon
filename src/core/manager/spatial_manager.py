@@ -1,10 +1,10 @@
 import logging
+from typing import TYPE_CHECKING
 
 import pygame
 
 from core.enums.collider_tag_enum import ColliderTagEnum
 from core.enums.game_event_enum import GameEventEnum
-from core.game_object import GameObject
 from core.manager.event_manager import EventManager
 from core.singleton_meta import SingletonMeta
 from entities.character.player import Player
@@ -14,6 +14,9 @@ from entities.nature.world_collider import WorldCollider
 from entities.obstacle import Obstacle
 from entities.projectiles.projectile import Projectile
 from entities.structures.main_base import MainBase
+
+if TYPE_CHECKING:
+    from core.game_object import GameObject
 
 
 class SpatialManager(metaclass=SingletonMeta):
@@ -33,7 +36,7 @@ class SpatialManager(metaclass=SingletonMeta):
 
         EventManager().subscribe(GameEventEnum.GAME_OVER, self.reset)
 
-    def add_obj_to_group(self, obj: GameObject):
+    def add_obj_to_group(self, obj: "GameObject"):
         from entities.structures.towers.generic_tower import GenericTower
 
         if isinstance(obj, Projectile):
@@ -58,7 +61,7 @@ class SpatialManager(metaclass=SingletonMeta):
         if isinstance(obj, (MainBase, GenericTower)):
             self.structures_group.add(obj._sprite)
 
-    def rem_obj_from_group(self, obj: GameObject):
+    def rem_obj_from_group(self, obj: "GameObject"):
         if isinstance(obj, Projectile):
             if obj.friendly:
                 self.friend_projectiles_group.remove(obj._sprite)
@@ -88,12 +91,12 @@ class SpatialManager(metaclass=SingletonMeta):
         self._resolve_collisions(self.enemies_group, self.structures_group)
         self._resolve_collisions(self.friend_projectiles_group, self.structures_group)
 
-    def update_target_collisions(self, target: GameObject):
+    def update_target_collisions(self, target: "GameObject"):
         self._resolve_player_world_collisions(target)
         self._resolve_player_obstacle_collisions(target)
         self._resolve_player_enemy_collisions(target)
 
-    def _resolve_player_world_collisions(self, target: GameObject):
+    def _resolve_player_world_collisions(self, target: "GameObject"):
         if not isinstance(target, Player) or not target.collider:
             return
 
@@ -114,7 +117,7 @@ class SpatialManager(metaclass=SingletonMeta):
                         target.sync_colliders()
                     break
 
-    def _resolve_player_obstacle_collisions(self, target: GameObject):
+    def _resolve_player_obstacle_collisions(self, target: "GameObject"):
         if not isinstance(target, Player) or not target.collider:
             return
 
@@ -136,7 +139,7 @@ class SpatialManager(metaclass=SingletonMeta):
                         target.sync_colliders()
                     break
 
-    def _resolve_player_enemy_collisions(self, target: GameObject):
+    def _resolve_player_enemy_collisions(self, target: "GameObject"):
         if not isinstance(target, Player) or not target.collider:
             return
 

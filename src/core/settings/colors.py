@@ -62,5 +62,6 @@ class Colors:
 
         turret: Color = (251, 191, 36)
         turret_range: Color = (16, 185, 129)
+        targeting_line: Color = (239, 68, 68)
 
         base: Color = (3, 105, 161)
