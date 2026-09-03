@@ -43,7 +43,7 @@ class PlayState(BaseState):
         except Exception as e:
             self._logger.error(f"{e}")
 
-        EconomyManager.get_instance().reset_points()
+        EconomyManager().reset_points()
         self.player_name = HighscoreManager().current_player_name
 
         EventManager().subscribe(GameEventEnum.GAME_OVER, self._game_over)
@@ -84,8 +84,8 @@ class PlayState(BaseState):
         self.state_manager.change_to(new_state)
 
     def _game_over(self):
-        final_score = EconomyManager.get_instance().total_points
-        HighscoreManager.get_instance().add_score(self.player_name, final_score)
+        final_score = EconomyManager().total_points
+        HighscoreManager().add_score(self.player_name, final_score)
         self.initialized = False
         self._change_state(GameStateEnum.GAME_OVER)
 

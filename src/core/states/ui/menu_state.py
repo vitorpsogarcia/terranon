@@ -38,7 +38,7 @@ class MenuState(BaseState):
         self.player_name_input = ""
         self.cursor_timer = 0.0
         self.cursor_visible = True
-        self.highscores = HighscoreManager.get_instance().get_top_scores(10)
+        self.highscores = HighscoreManager().get_top_scores(10)
 
     def exit(self):
         pass
