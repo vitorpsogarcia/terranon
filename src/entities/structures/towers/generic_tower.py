@@ -1,16 +1,17 @@
 import pygame
 
+from core.components.static_render_component import StaticRenderComponent
 from core.enums.game_event_enum import GameEventEnum
 from core.enums.projectile.projectile_types_enum import ProjectileTypesEnum
 from core.enums.projectile.projectile_variant_enum import ProjectileVariantEnum
 from core.game_object import GameObject
+from core.manager.asset_manager import AssetManager
 from core.manager.event_manager import EventManager
 from core.manager.spatial_manager import SpatialManager
-from core.settings.colors import Colors
 from entities.obstacle import Obstacle
 from utils.position import calculate_distance
 
-TURRET_SIZE = 50
+TURRET_SIZE = 64
 
 
 class GenericTower(Obstacle):
@@ -23,19 +24,28 @@ class GenericTower(Obstacle):
         fire_rate=10.0,
         turret_size=TURRET_SIZE,
     ):
+        half_size = turret_size / 2
+        position = pygame.Vector2(
+            round(position.x - half_size), round(position.y - half_size)
+        )
         super().__init__(position, *groups, width=turret_size, height=turret_size)
+
         self.range = range
         self.damage = damage
         self.fire_rate = fire_rate
-        self.target: GameObject | None = None
-        self.cooldown = 0.0
 
+        self.image = AssetManager().load_image(
+            name=f"generic_tower_{turret_size}",
+            path="Tower_gun.png",
+            size=(turret_size, turret_size),
+        )
+        self.render_component = StaticRenderComponent(self, self.image)
+        self.render_component.render_layer = 2
         self._fixed_opacity = True
 
-        self.render_component.image.fill(Colors.debug.turret)
+        self.target: GameObject | None = None
+        self.cooldown = 0.0
         self._center = self.render_component.center()
-
-        # Hitbox legado removido
 
     def update(self, dt: float):
         super().update(dt)

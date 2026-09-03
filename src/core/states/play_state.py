@@ -10,6 +10,7 @@ from core.game_world import GameWorld
 from core.manager.economy_manager import EconomyManager
 from core.manager.event_manager import EventManager
 from core.manager.game_manager import GameManager
+from core.manager.highscore_manager import HighscoreManager
 from core.manager.sound_manager import SoundManager
 from core.states.base_state import BaseState
 from entities.structures.towers.generic_tower import GenericTower
@@ -34,6 +35,7 @@ class PlayState(BaseState):
         self.player: Player | None = None
         self.screen_size = screen_size
         self.game_manager = game_manager
+        self.player_name: str = "Player"
 
     def enter(self):
         try:
@@ -41,7 +43,8 @@ class PlayState(BaseState):
         except Exception as e:
             self._logger.error(f"{e}")
 
-        EconomyManager().reset()
+        EconomyManager().reset_points()
+        self.player_name = HighscoreManager().current_player_name
 
         EventManager().subscribe(GameEventEnum.GAME_OVER, self._game_over)
         EventManager().subscribe(GameEventEnum.ENEMY_SPAWNED, self._on_enemy_spawned)
@@ -81,6 +84,9 @@ class PlayState(BaseState):
         self.state_manager.change_to(new_state)
 
     def _game_over(self):
+        final_score = EconomyManager().total_points
+        HighscoreManager().add_score(self.player_name, final_score)
+        self.initialized = False
         self._change_state(GameStateEnum.GAME_OVER)
 
     def handle_events(self, events: list[pygame.event.Event]):

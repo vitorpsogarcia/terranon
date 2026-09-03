@@ -15,6 +15,8 @@ FRAME_HEIGHT_PLAYER = 48
 SCALE_PLAYER = 0.75
 
 ASSETS_FOLDER = Path(resource_path("assets"))
+SAVES_FOLDER = Path(__file__).resolve().parent.parent.parent / "saves"
+HIGHSCORES_FILE = SAVES_FOLDER / "highscores.json"
 
 ANIMATIONS_FRAME_COUNT = 8
 
