@@ -11,10 +11,11 @@ from core.manager.asset_manager import AssetManager
 from core.manager.event_manager import EventManager
 from core.manager.spatial_manager import SpatialManager
 from entities.obstacle import Obstacle
+from utils.math_helpers import calculate_intercept_position
 from utils.position import calculate_distance
 
 if TYPE_CHECKING:
-    from core.game_object import GameObject
+    from entities.enemy import Enemy
 
 TURRET_SIZE = 64
 TURRET_ID_PREFIX = "S_GT_"
@@ -60,7 +61,7 @@ class GenericTower(Obstacle):
         self.render_component.render_layer = 2
         self._fixed_opacity = True
 
-        self.target: GameObject | None = None
+        self.target: Enemy | None = None
         self.cooldown = 0.0
         self._center = self.render_component.center()
 
@@ -99,16 +100,36 @@ class GenericTower(Obstacle):
                     self.cooldown = 1.0 / self.fire_rate
 
     def fire(self):
-        if self.target:
-            direction = self.target.transform.pos - self._center
-            EventManager().emit(
-                GameEventEnum.SPAWN_PROJECTILE,
-                self._center,
-                direction,
-                ProjectileTypesEnum.NORMAL,
-                ProjectileVariantEnum.DEFAULT,
-                speed=3.0,
-                damage=self.damage,
-                lifetime=1.5,
-                friendly=True,
-            )
+        if not self.target or not self.target.active:
+            return
+        bullet_speed = 300.0  # Em px/s
+
+        # Obtém a velocidade atual do inimigo (direção * velocidade)
+        enemy_vel = pygame.Vector2(0, 0)
+        if hasattr(self.target, "movement") and hasattr(self.target, "direction"):
+            enemy_vel = self.target.direction * self.target.movement.speed
+        elif hasattr(self.target, "rigidbody"):
+            enemy_vel = self.target.rigidbody.velocity
+        aim_pos = calculate_intercept_position(
+            shooter_pos=self._center,
+            bullet_speed=bullet_speed,
+            target_pos=self.target.transform.pos,
+            target_velocity=enemy_vel,
+        )
+        direction = aim_pos - self._center
+        if direction.length_squared() > 0:
+            direction = direction.normalize()
+        else:
+            direction = pygame.Vector2(0, 1)
+
+        EventManager().emit(
+            GameEventEnum.SPAWN_PROJECTILE,
+            position=self._center,
+            direction=direction,
+            type=ProjectileTypesEnum.NORMAL,
+            variant=ProjectileVariantEnum.DEFAULT,
+            speed=bullet_speed,
+            damage=self.damage,
+            lifetime=1.5,
+            friendly=True,
+        )
