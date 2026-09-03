@@ -1,6 +1,7 @@
 import pygame
 
 from core.components.static_render_component import StaticRenderComponent
+from core.enums.collider_tag_enum import ColliderTagEnum
 from core.enums.game_event_enum import GameEventEnum
 from core.enums.projectile.projectile_types_enum import ProjectileTypesEnum
 from core.enums.projectile.projectile_variant_enum import ProjectileVariantEnum
@@ -28,7 +29,13 @@ class GenericTower(Obstacle):
         position = pygame.Vector2(
             round(position.x - half_size), round(position.y - half_size)
         )
-        super().__init__(position, *groups, width=turret_size, height=turret_size)
+        super().__init__(
+            position,
+            *groups,
+            width=turret_size,
+            height=turret_size,
+            default_hitbox=False,
+        )
 
         self.range = range
         self.damage = damage
@@ -46,6 +53,17 @@ class GenericTower(Obstacle):
         self.target: GameObject | None = None
         self.cooldown = 0.0
         self._center = self.render_component.center()
+
+        self.collider.add_box(
+            0, 0, turret_size, turret_size, tag=ColliderTagEnum.TRIGGER
+        )
+        self.collider.add_box(
+            turret_size // 4,
+            turret_size // 2,
+            turret_size // 2,
+            turret_size // 2,
+            tag=ColliderTagEnum.SOLID,
+        )
 
     def update(self, dt: float):
         super().update(dt)
