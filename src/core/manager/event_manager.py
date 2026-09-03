@@ -1,36 +1,18 @@
+import weakref
+from inspect import ismethod
+
 from core.enums.game_event_enum import GameEventEnum
 from core.exceptions.event_not_valid_exception import EventNotValidException
+from core.singleton_meta import SingletonMeta
 
 
-class EventManager:
-    _instance = None
-    _initialized = False
+class EventManager(metaclass=SingletonMeta):
     _events_listeners: dict[GameEventEnum, list]
 
     def __init__(self):
-        if not hasattr(self, "_events_listeners"):
-            self._events_listeners = {}
-
-    def __new__(cls, *args, **kwargs):
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-            cls._instance._events_listeners = {}
-        return cls._instance
-
-    @classmethod
-    def get_instance(cls):
-        return cls()
-
-    @classmethod
-    def initialize(cls):
-        if cls._initialized:
-            raise ValueError(f"{cls.__name__} has already been initialized.")
-
-        instance = cls.get_instance()
+        self._events_listeners = {}
         for event in GameEventEnum:
-            instance._events_listeners[event] = []
-
-        cls._initialized = True
+            self._events_listeners[event] = []
 
     def _validate_event(self, event: GameEventEnum):
         if event not in self._events_listeners:
@@ -38,14 +20,33 @@ class EventManager:
 
     def subscribe(self, event: GameEventEnum, listener):
         self._validate_event(event)
-        self._events_listeners[event].append(listener)
+
+        for ref in self._events_listeners[event]:
+            if ref() == listener:
+                return
+
+        if ismethod(listener):
+            ref = weakref.WeakMethod(listener)
+        else:
+            ref = weakref.ref(listener)
+
+        self._events_listeners[event].append(ref)
 
     def unsubscribe(self, event: GameEventEnum, listener):
         self._validate_event(event)
-        if listener in self._events_listeners[event]:
-            self._events_listeners[event].remove(listener)
+        for ref in self._events_listeners[event]:
+            if ref() == listener:
+                self._events_listeners[event].remove(ref)
+                break
 
     def emit(self, event: GameEventEnum, *args, **kwargs):
         self._validate_event(event)
-        for listener in self._events_listeners[event]:
-            listener(*args, **kwargs)
+
+        live_listeners = []
+        for ref in self._events_listeners[event]:
+            func = ref()
+            if func is not None:
+                live_listeners.append(ref)
+                func(*args, **kwargs)
+
+        self._events_listeners[event] = live_listeners

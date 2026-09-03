@@ -4,24 +4,40 @@ from core.manager.debug_manager import DebugManager
 from core.manager.input_manager import InputManager
 from core.settings.colors import Colors
 from core.settings.settings import FPS
+from core.singleton_meta import SingletonMeta
 from core.states.base_state import BaseState
 
 
-class GameManager:
-    current_state: BaseState | None = None
-
+class GameManager(metaclass=SingletonMeta):
     def __init__(self, tela: pygame.Surface):
         self.tela = tela
         self.clock = pygame.time.Clock()
         self._running = True
         self.debug_font = pygame.font.SysFont(None, 24)
+        self.state_stack: list[BaseState] = []
+
+    @property
+    def current_state(self) -> BaseState | None:
+        if self.state_stack:
+            return self.state_stack[-1]
+        return None
 
     def change_state(self, new_state: BaseState):
-        if self.current_state is not None:
-            self.current_state.exit()
+        if self.state_stack:
+            old_state = self.state_stack.pop()
+            old_state.exit()
 
-        self.current_state = new_state
-        self.current_state.enter()
+        self.state_stack.append(new_state)
+        new_state.enter()
+
+    def push_state(self, new_state: BaseState):
+        self.state_stack.append(new_state)
+        new_state.enter()
+
+    def pop_state(self):
+        if self.state_stack:
+            old_state = self.state_stack.pop()
+            old_state.exit()
 
     def on_execute(self):
         dt = self.clock.tick(FPS) / 1000.0
@@ -53,10 +69,10 @@ class GameManager:
     def on_render(self):
         self.tela.fill(Colors.ui.background)
 
-        if self.current_state:
-            self.current_state.draw(self.tela)
+        for state in self.state_stack:
+            state.draw(self.tela)
 
-        DebugManager.draw_ui_debug(
+        DebugManager().draw_ui_debug(
             self.tela, self.current_state, self.clock, self.debug_font
         )
 

@@ -15,10 +15,6 @@ class InventoryState(BaseState):
     def __init__(self, state_manager: "StateManager", screen_size: tuple[int, int]):
         super().__init__(state_manager, screen_size)
         self.font = pygame.font.SysFont("Arial", 48)
-        self.play_state: PlayState | None = None
-
-    def set_play_state(self, play_state: "PlayState"):
-        self.play_state = play_state
 
     def enter(self):
         print("Inventory State")
@@ -34,12 +30,9 @@ class InventoryState(BaseState):
             if event.type == pygame.KEYDOWN and (
                 event.key == pygame.K_ESCAPE or event.key == pygame.K_i
             ):
-                self.state_manager.change_to(GameStateEnum.PLAY)
+                self.state_manager.pop()
 
     def draw(self, surface: pygame.Surface):
-
-        if self.play_state is not None:
-            self.play_state.draw(surface)
 
         overlay = pygame.Surface(self.screen_size, pygame.SRCALPHA)
         overlay.fill(Colors.ui.panel_transparent)

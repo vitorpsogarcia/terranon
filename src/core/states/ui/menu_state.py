@@ -62,6 +62,7 @@ class MenuState(BaseState):
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
                         confirmed_name = self.player_name_input.strip() or "Player"
+                        HighscoreManager().current_player_name = confirmed_name
                         if self.play_state is not None:
                             self.play_state.player_name = confirmed_name
                         self.is_typing_name = False

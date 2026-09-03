@@ -25,7 +25,7 @@ class Projectile(DynamicObject):
         friendly: bool = False,
         *groups: pygame.sprite.Group,
     ):
-        super().__init__((position.x, position.y), *groups)
+        super().__init__(position, *groups)
         self.animator = AnimatorComponent(self)
         self.render_component = self.animator
         self.friendly = friendly
@@ -58,7 +58,9 @@ class Projectile(DynamicObject):
         for i in range(self._variant.frames):
             frame_path = projectile_path / f"{i}.png"
             frame_name = f"{self._name}.{i}"
-            frame = AssetManager.load_image(frame_name, str(frame_path), size=(20, 20))
+            frame = AssetManager().load_image(
+                frame_name, str(frame_path), size=(20, 20)
+            )
 
             if frame is not None:
                 frames.append(frame)

@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+
 import pygame
 from pygame.math import Vector2
 
@@ -12,14 +13,17 @@ class GameObject(ABC):
     relative_hitboxes: list[pygame.Rect]
     _sprite: EntitySprite
     _fixed_layer: bool
+    _fixed_opacity: bool
 
     def __init__(self, initial_position: pygame.Vector2, *groups: pygame.sprite.Group):
         self.pos = Vector2(*initial_position)
         self.active = True
         self.hitbox = pygame.Rect(self.pos.x, self.pos.y, 32, 32)
-        self.rect = self.hitbox
+        self.rect: pygame.Rect | None = self.hitbox
+        self.image: pygame.Surface | None = None
         self.relative_hitboxes = []
         self._fixed_layer = False
+        self._fixed_opacity = False
         self._sprite = EntitySprite(self, *groups)
 
     @property
@@ -88,6 +92,7 @@ class DynamicObject(GameObject):
         self.render_layer = 1
 
     def update(self, dt: float):
+        self.prev_pos = self.pos.copy()
         self.velocity += self.acceleration * dt
         self.velocity *= self.friction
 

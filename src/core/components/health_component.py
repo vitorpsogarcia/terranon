@@ -1,7 +1,9 @@
 from collections.abc import Callable
 
+from core.entity import Component
 
-class HealthComponent:
+
+class HealthComponent(Component):
     def __init__(
         self,
         max_hp: float,

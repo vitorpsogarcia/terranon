@@ -3,6 +3,7 @@ import logging
 from typing import TypedDict
 
 from core.settings.settings import HIGHSCORES_FILE, SAVES_FOLDER
+from core.singleton_meta import SingletonMeta
 
 
 class ScoreEntry(TypedDict):
@@ -10,20 +11,12 @@ class ScoreEntry(TypedDict):
     score: int
 
 
-class HighscoreManager:
+class HighscoreManager(metaclass=SingletonMeta):
     _logger = logging.getLogger("HighscoreManager")
-    _instance: "HighscoreManager | None" = None
 
     def __init__(self):
-        if hasattr(self, "_initialized") and self._initialized:
-            return
+        self.current_player_name: str = "Player"
         self._ensure_saves_dir()
-        self._initialized = True
-
-    def __new__(cls, *args, **kwargs):
-        if not hasattr(cls, "_instance") or cls._instance is None:
-            cls._instance = super().__new__(cls)
-        return cls._instance
 
     @classmethod
     def get_instance(cls) -> "HighscoreManager":
