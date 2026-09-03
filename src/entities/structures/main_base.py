@@ -2,6 +2,7 @@ import pygame
 
 from core.components.health_component import HealthComponent
 from core.components.static_render_component import StaticRenderComponent
+from core.enums.collider_tag_enum import ColliderTagEnum
 from core.enums.game_event_enum import GameEventEnum
 from core.game_object import GameObject
 from core.manager.event_manager import EventManager
@@ -24,11 +25,11 @@ class MainBase(Obstacle):
         self.image.fill(Colors.debug.base)
         self.render_component = StaticRenderComponent(self, self.image)
 
-        self.hitbox = pygame.Rect(
-            self.pos.x, self.pos.y, MAIN_BASE_SIZE, MAIN_BASE_SIZE
+        self.collider.add_box(
+            0, 0, MAIN_BASE_SIZE, MAIN_BASE_SIZE, tag=ColliderTagEnum.BODY
         )
-        self.rect = self.hitbox
-        self.relative_hitboxes = [pygame.Rect(0, 0, MAIN_BASE_SIZE, MAIN_BASE_SIZE)]
+
+        # Os hitboxes antigos foram removidos, usamos apenas o collider
 
         self.health = HealthComponent(max_hp=500.0, on_death_callback=self.on_death)
 

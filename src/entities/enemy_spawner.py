@@ -4,12 +4,12 @@ from core.components.null_render_component import NullRenderComponent
 from core.enums.enemy_enum import EnemyEnum
 from core.enums.game_event_enum import GameEventEnum
 from core.factories.enemy_factory import EnemyFactory
-from core.game_object import StaticObject
+from core.game_object import GameObject
 from core.manager.event_manager import EventManager
 from core.map.waypoints.polyline import Polyline
 
 
-class EnemySpawner(StaticObject):
+class EnemySpawner(GameObject):
     def __init__(
         self,
         spawner_id: str,
@@ -27,5 +27,5 @@ class EnemySpawner(StaticObject):
         super().update(dt)
 
     def spawn_enemy(self, enemy_type: EnemyEnum = EnemyEnum.GOBLIN):
-        new_enemy = EnemyFactory.create_enemy(enemy_type, self.pos, self.path)
+        new_enemy = EnemyFactory.create_enemy(enemy_type, self.transform.pos, self.path)
         EventManager().emit(GameEventEnum.ENEMY_SPAWNED, new_enemy)

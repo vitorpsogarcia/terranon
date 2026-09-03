@@ -5,14 +5,16 @@ import pygame
 from pygame import Vector2
 
 from core.components.animator_component import AnimatorComponent
+from core.components.collider_component import ColliderComponent
+from core.enums.collider_tag_enum import ColliderTagEnum
 from core.enums.projectile.projectile_types_enum import ProjectileTypesEnum
 from core.enums.projectile.projectile_variant_enum import ProjectileVariantEnum
-from core.game_object import DynamicObject, GameObject
+from core.game_object import GameObject
 from core.manager.asset_manager import AssetManager
 from entities.enemy import Enemy
 
 
-class Projectile(DynamicObject):
+class Projectile(GameObject):
     def __init__(
         self,
         position: Vector2,
@@ -37,9 +39,10 @@ class Projectile(DynamicObject):
         self._variant = variant
         self._name = f"projectile.{self._type.value}.{self._variant.variant_name}"
 
-        self.hitbox = pygame.Rect(0, 0, 4, 4)
-        self.hitbox.center = (round(position.x), round(position.y))
-        self.rect = self.hitbox
+        self.collider = ColliderComponent(self)
+        self.collider.add_box(
+            -2, -2, 4, 4, tag=ColliderTagEnum.PROJECTILE, is_trigger=True
+        )
 
         self._setup_animations()
 
@@ -48,6 +51,24 @@ class Projectile(DynamicObject):
 
         angle_deg = degrees(atan2(-self.direction.y, self.direction.x))
         self.animator.set_angle(angle_deg)
+
+    @property
+    def hitbox(self) -> pygame.Rect:
+        return self.collider.get_bounding_rect() or pygame.Rect(
+            round(self.transform.pos.x), round(self.transform.pos.y), 4, 4
+        )
+
+    @hitbox.setter
+    def hitbox(self, value: pygame.Rect):
+        pass
+
+    @property
+    def rect(self) -> pygame.Rect:
+        return self.hitbox
+
+    @rect.setter
+    def rect(self, value: pygame.Rect):
+        pass
 
     def _setup_animations(self):
         projectile_path = (
@@ -72,11 +93,7 @@ class Projectile(DynamicObject):
         if self.lifetime <= 0:
             self.kill()
 
-        self.pos += self.direction * self.speed * dt
-        self.hitbox.center = (round(self.pos.x), round(self.pos.y))
-        if self.rect:
-            self.rect.center = self.hitbox.center
-
+        self.transform.pos += self.direction * self.speed * dt
         super().update(dt)
         self.animator.update(dt)
 
