@@ -18,23 +18,34 @@ class MainBase(Obstacle):
         # Ajusta a posição para o centro da base
         position.x = round(position.x - MAIN_BASE_SIZE / 2)
         position.y = round(position.y - MAIN_BASE_SIZE / 2)
-        super().__init__(position, *groups)
+        super().__init__(position, *groups, default_hitbox=False)
 
         self.image = AssetManager().load_image(
             name="main_base",
             path="Nave-D.png",
             size=(MAIN_BASE_SIZE, MAIN_BASE_SIZE),
         )
-        
+
         self.render_component = StaticRenderComponent(self, self.image)
+        self._fixed_opacity = True
 
         self.collider.add_box(
             0, 0, MAIN_BASE_SIZE, MAIN_BASE_SIZE, tag=ColliderTagEnum.BODY
         )
 
+        self.collider.add_box(
+            MAIN_BASE_SIZE // 6,
+            MAIN_BASE_SIZE - (MAIN_BASE_SIZE // 2),
+            MAIN_BASE_SIZE // 1.5,
+            MAIN_BASE_SIZE // 3,
+            tag=ColliderTagEnum.SOLID,
+        )
+
         # Os hitboxes antigos foram removidos, usamos apenas o collider
 
-        self.health = HealthComponent(max_hp=MAIN_BASE_HEALTH, on_death_callback=self.on_death)
+        self.health = HealthComponent(
+            max_hp=MAIN_BASE_HEALTH, on_death_callback=self.on_death
+        )
 
     def update(self, dt: float):
         self.health.update(dt)
