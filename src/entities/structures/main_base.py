@@ -19,7 +19,7 @@ class MainBase(Obstacle):
         position.y = round(position.y - MAIN_BASE_SIZE / 2)
         super().__init__(position, *groups)
 
-        self.image = AssetManager.load_image(
+        self.image = AssetManager().load_image(
             name="main_base",
             path="Nave-D.png",
             size=(MAIN_BASE_SIZE, MAIN_BASE_SIZE),
