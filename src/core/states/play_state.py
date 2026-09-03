@@ -98,7 +98,7 @@ class PlayState(BaseState):
                 elif event.key == pygame.K_k:
                     self.state_manager.change_to(GameStateEnum.GAME_OVER)
                 elif event.key == pygame.K_ESCAPE:
-                    self.state_manager.change_to(GameStateEnum.MENU)
+                    self.state_manager.push(GameStateEnum.PAUSE)
 
             if event.type == pygame.MOUSEWHEEL and self.world is not None:
                 self.world.camera_group.handle_zoom(event.y)

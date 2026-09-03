@@ -23,7 +23,7 @@ class GameManager(metaclass=SingletonMeta):
         return None
 
     def change_state(self, new_state: BaseState):
-        if self.state_stack:
+        while self.state_stack:
             old_state = self.state_stack.pop()
             old_state.exit()
 
@@ -63,8 +63,17 @@ class GameManager(metaclass=SingletonMeta):
             self.current_state.handle_events(events)
 
     def update(self, dt: float):
-        if self.current_state:
-            self.current_state.update(dt)
+        if not self.state_stack:
+            return
+
+        top_index = len(self.state_stack) - 1
+        active_index = top_index
+
+        while active_index > 0 and not getattr(self.state_stack[active_index], "blocks_update", True):
+            active_index -= 1
+
+        for i in range(active_index, top_index + 1):
+            self.state_stack[i].update(dt)
 
     def on_render(self):
         self.tela.fill(Colors.ui.background)

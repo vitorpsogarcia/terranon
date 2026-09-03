@@ -1,29 +1,15 @@
-from abc import ABC, abstractmethod
-
 import pygame
 
 from core.camera_group import CameraGroup
 from core.factories.enemy_factory import EnemyFactory
 from core.game_object import DynamicObject, GameObject
 from core.manager.spatial_manager import SpatialManager
-
-
-class GameScene(ABC):
-    @abstractmethod
-    def update(self, dt: float):
-        pass
-
-    @abstractmethod
-    def handle_events(self, events: list[pygame.event.Event]):
-        pass
-
-    @abstractmethod
-    def draw(self, surface: pygame.Surface):
-        pass
+from core.states.base_state import GameScene
 
 
 class GameWorld(GameScene):
     def __init__(self, screen_size: tuple[int, int]):
+        super().__init__(None, screen_size)
         self.camera_group = CameraGroup()
         self.screen_size = screen_size
         self.spatial_manager = SpatialManager()
@@ -35,6 +21,12 @@ class GameWorld(GameScene):
 
     def destroy(self):
         self.projectile_factory.destroy()
+
+    def enter(self):
+        pass
+
+    def exit(self):
+        pass
 
     def set_target(self, target: GameObject):
         self.target = target
