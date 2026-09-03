@@ -4,9 +4,18 @@ import pygame
 
 
 class BaseRenderComponent(ABC):
-    def __init__(self, owner):
+    def __init__(self, owner, render_layer: int = 0):
         self.owner = owner
         self._opacity: int = 255
+        self._render_layer = render_layer
+
+    @property
+    def render_layer(self) -> int:
+        return self._render_layer
+
+    @render_layer.setter
+    def render_layer(self, value: int):
+        self._render_layer = value
 
     @property
     def opacity(self) -> int:
