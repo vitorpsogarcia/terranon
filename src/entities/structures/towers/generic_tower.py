@@ -1,11 +1,12 @@
 import pygame
 
+from core.components.static_render_component import StaticRenderComponent
 from core.game_object import GameObject
-from core.settings.colors import Colors
+from core.manager.asset_manager import AssetManager
 from entities.obstacle import Obstacle
 from utils.position import calculate_distance
 
-TURRET_SIZE = 50
+TURRET_SIZE = 64
 
 
 class GenericTower(Obstacle):
@@ -22,15 +23,23 @@ class GenericTower(Obstacle):
         position = pygame.Vector2(
             round(position.x - half_size), round(position.y - half_size)
         )
-        super().__init__(position, *groups)
+        super().__init__(position, *groups, width=turret_size, height=turret_size)
 
         self.range = range
         self.damage = damage
         self.fire_rate = fire_rate
 
-        self.image = pygame.Surface((turret_size, turret_size)).convert_alpha()
-        self.image.fill(Colors.debug.turret)
-        self.rect = self.image.get_rect(center=(round(self.pos.x), round(self.pos.y)))
+        self.image = AssetManager().load_image(
+            name=f"generic_tower_{turret_size}",
+            path="Tower_gun.png",
+            size=(turret_size, turret_size),
+        )
+        self.render_component = StaticRenderComponent(self, self.image)
+        self.hitbox = pygame.Rect(
+            round(self.pos.x), round(self.pos.y), turret_size, turret_size
+        )
+        self.rect = self.hitbox
+        self.relative_hitboxes = [pygame.Rect(0, 0, turret_size, turret_size)]
         self._fixed_opacity = True
         self.target: GameObject | None = None
         self.cooldown = 0.0

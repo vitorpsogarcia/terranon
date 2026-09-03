@@ -4,9 +4,9 @@ from core.components.health_component import HealthComponent
 from core.components.static_render_component import StaticRenderComponent
 from core.enums.game_event_enum import GameEventEnum
 from core.game_object import GameObject
+from core.manager.asset_manager import AssetManager
 from core.manager.event_manager import EventManager
-from core.settings.colors import Colors
-from core.settings.settings import MAIN_BASE_SIZE
+from core.settings.settings import MAIN_BASE_HEALTH, MAIN_BASE_SIZE
 from entities.enemy import Enemy
 from entities.obstacle import Obstacle
 
@@ -17,11 +17,14 @@ class MainBase(Obstacle):
         # Ajusta a posição para o centro da base
         position.x = round(position.x - MAIN_BASE_SIZE / 2)
         position.y = round(position.y - MAIN_BASE_SIZE / 2)
-        super().__init__(position, *groups, width=MAIN_BASE_SIZE, height=MAIN_BASE_SIZE)
-        self._fixed_opacity = True
+        super().__init__(position, *groups)
 
-        self.image = pygame.Surface((MAIN_BASE_SIZE, MAIN_BASE_SIZE)).convert_alpha()
-        self.image.fill(Colors.debug.base)
+        self.image = AssetManager().load_image(
+            name="main_base",
+            path="Nave-D.png",
+            size=(MAIN_BASE_SIZE, MAIN_BASE_SIZE),
+        )
+        
         self.render_component = StaticRenderComponent(self, self.image)
 
         self.hitbox = pygame.Rect(
@@ -30,7 +33,7 @@ class MainBase(Obstacle):
         self.rect = self.hitbox
         self.relative_hitboxes = [pygame.Rect(0, 0, MAIN_BASE_SIZE, MAIN_BASE_SIZE)]
 
-        self.health = HealthComponent(max_hp=500.0, on_death_callback=self.on_death)
+        self.health = HealthComponent(max_hp=MAIN_BASE_HEALTH, on_death_callback=self.on_death)
 
     def update(self, dt: float):
         self.health.update(dt)

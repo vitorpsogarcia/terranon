@@ -2,6 +2,7 @@ import pygame
 
 from core.components.static_render_component import StaticRenderComponent
 from core.game_object import StaticObject
+from core.manager.asset_manager import AssetManager
 
 
 class Obstacle(StaticObject):
@@ -11,15 +12,23 @@ class Obstacle(StaticObject):
         *groups: pygame.sprite.Group,
         width: float = 64,
         height: float = 64,
+        image: pygame.Surface | None = None,
     ):
         super().__init__(position, *groups)
-        self.image = pygame.Surface((width, height)).convert_alpha()
-        self.image.fill((255, 0, 0))
-        self.rect = self.image.get_rect(topleft=(round(self.pos.x), round(self.pos.y)))
+        self.hitbox = pygame.Rect(
+            round(self.pos.x), round(self.pos.y), int(width), int(height)
+        )
+        self.rect = self.hitbox
+        self.relative_hitboxes = [pygame.Rect(0, 0, int(width), int(height))]
 
-        self.relative_hitboxes = [pygame.Rect(0, 0, width, height)]
-        fallback_image = pygame.Surface((width, height)).convert_alpha()
-        fallback_image.fill((255, 0, 0))
-        self.render_component = StaticRenderComponent(self, fallback_image)
+        if image is not None:
+            self.image = image
+        else:
+            self.image = AssetManager().load_image(
+                name=f"obstacle_fallback_{int(width)}_{int(height)}",
+                path="Tower_gun.png",
+                size=(int(width), int(height)),
+            )
 
-        self.relative_hitboxes = [pygame.Rect(0, 0, width, height)]
+        self.render_component = StaticRenderComponent(self, self.image)
+
