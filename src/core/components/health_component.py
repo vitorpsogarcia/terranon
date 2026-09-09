@@ -1,6 +1,6 @@
 from collections.abc import Callable
 
-from core.entity import Component
+from core.component import Component
 
 
 class HealthComponent(Component):

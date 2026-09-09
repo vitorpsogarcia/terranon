@@ -123,6 +123,10 @@ class PlayState(GameScene):
         if self.world is None:
             return
 
-        generic_turret = GenericTower(pygame.Vector2(8563, 5950))
+        objects = [
+            GenericTower(pygame.Vector2(8563, 5950)),
+            GenericTower(pygame.Vector2(8436, 5714)),
+        ]
 
-        self.world.add_object(generic_turret)
+        for obj in objects:
+            self.world.add_object(obj)

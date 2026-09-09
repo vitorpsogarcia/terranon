@@ -36,9 +36,7 @@ class LevelLoader:
                 world.add_object(base)
 
         player = Player(pygame.Vector2(player_x, player_y))
-        player.pos = pygame.math.Vector2(player_x, player_y)
-        if player.rect is not None:
-            player.rect.topleft = player.pos
+        player.transform.pos = pygame.math.Vector2(player_x, player_y)
 
         world.add_object(player)
         world.set_target(player)

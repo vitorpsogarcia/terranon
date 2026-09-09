@@ -1,6 +1,5 @@
 import pygame
 
-
 class EntitySprite(pygame.sprite.Sprite):
     def __init__(self, owner, *groups: pygame.sprite.Group):
         super().__init__(*groups)
@@ -10,25 +9,31 @@ class EntitySprite(pygame.sprite.Sprite):
         # não dar AttributeError no blit nativo antes da HU #93.
         self.image = pygame.Surface((0, 0))
         self.image.set_alpha(0)
-        physic_source = getattr(self.owner, "hitbox", getattr(self.owner, "rect", None))
-        if physic_source is not None:
-            self.rect = physic_source.copy()
-        else:
-            self.rect = pygame.Rect(0, 0, 10, 10)
+        self.rect = pygame.Rect(0, 0, 10, 10)
+        self._sync_rect()
+
+    def _sync_rect(self):
+        if hasattr(self.owner, "collider") and self.owner.collider:
+            bounding = self.owner.collider.get_bounding_rect()
+            if bounding:
+                self.rect.size = bounding.size
+                self.rect.center = bounding.center
+                return
+        
+        if hasattr(self.owner, "transform"):
+            self.rect.center = (round(self.owner.transform.pos.x), round(self.owner.transform.pos.y))
+
 
     def update(self, dt: float):
-        if not self.owner.active:
+        if not getattr(self.owner, "active", False):
             return
 
         self.owner.update(dt)
-        fonte_fisica = getattr(self.owner, "hitbox", getattr(self.owner, "rect", None))
-
-        if fonte_fisica is not None:
-            self.rect.size = fonte_fisica.size
-            self.rect.center = fonte_fisica.center
+        self._sync_rect()
 
     def process_event(self, event: pygame.event.Event):
-        self.owner.process_event(event)
+        if hasattr(self.owner, "process_event"):
+            self.owner.process_event(event)
 
     def __getattr__(self, name):
         return getattr(self.owner, name)

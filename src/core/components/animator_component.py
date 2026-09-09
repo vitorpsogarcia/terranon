@@ -1,7 +1,7 @@
 import pygame
 
 from core.components.base_render_component import BaseRenderComponent
-from core.entity import Component
+from core.component import Component
 from core.game_object import GameObject
 
 
@@ -82,7 +82,10 @@ class AnimatorComponent(BaseRenderComponent, Component):  # 1. Herda do contrato
             return
 
         draw_rect = self.current_frame.get_rect(
-            center=(round(self.owner.pos.x), round(self.owner.pos.y))
+            center=(
+                round(self.owner.transform.pos.x),
+                round(self.owner.transform.pos.y),
+            )
         )
 
         draw_rect.topleft = (draw_rect.x - offset.x, draw_rect.y - offset.y)

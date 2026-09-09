@@ -1,10 +1,11 @@
 import pygame
 
+from core.enums.collider_tag_enum import ColliderTagEnum
 from core.enums.debug_option_enum import DebugOption
+from core.game_object import GameObject
 from core.manager.economy_manager import EconomyManager
 from core.settings.colors import Colors
 from core.singleton_meta import SingletonMeta
-from entities.nature.world_collider import WorldCollider
 
 
 class DebugManager(metaclass=SingletonMeta):
@@ -28,25 +29,23 @@ class DebugManager(metaclass=SingletonMeta):
         for sprite in camera_group.sprites():
             if self.is_option_enabled(DebugOption.COLLIDERS):
                 owner = getattr(sprite, "owner", None)
+                if not isinstance(owner, GameObject):
+                    continue
 
-                has_relative = hasattr(owner, "relative_hitboxes") and len(owner.relative_hitboxes) > 0
-
-                if has_relative and hasattr(owner, "hitboxes"):
-                    hitboxes_list = sprite.owner.hitboxes
-                    for hitbox in hitboxes_list:
-                        hitbox_rect = hitbox.copy()
+                if owner.collider is not None:
+                    for rect, tag in owner.collider.get_world_rects():
+                        hitbox_rect = rect.copy()
                         hitbox_rect.topleft -= camera_group.offset
-                        pygame.draw.rect(surface, Colors.debug.hitbox, hitbox_rect, 1)
-                elif hasattr(sprite, "hitbox") and sprite.hitbox:
-                    hitbox_rect = sprite.hitbox.copy()
+                        color = (
+                            Colors.debug.feet_hitbox
+                            if tag == ColliderTagEnum.FEET
+                            else Colors.debug.hitbox
+                        )
+                        pygame.draw.rect(surface, color, hitbox_rect, 1)
+                elif hasattr(owner, "hitbox") and owner.hitbox:
+                    hitbox_rect = owner.hitbox.copy()
                     hitbox_rect.topleft -= camera_group.offset
                     pygame.draw.rect(surface, Colors.debug.hitbox, hitbox_rect, 1)
-
-                # Renderiza o colisor de pés (feet_hitbox) em azul claro para visualização/debug
-                if hasattr(sprite, "feet_hitbox"):
-                    feet_rect = sprite.feet_hitbox.copy()
-                    feet_rect.topleft -= camera_group.offset
-                    pygame.draw.rect(surface, Colors.debug.feet_hitbox, feet_rect, 1)
 
             if self.is_option_enabled(DebugOption.CREATURE_DIRECTIONS):
                 owner = getattr(sprite, "owner", None)
@@ -85,7 +84,7 @@ class DebugManager(metaclass=SingletonMeta):
 
             if player:
                 txt_pos = font.render(
-                    f"Pos Real do Player: X: {player.pos.x:.0f}, Y: {player.pos.y:.0f}",
+                    f"Pos Real do Player: X: {player.transform.pos.x:.0f}, Y: {player.transform.pos.y:.0f}",
                     True,
                     Colors.text.primary,
                 )

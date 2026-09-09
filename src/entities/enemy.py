@@ -1,10 +1,12 @@
 import pygame
 
 from core.components.animator_component import AnimatorComponent
+from core.components.collider_component import ColliderComponent
 from core.components.health_component import HealthComponent
 from core.components.movement_component import MovementComponent
 from core.components.path_follower_component import PathFollowerComponent
 from core.entity import Entity
+from core.enums.collider_tag_enum import ColliderTagEnum
 from core.enums.game_event_enum import GameEventEnum
 from core.manager.event_manager import EventManager
 from core.map.waypoints.polyline import Polyline
@@ -43,11 +45,29 @@ class Enemy(Entity):
         self.direction = pygame.math.Vector2(0, 0)
 
         self.scale = 0.3
-        self.hitbox = pygame.Rect(self.pos.x, self.pos.y, 30, 60)
-        self.rect = self.hitbox
+        self.collider = self.add_component(ColliderComponent(self))
+        self.body_box = self.collider.add_box(
+            -15, -30, 30, 60, tag=ColliderTagEnum.BODY
+        )
         self._points = points
         self.current_state = "idle"
         self.last_direction = "south"
+
+    @property
+    def hitbox(self) -> pygame.Rect:
+        return self.body_box.get_world_rect(self.transform.pos)
+
+    @hitbox.setter
+    def hitbox(self, value: pygame.Rect):
+        pass
+
+    @property
+    def rect(self) -> pygame.Rect:
+        return self.hitbox
+
+    @rect.setter
+    def rect(self, value: pygame.Rect):
+        pass
 
     def update(self, dt: float):
         super().update(dt)
@@ -58,10 +78,6 @@ class Enemy(Entity):
         dir_str = get_direction_str_by_vector(self.direction)
         if dir_str is not None:
             self.last_direction = dir_str
-
-        self.hitbox.center = (round(self.pos.x), round(self.pos.y))
-        if self.rect is not None:
-            self.rect.center = self.hitbox.center
 
     def on_death(self, by_player: bool = False):
         self.active = False

@@ -1,6 +1,6 @@
 import pygame
 
-from core.entity import Component
+from core.component import Component
 from core.map.waypoints.polyline import Polyline
 from core.map.waypoints.waypoint import Waypoint
 
@@ -18,10 +18,10 @@ class PathFollowerComponent(Component):
         """
         next_waypoint = self.path.get_next_waypoint(self.current_waypoint)
 
-        if next_waypoint is not None and self.owner.rect is not None:
+        if next_waypoint is not None and hasattr(self.owner, "transform"):
             target_pos = next_waypoint.position
             self_pos = pygame.math.Vector2(
-                self.owner.rect.centerx, self.owner.rect.centery
+                self.owner.transform.pos.x, self.owner.transform.pos.y
             )
 
             direction_vector = target_pos - self_pos

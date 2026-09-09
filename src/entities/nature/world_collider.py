@@ -1,5 +1,6 @@
 import pygame
 
+from core.components.null_render_component import NullRenderComponent
 from entities.obstacle import Obstacle
 
 
@@ -12,3 +13,4 @@ class WorldCollider(Obstacle):
         *groups: pygame.sprite.Group,
     ):
         super().__init__(position, *groups, width=width, height=height)
+        self.render_component = NullRenderComponent(self)
