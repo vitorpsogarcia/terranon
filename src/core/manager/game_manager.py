@@ -5,7 +5,7 @@ from core.manager.input_manager import InputManager
 from core.settings.colors import Colors
 from core.settings.settings import FPS
 from core.singleton_meta import SingletonMeta
-from core.states.base_state import BaseState
+from core.states.base_state import BaseState, GameScene
 
 
 class GameManager(metaclass=SingletonMeta):
@@ -14,15 +14,15 @@ class GameManager(metaclass=SingletonMeta):
         self.clock = pygame.time.Clock()
         self._running = True
         self.debug_font = pygame.font.SysFont(None, 24)
-        self.state_stack: list[BaseState] = []
+        self.state_stack: list[GameScene] = []
 
     @property
-    def current_state(self) -> BaseState | None:
+    def current_state(self) -> GameScene | None:
         if self.state_stack:
             return self.state_stack[-1]
         return None
 
-    def change_state(self, new_state: BaseState):
+    def change_state(self, new_state: GameScene):
         while self.state_stack:
             old_state = self.state_stack.pop()
             old_state.exit()
@@ -30,7 +30,7 @@ class GameManager(metaclass=SingletonMeta):
         self.state_stack.append(new_state)
         new_state.enter()
 
-    def push_state(self, new_state: BaseState):
+    def push_state(self, new_state: GameScene):
         self.state_stack.append(new_state)
         new_state.enter()
 

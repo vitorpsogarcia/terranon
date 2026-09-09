@@ -5,7 +5,7 @@ from core.singleton_meta import SingletonMeta
 
 if TYPE_CHECKING:
     from core.manager.game_manager import GameManager
-    from core.states.base_state import BaseState
+    from core.states.base_state import BaseState, GameScene
 
 
 class StateManager(metaclass=SingletonMeta):

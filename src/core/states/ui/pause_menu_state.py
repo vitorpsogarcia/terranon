@@ -12,12 +12,14 @@ if TYPE_CHECKING:
 
 class PauseMenuState(GameScene):
     def __init__(self, state_manager: "StateManager", screen_size: tuple[int, int]):
-        super().__init__(state_manager, screen_size)
+        super().__init__(
+            state_manager=state_manager,
+            screen_size=screen_size,
+            is_transparent=True,
+            blocks_update=True,
+        )
         self.title_font = pygame.font.SysFont("Arial", 48, bold=True)
         self.btn_font = pygame.font.SysFont("Arial", 24)
-
-        self.is_transparent = True
-        self.blocks_update = True
 
         center_x = self.screen_size[0] // 2
         center_y = self.screen_size[1] // 2
@@ -58,16 +60,16 @@ class PauseMenuState(GameScene):
     def _go_to_menu(self):
         self.state_manager.change_to(GameStateEnum.MENU)
 
-    def enter(self):
+    def enter(self) -> None:
         pass
 
-    def exit(self):
+    def exit(self) -> None:
         pass
 
-    def update(self, dt: float):
+    def update(self, dt: float) -> None:
         pass
 
-    def handle_events(self, events: list[pygame.event.Event]):
+    def handle_events(self, events: list[pygame.event.Event]) -> None:
         for event in events:
             if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                 self._resume()
@@ -80,7 +82,7 @@ class PauseMenuState(GameScene):
             if self.btn_menu.handle_event(event):
                 return
 
-    def draw(self, surface: pygame.Surface):
+    def draw(self, surface: pygame.Surface) -> None:
         overlay = pygame.Surface(self.screen_size, pygame.SRCALPHA)
         overlay.fill(Colors.ui.panel_transparent)
         surface.blit(overlay, (0, 0))

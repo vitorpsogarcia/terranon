@@ -12,14 +12,16 @@ if TYPE_CHECKING:
 
 class InventoryState(GameScene):
     def __init__(self, state_manager: "StateManager", screen_size: tuple[int, int]):
-        super().__init__(state_manager, screen_size)
+        super().__init__(
+            state_manager=state_manager,
+            screen_size=screen_size,
+            is_transparent=True,
+            blocks_update=True,
+        )
         self.font = pygame.font.SysFont("Arial", 42, bold=True)
         self.section_font = pygame.font.SysFont("Arial", 24, bold=True)
         self.item_font = pygame.font.SysFont("Arial", 18)
         self.small_font = pygame.font.SysFont("Arial", 20)
-
-        self.is_transparent = True
-        self.blocks_update = True
 
         panel_w = self.screen_size[0] - 200
         panel_h = self.screen_size[1] - 160
@@ -39,16 +41,16 @@ class InventoryState(GameScene):
     def _close(self):
         self.state_manager.pop()
 
-    def enter(self):
+    def enter(self) -> None:
         pass
 
-    def exit(self):
+    def exit(self) -> None:
         pass
 
-    def update(self, dt: float):
+    def update(self, dt: float) -> None:
         pass
 
-    def handle_events(self, events: list[pygame.event.Event]):
+    def handle_events(self, events: list[pygame.event.Event]) -> None:
         for event in events:
             if event.type == pygame.KEYDOWN and (
                 event.key == pygame.K_ESCAPE or event.key == pygame.K_i
@@ -59,7 +61,7 @@ class InventoryState(GameScene):
             if self.btn_close.handle_event(event):
                 return
 
-    def draw(self, surface: pygame.Surface):
+    def draw(self, surface: pygame.Surface) -> None:
         overlay = pygame.Surface(self.screen_size, pygame.SRCALPHA)
         overlay.fill(Colors.ui.panel_transparent)
         surface.blit(overlay, (0, 0))

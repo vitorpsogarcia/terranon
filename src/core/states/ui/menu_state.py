@@ -16,7 +16,12 @@ if TYPE_CHECKING:
 
 class MenuState(GameScene):
     def __init__(self, state_manager: "StateManager", screen_size: tuple[int, int]):
-        super().__init__(state_manager, screen_size)
+        super().__init__(
+            state_manager=state_manager,
+            screen_size=screen_size,
+            is_transparent=False,
+            blocks_update=True,
+        )
 
         self.title_font = pygame.font.SysFont("Arial", 52, bold=True)
         self.font = pygame.font.SysFont("Arial", 32)
@@ -76,13 +81,13 @@ class MenuState(GameScene):
     def set_play_state(self, play_state: "PlayState"):
         self.play_state = play_state
 
-    def enter(self):
+    def enter(self) -> None:
         self.is_typing_name = False
         self.name_input.text = ""
         self.name_input.is_active = True
         self.highscores = HighscoreManager().get_top_scores(10)
 
-    def exit(self):
+    def exit(self) -> None:
         pass
 
     def _start_name_input(self):
@@ -105,11 +110,11 @@ class MenuState(GameScene):
     def _quit_game(self):
         pygame.event.post(pygame.event.Event(pygame.QUIT))
 
-    def update(self, dt: float):
+    def update(self, dt: float) -> None:
         if self.is_typing_name:
             self.name_input.update(dt)
 
-    def handle_events(self, events: list[pygame.event.Event]):
+    def handle_events(self, events: list[pygame.event.Event]) -> None:
         for event in events:
             if not self.is_typing_name:
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
@@ -132,7 +137,7 @@ class MenuState(GameScene):
                 if self.btn_cancel.handle_event(event):
                     continue
 
-    def draw(self, surface: pygame.Surface):
+    def draw(self, surface: pygame.Surface) -> None:
         surface.fill(Colors.ui.background)
         self._draw_highscores(surface)
 

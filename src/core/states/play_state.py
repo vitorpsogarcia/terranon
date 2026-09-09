@@ -12,7 +12,7 @@ from core.manager.event_manager import EventManager
 from core.manager.game_manager import GameManager
 from core.manager.highscore_manager import HighscoreManager
 from core.manager.sound_manager import SoundManager
-from core.states.base_state import BaseState
+from core.states.base_state import GameScene
 from entities.structures.towers.generic_tower import GenericTower
 
 if TYPE_CHECKING:
@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     from entities.character.player import Player
 
 
-class PlayState(BaseState):
+class PlayState(GameScene):
     _logger = logging.getLogger("PlayState")
     _show_debug = False
 
@@ -30,14 +30,18 @@ class PlayState(BaseState):
         game_manager: "GameManager",
         screen_size: tuple[int, int],
     ):
-        super().__init__(state_manager, screen_size)
+        super().__init__(
+            state_manager=state_manager,
+            screen_size=screen_size,
+            is_transparent=False,
+            blocks_update=True,
+        )
         self.world: GameWorld | None = None
         self.player: Player | None = None
-        self.screen_size = screen_size
         self.game_manager = game_manager
         self.player_name: str = "Player"
 
-    def enter(self):
+    def enter(self) -> None:
         try:
             SoundManager().play_music("Crashsite-Defense.wav")
         except Exception as e:
@@ -58,7 +62,7 @@ class PlayState(BaseState):
 
         self._load_debug_objects()
 
-    def exit(self):
+    def exit(self) -> None:
         SoundManager().stop_music()
         if hasattr(self, "wave_manager"):
             self.wave_manager.destroy()
@@ -69,16 +73,16 @@ class PlayState(BaseState):
         EventManager().unsubscribe(GameEventEnum.GAME_OVER, self._game_over)
         EventManager().unsubscribe(GameEventEnum.ENEMY_SPAWNED, self._on_enemy_spawned)
 
-    def update(self, delta_time):
+    def update(self, dt: float) -> None:
         if self.world is not None and self.player is not None:
             mouse_pos = pygame.math.Vector2(pygame.mouse.get_pos())
             self.player.aim_target = self.world.camera_group.screen_to_world(mouse_pos)
 
         if self.world is not None:
-            self.world.update(delta_time)
+            self.world.update(dt)
 
         if hasattr(self, "wave_manager"):
-            self.wave_manager.update(delta_time)
+            self.wave_manager.update(dt)
 
     def _change_state(self, new_state: GameStateEnum):
         self.state_manager.change_to(new_state)
@@ -89,7 +93,7 @@ class PlayState(BaseState):
         self.initialized = False
         self._change_state(GameStateEnum.GAME_OVER)
 
-    def handle_events(self, events: list[pygame.event.Event]):
+    def handle_events(self, events: list[pygame.event.Event]) -> None:
 
         for event in events:
             if event.type == pygame.KEYDOWN:
@@ -106,7 +110,7 @@ class PlayState(BaseState):
         if self.world is not None:
             self.world.handle_events(events)
 
-    def draw(self, surface):
+    def draw(self, surface: pygame.Surface) -> None:
         if self.world is not None:
             self.world.draw(surface)
 

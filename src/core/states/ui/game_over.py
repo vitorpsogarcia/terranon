@@ -14,7 +14,12 @@ if TYPE_CHECKING:
 
 class GameOverState(GameScene):
     def __init__(self, state_manager: "StateManager", screen_size: tuple[int, int]):
-        super().__init__(state_manager, screen_size)
+        super().__init__(
+            state_manager=state_manager,
+            screen_size=screen_size,
+            is_transparent=False,
+            blocks_update=True,
+        )
         self.font = pygame.font.SysFont("Arial", 72, bold=True)
         self.small_font = pygame.font.SysFont("Arial", 28)
         self.info_font = pygame.font.SysFont("Arial", 22)
@@ -40,14 +45,14 @@ class GameOverState(GameScene):
             hover_color=Colors.ui.button_hover,
         )
 
-    def enter(self):
+    def enter(self) -> None:
         try:
             SoundManager().stop_music(fade_ms=500)
             SoundManager().play_sfx("effects/death.mp3")
         except Exception as e:
             pass
 
-    def exit(self):
+    def exit(self) -> None:
         pass
 
     def _restart_game(self):
@@ -56,10 +61,10 @@ class GameOverState(GameScene):
     def _go_to_menu(self):
         self.state_manager.change_to(GameStateEnum.MENU)
 
-    def update(self, dt: float):
+    def update(self, dt: float) -> None:
         pass
 
-    def handle_events(self, events: list[pygame.event.Event]):
+    def handle_events(self, events: list[pygame.event.Event]) -> None:
         for event in events:
             if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
                 self._go_to_menu()
@@ -70,7 +75,7 @@ class GameOverState(GameScene):
             if self.btn_menu.handle_event(event):
                 return
 
-    def draw(self, surface: pygame.Surface):
+    def draw(self, surface: pygame.Surface) -> None:
         surface.fill(Colors.ui.background)
 
         center_x = self.screen_size[0] // 2
