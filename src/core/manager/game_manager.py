@@ -31,13 +31,19 @@ class GameManager(metaclass=SingletonMeta):
         new_state.enter()
 
     def push_state(self, new_state: GameScene):
+        if self.state_stack:
+            self.state_stack[-1].on_pause()
         self.state_stack.append(new_state)
         new_state.enter()
 
-    def pop_state(self):
+    def pop_state(self) -> GameScene | None:
         if self.state_stack:
             old_state = self.state_stack.pop()
             old_state.exit()
+            if self.state_stack:
+                self.state_stack[-1].on_resume()
+            return old_state
+        return None
 
     def on_execute(self):
         dt = self.clock.tick(FPS) / 1000.0
@@ -78,8 +84,18 @@ class GameManager(metaclass=SingletonMeta):
     def on_render(self):
         self.tela.fill(Colors.ui.background)
 
-        for state in self.state_stack:
-            state.draw(self.tela)
+        if not self.state_stack:
+            pygame.display.flip()
+            return
+
+        first_visible_idx = len(self.state_stack) - 1
+        while first_visible_idx > 0 and getattr(
+            self.state_stack[first_visible_idx], "is_transparent", False
+        ):
+            first_visible_idx -= 1
+
+        for i in range(first_visible_idx, len(self.state_stack)):
+            self.state_stack[i].draw(self.tela)
 
         DebugManager().draw_ui_debug(
             self.tela, self.current_state, self.clock, self.debug_font

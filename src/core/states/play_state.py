@@ -73,6 +73,16 @@ class PlayState(GameScene):
         EventManager().unsubscribe(GameEventEnum.GAME_OVER, self._game_over)
         EventManager().unsubscribe(GameEventEnum.ENEMY_SPAWNED, self._on_enemy_spawned)
 
+    def on_pause(self) -> None:
+        if self.player is not None:
+            self.player.direction = pygame.math.Vector2(0, 0)
+            self.player._shooting = False
+
+    def on_resume(self) -> None:
+        if self.player is not None:
+            self.player.direction = pygame.math.Vector2(0, 0)
+            self.player._shooting = False
+
     def update(self, dt: float) -> None:
         if self.world is not None and self.player is not None:
             mouse_pos = pygame.math.Vector2(pygame.mouse.get_pos())

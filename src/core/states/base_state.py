@@ -31,6 +31,14 @@ class GameScene(ABC):
         """Chamado quando a cena é desempilhada ou substituída."""
         pass
 
+    def on_pause(self) -> None:
+        """Chamado quando outra cena é empilhada sobre esta cena."""
+        pass
+
+    def on_resume(self) -> None:
+        """Chamado quando a cena acima é desempilhada e esta cena recupera o foco."""
+        pass
+
     @abstractmethod
     def update(self, dt: float) -> None:
         """Atualiza o estado lógico da cena com base no delta time."""
