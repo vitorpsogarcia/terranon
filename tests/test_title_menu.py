@@ -67,12 +67,11 @@ class TestTitleMenuScene(unittest.TestCase):
         """Confirmar o nome deve registrar no HighscoreManager e transitar para PLAY."""
         called_play = False
 
-        def mock_change_state(scene):
+        def mock_change_to(state):
             nonlocal called_play
-            called_play = True
+            called_play = (state == GameStateEnum.PLAY)
 
-        self.gm.change_state = mock_change_state
-        self.sm.register_state(GameStateEnum.PLAY, lambda: None)
+        self.sm.change_to = mock_change_to
 
         self.menu._start_name_input()
         self.menu.name_input.text = "Guerreiro"
