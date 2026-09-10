@@ -33,6 +33,8 @@ class Colors:
         panel: Color = (31, 41, 55)
         panel_transparent: Color = (31, 41, 55, 230)
 
+        building_grid: Color = (200, 200, 200, 50)  # Light Gray with transparency
+
     class text:
         """Cores para texto."""
 

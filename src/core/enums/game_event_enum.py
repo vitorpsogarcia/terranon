@@ -15,6 +15,10 @@ class GameEventEnum(Enum):
     SPEND_POINTS = "SPEND_POINTS"
     RESET_WAVES = "RESET_WAVES"
 
+    BUILD_TOGGLED = "BUILD_TOGGLED"
+    BUILD_MODE_ENTERED = "BUILD_MODE_ENTERED"
+    BUILD_MODE_EXITED = "BUILD_MODE_EXITED"
+
     def __str__(self):
         return self.value
 

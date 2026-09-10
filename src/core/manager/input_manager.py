@@ -40,6 +40,9 @@ class InputManager:
                 elif event.key == pygame.K_t:
                     DebugManager().toggle_option(DebugOption.TARGETING_LINES)
 
+            if event.key == pygame.K_b:
+                EventManager().emit(GameEventEnum.BUILD_TOGGLED)
+
         elif event.type == pygame.KEYUP:
             if event.key == pygame.K_F3:
                 self.f3_pressed = False

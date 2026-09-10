@@ -5,6 +5,7 @@ import pygame
 from core.camera_group import CameraGroup
 from core.factories.enemy_factory import EnemyFactory
 from core.game_object import GameObject
+from core.manager.build_manager import BuildManager
 from core.manager.spatial_manager import SpatialManager
 
 
