@@ -8,6 +8,7 @@ from core.settings.colors import Colors
 from core.settings.settings import SCREEN_NAME
 from core.states.base_state import GameScene
 from core.ui.button import Button
+from core.ui.icon_button import IconButton
 from core.ui.panel import UIPanel
 from core.ui.text_input import TextInput
 
@@ -219,6 +220,25 @@ class TitleMenuScene(GameScene):
             title_color=Colors.brand.secondary,
         )
 
+        # Botão de limpar scores (alinhado à direita da escrita "TOP 10 SCORES")
+        trash_btn_size = 26
+        trash_btn_x = side_x + side_w - 16 - trash_btn_size
+        trash_btn_y = side_y + 10
+        self.btn_clear_scores = IconButton(
+            rect=pygame.Rect(trash_btn_x, trash_btn_y, trash_btn_size, trash_btn_size),
+            icon_type="trash",
+            on_click=self._clear_highscores,
+            bg_color=Colors.ui.panel,
+            hover_color=Colors.feedback.error,
+            icon_color=Colors.text.secondary,
+            icon_hover_color=Colors.text.on_brand,
+            border_color=Colors.ui.border,
+            border_radius=4,
+            tooltip="Limpar Recordes",
+        )
+        self.side_highscores_panel.add_child(self.btn_clear_scores)
+
+
     def set_play_state(self, play_state: "PlayState"):
         self.play_state = play_state
 
@@ -240,6 +260,10 @@ class TitleMenuScene(GameScene):
     def _open_highscores(self):
         self.highscores = HighscoreManager().get_top_scores(10)
         self.view_mode = "highscores"
+
+    def _clear_highscores(self):
+        HighscoreManager().clear_scores()
+        self.highscores = []
 
     def _open_settings(self):
         self._update_sound_button_labels()
@@ -296,7 +320,9 @@ class TitleMenuScene(GameScene):
         )
 
     def update(self, dt: float) -> None:
-        if self.view_mode == "name_input":
+        if self.view_mode == "main":
+            self.side_highscores_panel.update(dt)
+        elif self.view_mode == "name_input":
             self.name_modal_panel.update(dt)
         elif self.view_mode == "settings":
             self.settings_panel.update(dt)
@@ -314,6 +340,8 @@ class TitleMenuScene(GameScene):
                         self._quit_game()
                         continue
 
+                if self.side_highscores_panel.handle_event(event):
+                    continue
                 if self.btn_play.handle_event(event):
                     continue
                 if self.btn_highscores.handle_event(event):

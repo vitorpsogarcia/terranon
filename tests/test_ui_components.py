@@ -5,7 +5,7 @@ import pygame
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src")))
 
-from core.ui import Button, Panel, TextInput, UIElement, UIPanel
+from core.ui import Button, IconButton, Panel, TextInput, UIElement, UIPanel
 
 
 class TestUIComponents(unittest.TestCase):
@@ -215,6 +215,47 @@ class TestUIComponents(unittest.TestCase):
 
     def test_panel_alias(self):
         self.assertIs(Panel, UIPanel)
+
+    # --- IconButton tests ---
+    def test_icon_button_hover(self):
+        rect = pygame.Rect(10, 10, 30, 30)
+        btn = IconButton(rect, icon_type="trash")
+
+        motion_outside = pygame.event.Event(pygame.MOUSEMOTION, pos=(100, 100))
+        btn.handle_event(motion_outside)
+        self.assertFalse(btn.is_hovered)
+
+        motion_inside = pygame.event.Event(pygame.MOUSEMOTION, pos=(20, 20))
+        btn.handle_event(motion_inside)
+        self.assertTrue(btn.is_hovered)
+
+    def test_icon_button_click_triggers_callback(self):
+        clicked = False
+
+        def on_click():
+            nonlocal clicked
+            clicked = True
+
+        rect = pygame.Rect(10, 10, 30, 30)
+        btn = IconButton(rect, icon_type="trash", on_click=on_click)
+
+        click_event = pygame.event.Event(pygame.MOUSEBUTTONDOWN, button=1, pos=(20, 20))
+        handled = btn.handle_event(click_event)
+        self.assertTrue(handled)
+        self.assertTrue(clicked)
+
+    def test_icon_button_draw(self):
+        rect = pygame.Rect(10, 10, 30, 30)
+        btn = IconButton(rect, icon_type="trash")
+        btn.draw(self.surface)
+
+        # Draw hovered
+        btn.is_hovered = True
+        btn.draw(self.surface)
+
+        # Draw disabled
+        btn.enabled = False
+        btn.draw(self.surface)
 
 
 if __name__ == "__main__":

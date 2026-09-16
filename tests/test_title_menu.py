@@ -19,9 +19,11 @@ class TestTitleMenuScene(unittest.TestCase):
     def setUpClass(cls):
         pygame.init()
         pygame.font.init()
+        cls.original_scores = HighscoreManager().load_scores()
 
     @classmethod
     def tearDownClass(cls):
+        HighscoreManager().save_scores(cls.original_scores)
         pygame.quit()
 
     def setUp(self):
@@ -130,6 +132,32 @@ class TestTitleMenuScene(unittest.TestCase):
         self.gm._running = True
         self.menu._quit_game()
         self.assertFalse(self.gm._running)
+
+    def test_side_highscores_panel_has_clear_button(self):
+        """Painel lateral de recordes deve conter o botão de lixeira para limpeza."""
+        self.assertIn(self.menu.btn_clear_scores, self.menu.side_highscores_panel.children)
+        self.assertEqual(self.menu.btn_clear_scores.icon_type, "trash")
+        self.assertLessEqual(
+            self.menu.btn_clear_scores.rect.right, self.menu.side_highscores_panel.rect.right
+        )
+
+    def test_clear_highscores_via_button(self):
+        """Clicar no botão de lixeira deve limpar o arquivo de scores e a lista local."""
+        hm = HighscoreManager()
+        hm.add_score("JogadorTeste", 500)
+        self.menu.highscores = hm.get_top_scores(10)
+        self.assertTrue(len(self.menu.highscores) > 0)
+
+        # Simula clique no botão de lixeira
+        click_event = pygame.event.Event(
+            pygame.MOUSEBUTTONDOWN,
+            button=1,
+            pos=self.menu.btn_clear_scores.rect.center,
+        )
+        self.menu.handle_events([click_event])
+
+        self.assertEqual(self.menu.highscores, [])
+        self.assertEqual(hm.load_scores(), [])
 
     def test_draw_renders_without_errors(self):
         """Renderização do menu em todos os modos visuais deve ocorrer sem falhas."""
