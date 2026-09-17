@@ -4,6 +4,7 @@ from core.components.animator_component import AnimatorComponent
 from core.components.collider_component import ColliderComponent
 from core.components.health_component import HealthComponent
 from core.components.movement_component import MovementComponent
+from core.components.shield_component import ShieldComponent
 from core.entity import Entity
 from core.enums.collider_tag_enum import ColliderTagEnum
 from core.enums.directions_enum import DirectionsEnum
@@ -24,14 +25,18 @@ class Player(Entity):
     def __init__(self, position: pygame.Vector2, *groups: pygame.sprite.Group):
         super().__init__(position, *groups)
 
+        self.shield = self.add_component(ShieldComponent(max_shield = 10.0, is_active = False))
         self.health = self.add_component(
             HealthComponent(
                 max_hp=100.0,
                 on_death_callback=self.on_death,
                 iframes_duration=0.5,
                 allow_invulnerability=True,
+                shield = self.shield
             )
         )
+
+        self.bullet_damage: float = 10.0
 
         self.movement = self.add_component(
             MovementComponent(self, speed=PLAYER_BASE_SPEED)
@@ -58,6 +63,10 @@ class Player(Entity):
         self.animator.update(0.0)
 
     @property
+    def has_shield(self) -> bool:
+        return self.shield is not None and self.shield.is_active
+
+    @property
     def hitbox(self) -> pygame.Rect:
         return self.body_box.get_world_rect(self.transform.pos)
 
@@ -80,6 +89,10 @@ class Player(Entity):
     @rect.setter
     def rect(self, value: pygame.Rect):
         pass
+
+    @property
+    def has_shield(self) -> bool:
+        return self.shield is not None and self.shield.is_active
 
     def on_death(self):
         self.active = False
@@ -194,6 +207,7 @@ class Player(Entity):
             direction=direction,
             type=ProjectileTypesEnum.NORMAL,
             variant=ProjectileVariantEnum.DEFAULT,
+            damage=self.bullet_damage, 
             friendly=True,
         )
 

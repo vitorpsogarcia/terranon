@@ -7,3 +7,4 @@ class GameStateEnum(Enum):
     INVENTORY = "INVENTORY"
     GAME_OVER = "GAME_OVER"
     PAUSE = "PAUSE"
+    PAUSED = "PAUSED"
