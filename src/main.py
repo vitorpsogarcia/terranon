@@ -12,6 +12,7 @@ from core.states.play_state import PlayState
 from core.states.ui.game_over import GameOverState
 from core.states.ui.inventory_state import InventoryState
 from core.states.ui.menu_state import MenuState
+from core.states.ui.upgrade_selection_ui import UpgradeSelectionUI
 
 
 def main():
@@ -45,6 +46,11 @@ def main():
     state_manager.register_state(
         GameStateEnum.GAME_OVER,
         lambda: GameOverState(state_manager, (SCREEN_WIDTH, SCREEN_HEIGHT)),
+    )
+
+    state_manager.register_state(
+        GameStateEnum.PAUSED,
+        lambda: UpgradeSelectionUI(state_manager, (SCREEN_WIDTH, SCREEN_HEIGHT)),
     )
 
     state_manager.change_to(GameStateEnum.MENU)

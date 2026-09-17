@@ -3,6 +3,7 @@ from core.enums.enemy_enum import EnemyEnum
 from core.enums.enemy_spawner_enum import EnemySpawnerEnum
 from core.enums.game_event_enum import GameEventEnum
 from core.manager.event_manager import EventManager
+from core.manager.spatial_manager import SpatialManager
 
 
 class WaveManager:
@@ -13,6 +14,8 @@ class WaveManager:
         self.active_batches = []
         self.spawn_delay = 0.5
         self.current_delay_timer = 0.0
+        self.current_wave_index: int = 1
+        self.wave_ended_emitted: bool = False
 
         self.current_wave_script = [
             {
@@ -64,6 +67,15 @@ class WaveManager:
 
                 self.current_delay_timer = 0.0
 
+        if (
+            not self.active_batches
+            and self.current_event_index >= len(self.current_wave_script)
+            and len(SpatialManager().enemies_group) == 0
+            and not self.wave_ended_emitted
+        ):
+            self.wave_ended_emitted = True
+            EventManager().emit(GameEventEnum.WAVE_ENDED, wave_index=self.current_wave_index)
+
         self.wave_timer += dt
 
         while self.current_event_index < len(self.current_wave_script):
@@ -85,6 +97,16 @@ class WaveManager:
         self.current_event_index = 0
         self.active_batches.clear()
         self.current_delay_timer = 0.0
+        self.wave_ended_emitted = False
+
+    def start_next_wave(self):
+        self.current_wave_index += 1
+        self.wave_timer = 0.0
+        self.current_event_index = 0
+        self.active_batches.clear()
+        self.current_delay_timer = 0.0
+        self.wave_ended_emitted = False
+        EventManager().emit(GameEventEnum.WAVE_STARTED, wave_index=self.current_wave_index)
 
     def destroy(self):
         EventManager().unsubscribe(event=GameEventEnum.RESET_WAVES, listener=self.reset)

@@ -14,6 +14,7 @@ class EconomyManager(metaclass=SingletonMeta):
     def __init__(self):
         self._current_points = 0
         self._total_points = 0
+        self.bonus_multiplier: float = 1.0
 
         EventManager().subscribe(GameEventEnum.SPEND_POINTS, self.spend_points)
         EventManager().subscribe(GameEventEnum.ENEMY_KILLED, self.add_points)
@@ -35,8 +36,9 @@ class EconomyManager(metaclass=SingletonMeta):
         self._total_points = value
 
     def add_points(self, points):
-        self._current_points += points
-        self._total_points += points
+        effective_points = int(points * self.bonus_multiplier)
+        self._current_points += effective_points
+        self._total_points += effective_points
 
     def remove_points(self, points):
         self._current_points -= points
@@ -45,6 +47,7 @@ class EconomyManager(metaclass=SingletonMeta):
     def reset_points(self):
         self._current_points = 0
         self._total_points = 0
+        self.bonus_multiplier = 1.0
 
     def spend_points(self, points):
         if self._current_points >= points:
@@ -56,3 +59,4 @@ class EconomyManager(metaclass=SingletonMeta):
     def reset(self):
         self._current_points = 0
         self._total_points = 0
+        self.bonus_multiplier = 1.0
