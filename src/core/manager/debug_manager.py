@@ -73,12 +73,18 @@ class DebugManager(metaclass=SingletonMeta):
     def draw_ui_debug(self, surface: pygame.Surface, state, clock, font):
         from core.states.play_state import PlayState
 
+        play_state = (
+            state
+            if isinstance(state, PlayState)
+            else getattr(state, "play_state", None)
+        )
+
         if (
             self.is_option_enabled(DebugOption.PLAYER_STATUS)
-            and isinstance(state, PlayState)
-            and state.world is not None
+            and play_state is not None
+            and play_state.world is not None
         ):
-            camera_group = state.world.camera_group
+            camera_group = play_state.world.camera_group
             player = camera_group.target
             points = EconomyManager().current_points, EconomyManager().total_points
 
@@ -101,14 +107,23 @@ class DebugManager(metaclass=SingletonMeta):
                 txt_fps = font.render(f"FPS: {clock.get_fps():.0f}", True, (0, 255, 0))
                 surface.blit(txt_fps, (10, 60))
 
-                txt_life = font.render(
-                    f"Vida: {player.health.current_hp:.0f}/{player.health.max_hp:.0f}",
-                    True,
-                    Colors.text.primary,
-                )
+                life_str = f"Vida: {player.health.current_hp:.0f}/{player.health.max_hp:.0f}"
+                if getattr(player.health, "damage_reduction", 0.0) > 0:
+                    life_str += f" (Redução: {player.health.damage_reduction * 100:.0f}%)"
+                txt_life = font.render(life_str, True, Colors.text.primary)
                 surface.blit(txt_life, (10, 85))
+
+                if hasattr(player, "shield") and player.shield is not None:
+                    if player.has_shield:
+                        shield_str = f"Escudo: {player.shield.current_shield:.0f}/{player.shield.max_shield:.0f}"
+                        shield_color = (100, 200, 255)
+                    else:
+                        shield_str = "Escudo: Bloqueado"
+                        shield_color = Colors.text.secondary
+                    txt_shield = font.render(shield_str, True, shield_color)
+                    surface.blit(txt_shield, (10, 110))
 
             txt_points = font.render(
                 f"Pontos: {points[0]}/{points[1]}", True, Colors.text.primary
             )
-            surface.blit(txt_points, (10, 110))
+            surface.blit(txt_points, (10, 135))
