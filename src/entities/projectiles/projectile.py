@@ -5,13 +5,14 @@ import pygame
 from pygame import Vector2
 
 from core.components.animator_component import AnimatorComponent
-from core.components.collider_component import ColliderComponent
+from core.components.collider_component import BoxCollider, ColliderComponent
 from core.enums.collider_tag_enum import ColliderTagEnum
 from core.enums.projectile.projectile_types_enum import ProjectileTypesEnum
 from core.enums.projectile.projectile_variant_enum import ProjectileVariantEnum
 from core.game_object import GameObject
 from core.manager.asset_manager import AssetManager
 from entities.enemy import Enemy
+from entities.obstacle import Obstacle
 
 
 class Projectile(GameObject):
@@ -54,6 +55,7 @@ class Projectile(GameObject):
 
     @property
     def hitbox(self) -> pygame.Rect:
+        assert self.collider is not None
         return self.collider.get_bounding_rect() or pygame.Rect(
             round(self.transform.pos.x), round(self.transform.pos.y), 4, 4
         )
@@ -97,10 +99,24 @@ class Projectile(GameObject):
         super().update(dt)
         self.animator.update(dt)
 
-    def on_collision(self, other: GameObject):
-        if other is None:
+    def on_collision(
+        self,
+        other: GameObject,
+        collision_type: ColliderTagEnum | None = None,
+        collider: BoxCollider | None = None,
+    ):
+        if other is None or collider is None:
+            return
+
+        is_trigger = collision_type == ColliderTagEnum.TRIGGER
+
+        if is_trigger:
             return
 
         if isinstance(other, Enemy) and self.friendly:
             other.take_damage(self.damage, True)
+
+        if collider.collide_with_friendly_projectiles:
             self.kill()
+
+        return super().on_collision(other, collision_type, collider)

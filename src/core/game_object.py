@@ -4,8 +4,10 @@ from typing import TYPE_CHECKING
 import pygame
 
 from core.component import Component, T
+from core.components.collider_component import BoxCollider
 from core.components.transform_component import TransformComponent
 from core.entity_sprite import EntitySprite
+from core.enums.collider_tag_enum import ColliderTagEnum
 
 if TYPE_CHECKING:
     from core.components.collider_component import ColliderComponent
@@ -50,7 +52,12 @@ class GameObject(ABC):
         """Verifica se o objeto ainda está ativo."""
         return self._sprite.alive()
 
-    def on_collision(self, other: "GameObject"):
+    def on_collision(
+        self,
+        other: "GameObject",
+        collision_type: "ColliderTagEnum | None" = None,
+        collider: "BoxCollider | None" = None,
+    ):
         """Método chamado quando ocorre uma colisão com outro GameObject (override se necessário)."""
 
     def add_component(self, component: T) -> T:

@@ -25,6 +25,7 @@ class MainBase(Obstacle):
             path="Nave-D.png",
             size=(MAIN_BASE_SIZE, MAIN_BASE_SIZE),
         )
+        assert self.collider is not None and self.image is not None
 
         self.render_component = StaticRenderComponent(self, self.image)
         self._fixed_opacity = True
@@ -53,7 +54,7 @@ class MainBase(Obstacle):
         print("A BASE CAIU! GAME OVER!")
         EventManager().emit(GameEventEnum.GAME_OVER)
 
-    def on_collision(self, other: GameObject):
+    def on_collision(self, other: GameObject, *args, **kwargs):
         if isinstance(other, Enemy):
             self.health.take_damage(other.health.current_hp)
             other.health.die()

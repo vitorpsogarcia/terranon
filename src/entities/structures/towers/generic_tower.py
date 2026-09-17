@@ -57,6 +57,9 @@ class GenericTower(Obstacle):
             path="Tower_gun.png",
             size=(turret_size, turret_size),
         )
+
+        assert self.image is not None and self.collider is not None
+
         self.render_component = StaticRenderComponent(self, self.image)
         self.render_component.render_layer = 2
         self._fixed_opacity = True
@@ -74,6 +77,7 @@ class GenericTower(Obstacle):
             turret_size // 2,
             turret_size // 2,
             tag=ColliderTagEnum.SOLID,
+            collide_with_friendly_projectiles=False,
         )
 
     def update(self, dt: float):

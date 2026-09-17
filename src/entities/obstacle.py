@@ -27,6 +27,7 @@ class Obstacle(GameObject):
                 path="Tower_gun.png",
                 size=(int(width), int(height)),
             )
+        assert self.image is not None
 
         self.render_component = StaticRenderComponent(self, self.image)
         self.render_component.render_layer = 2
