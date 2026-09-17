@@ -1,4 +1,5 @@
-from typing import Sequence
+from collections.abc import Sequence
+
 import pygame
 
 from core.settings.colors import Colors
@@ -20,8 +21,10 @@ class UIPanel(UIElement):
         title_color: tuple = Colors.text.primary,
         consume_clicks: bool = True,
         children: Sequence[UIElement] | None = None,
+        auto_size: bool = False,  # Panels are usually fixed size by default
+        clip_overflow: bool = True,
     ):
-        super().__init__(rect)
+        super().__init__(rect, auto_size=auto_size, clip_overflow=clip_overflow)
         self.bg_color = bg_color
         self.border_color = border_color
         self.border_width = border_width
@@ -109,10 +112,13 @@ class UIPanel(UIElement):
             surface.blit(title_surf, title_pos)
 
         # Desenhar filhos
-        for child in self.children:
-            if child.visible:
-                child.draw(surface)
+
+        def _draw_children(surf):
+            for child in self.children:
+                if child.visible:
+                    child.draw(surf)
+
+        self.draw_with_clip(surface, _draw_children)
 
 
 Panel = UIPanel
-
