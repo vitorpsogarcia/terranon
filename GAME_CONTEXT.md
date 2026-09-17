@@ -46,7 +46,7 @@
 - **Menu / Pausa:** Tecla `ESC`.
 - **Debug / Cheats:**
   - `F3 + C`: Alterna visualização de colisores (Hitbox amarela, Feet Hitbox ciano).
-  - `F3 + S`: Alterna telemetria no HUD (FPS, Coordenadas reais, Offset da câmera, Vida, Pontos).
+  - `F3 + S`: Alterna telemetria no HUD (FPS, Coordenadas reais, Offset da câmera, Vida, Escudo, Pontos).
   - `F3 + D`: Alterna visualização de vetores de direção das entidades.
   - `F3 + Z`: Emite evento de reinicialização de ondas (`RESET_WAVES`).
   - `K` (durante o jogo): Força transição imediata para `GAME_OVER`.

@@ -52,6 +52,7 @@ class PlayState(GameScene):
 
         EventManager().subscribe(GameEventEnum.GAME_OVER, self._game_over)
         EventManager().subscribe(GameEventEnum.ENEMY_SPAWNED, self._on_enemy_spawned)
+        EventManager().subscribe(GameEventEnum.WAVE_ENDED, self._on_wave_ended)
 
         from core.map.level_loader import LevelLoader
 
@@ -72,6 +73,9 @@ class PlayState(GameScene):
         self.player = None
         EventManager().unsubscribe(GameEventEnum.GAME_OVER, self._game_over)
         EventManager().unsubscribe(GameEventEnum.ENEMY_SPAWNED, self._on_enemy_spawned)
+        EventManager().unsubscribe(GameEventEnum.WAVE_ENDED, self._on_wave_ended)
+
+
 
     def on_pause(self) -> None:
         if self.player is not None:
@@ -123,6 +127,9 @@ class PlayState(GameScene):
     def draw(self, surface: pygame.Surface) -> None:
         if self.world is not None:
             self.world.draw(surface)
+
+    def _on_wave_ended(self, wave_index: int = 1, *args, **kwargs):
+        self.state_manager.push(GameStateEnum.PAUSED)
 
     def _on_enemy_spawned(self, enemy):
         """Callback acionado quando um ninho cria um inimigo."""

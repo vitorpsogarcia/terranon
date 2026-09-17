@@ -12,6 +12,7 @@ class EnemyFactory:
     _registry: ClassVar[dict[EnemyEnum, object]] = {
         EnemyEnum.GOBLIN: Goblin,
     }
+    speed_multiplier: float = 1.0
 
     @classmethod
     def preload_all_enemies(cls):
@@ -34,5 +35,8 @@ class EnemyFactory:
 
         if enemy_class is None:
             raise EnemyTypeNotFoundException(enemy_type)
+        
+        enemy = enemy_class(position, path=path)
+        enemy.movement.speed *= cls.speed_multiplier
+        return enemy
 
-        return enemy_class(position, path=path)

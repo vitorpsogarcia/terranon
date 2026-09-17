@@ -1,6 +1,7 @@
 from collections.abc import Callable
 
 from core.component import Component
+from core.components.shield_component import ShieldComponent
 
 
 class HealthComponent(Component):
@@ -10,6 +11,9 @@ class HealthComponent(Component):
         on_death_callback: Callable[[], None] | None = None,
         iframes_duration: float = 0.5,
         allow_invulnerability: bool = False,
+        damage_reduction: float = 0.0,
+        max_damage_reduction: float = 0.75,
+        shield: ShieldComponent | None = None,
     ):
         self.max_hp = max_hp
         self.current_hp = max_hp
@@ -22,11 +26,28 @@ class HealthComponent(Component):
         self.is_dead = False
         self.on_death_callback = on_death_callback
 
+        self.damage_reduction = damage_reduction
+        self.max_damage_reduction = max_damage_reduction
+        self.shield = shield
+
     def take_damage(self, amount: float):
         if self.is_dead or self.is_invulnerable or amount <= 0:
             return
 
-        self.current_hp -= amount
+        effective_reduction = min(self.damage_reduction, self.max_damage_reduction)
+        mitigated_damage = amount * (1.0 - effective_reduction)
+
+        remaning_damage = mitigated_damage
+        if self.shield and self.shield.is_active and self.shield.current_shield > 0:
+            if self.shield.current_shield >= remaning_damage:
+                self.shield.current_shield -= remaning_damage
+                remaning_damage = 0.0
+            else: 
+                remaning_damage -= self.shield.current_shield
+                self.shield.current_shield = 0.0
+
+        if remaning_damage > 0:
+            self.current_hp -= remaning_damage
 
         if self.current_hp <= 0:
             self.current_hp = 0
