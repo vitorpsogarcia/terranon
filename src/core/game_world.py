@@ -1,31 +1,21 @@
-from abc import ABC, abstractmethod
-
 import pygame
 
 from core.camera_group import CameraGroup
 from core.factories.enemy_factory import EnemyFactory
 from core.game_object import GameObject
 from core.manager.spatial_manager import SpatialManager
-
-
-class GameScene(ABC):
-    @abstractmethod
-    def update(self, dt: float):
-        pass
-
-    @abstractmethod
-    def handle_events(self, events: list[pygame.event.Event]):
-        pass
-
-    @abstractmethod
-    def draw(self, surface: pygame.Surface):
-        pass
+from core.states.base_state import GameScene
 
 
 class GameWorld(GameScene):
     def __init__(self, screen_size: tuple[int, int]):
+        super().__init__(
+            state_manager=None,
+            screen_size=screen_size,
+            is_transparent=False,
+            blocks_update=True,
+        )
         self.camera_group = CameraGroup()
-        self.screen_size = screen_size
         self.spatial_manager = SpatialManager()
         from core.factories.projectile_factory import ProjectileFactory
 
@@ -35,6 +25,12 @@ class GameWorld(GameScene):
 
     def destroy(self):
         self.projectile_factory.destroy()
+
+    def enter(self) -> None:
+        pass
+
+    def exit(self) -> None:
+        pass
 
     def set_target(self, target: GameObject):
         self.target = target
@@ -57,7 +53,7 @@ class GameWorld(GameScene):
     def remove_object(self, obj: GameObject):
         self.camera_group.remove(obj._sprite)
 
-    def update(self, dt: float):
+    def update(self, dt: float) -> None:
         for sprite in self.camera_group.sprites():
             obj = sprite.owner
             if obj.active and hasattr(sprite, "update"):
@@ -84,13 +80,13 @@ class GameWorld(GameScene):
         self.spatial_manager.update_collisions()
         self.spatial_manager.update_target_collisions(self.target)
 
-    def handle_events(self, events: list[pygame.event.Event]):
+    def handle_events(self, events: list[pygame.event.Event]) -> None:
         for obj in self.camera_group.sprites():
             if obj.active:
                 for event in events:
                     obj.process_event(event)
 
-    def draw(self, surface: pygame.Surface):
+    def draw(self, surface: pygame.Surface) -> None:
         if hasattr(self.camera_group, "custom_draw"):
             self.camera_group.custom_draw(surface)
         else:
