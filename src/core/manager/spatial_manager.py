@@ -1,10 +1,10 @@
 import logging
+from typing import TYPE_CHECKING
 
 import pygame
 
 from core.enums.collider_tag_enum import ColliderTagEnum
 from core.enums.game_event_enum import GameEventEnum
-from core.game_object import GameObject
 from core.manager.event_manager import EventManager
 from core.singleton_meta import SingletonMeta
 from entities.character.player import Player
@@ -14,6 +14,9 @@ from entities.nature.world_collider import WorldCollider
 from entities.obstacle import Obstacle
 from entities.projectiles.projectile import Projectile
 from entities.structures.main_base import MainBase
+
+if TYPE_CHECKING:
+    from core.game_object import GameObject
 
 
 class SpatialManager(metaclass=SingletonMeta):
@@ -33,7 +36,7 @@ class SpatialManager(metaclass=SingletonMeta):
 
         EventManager().subscribe(GameEventEnum.GAME_OVER, self.reset)
 
-    def add_obj_to_group(self, obj: GameObject):
+    def add_obj_to_group(self, obj: "GameObject"):
         from entities.structures.towers.generic_tower import GenericTower
 
         if isinstance(obj, Projectile):
@@ -58,7 +61,7 @@ class SpatialManager(metaclass=SingletonMeta):
         if isinstance(obj, (MainBase, GenericTower)):
             self.structures_group.add(obj._sprite)
 
-    def rem_obj_from_group(self, obj: GameObject):
+    def rem_obj_from_group(self, obj: "GameObject"):
         if isinstance(obj, Projectile):
             if obj.friendly:
                 self.friend_projectiles_group.remove(obj._sprite)
@@ -85,78 +88,84 @@ class SpatialManager(metaclass=SingletonMeta):
 
     def update_collisions(self):
         self._resolve_collisions(self.enemies_group, self.friend_projectiles_group)
+        self._resolve_collisions(self.friend_projectiles_group, self.obstacles)
         self._resolve_collisions(self.enemies_group, self.structures_group)
         self._resolve_collisions(self.friend_projectiles_group, self.structures_group)
 
-    def update_target_collisions(self, target: GameObject):
+    def update_target_collisions(self, target: "GameObject"):
         self._resolve_player_world_collisions(target)
         self._resolve_player_obstacle_collisions(target)
         self._resolve_player_enemy_collisions(target)
 
-    def _resolve_player_world_collisions(self, target: GameObject):
+    def _resolve_player_world_collisions(self, target: "GameObject"):
         if not isinstance(target, Player) or not target.collider:
             return
 
         for collider_obj in self.world_colliders:
-            if collider_obj.collider:
-                if target.collider.collides_with(
-                    collider_obj.collider,
-                    my_tag=ColliderTagEnum.FEET,
-                    other_tag=ColliderTagEnum.SOLID,
-                ):
-                    if hasattr(target, "rigidbody"):
-                        target.transform.pos.x = target.rigidbody.prev_pos.x
-                        target.transform.pos.y = target.rigidbody.prev_pos.y
-                    else:
-                        target.transform.pos.x = target.prev_pos.x
-                        target.transform.pos.y = target.prev_pos.y
-                    if hasattr(target, "sync_colliders"):
-                        target.sync_colliders()
-                    break
+            if collider_obj.collider and target.collider.collides_with(
+                collider_obj.collider,
+                my_tag=ColliderTagEnum.FEET,
+                other_tag=ColliderTagEnum.SOLID,
+            ):
+                if hasattr(target, "rigidbody"):
+                    target.transform.pos.x = target.rigidbody.prev_pos.x
+                    target.transform.pos.y = target.rigidbody.prev_pos.y
+                else:
+                    target.transform.pos.x = target.prev_pos.x
+                    target.transform.pos.y = target.prev_pos.y
+                if hasattr(target, "sync_colliders"):
+                    target.sync_colliders()
+                break
 
-    def _resolve_player_obstacle_collisions(self, target: GameObject):
+    def _resolve_player_obstacle_collisions(self, target: "GameObject"):
         if not isinstance(target, Player) or not target.collider:
             return
 
         for obstacle_sprite in self.obstacles:
             obstacle = getattr(obstacle_sprite, "owner", None)
-            if obstacle and obstacle.collider:
-                if target.collider.collides_with(
+            if (
+                obstacle
+                and obstacle.collider
+                and target.collider.collides_with(
                     obstacle.collider,
                     my_tag=ColliderTagEnum.FEET,
                     other_tag=ColliderTagEnum.SOLID,
-                ):
-                    if hasattr(target, "rigidbody"):
-                        target.transform.pos.x = target.rigidbody.prev_pos.x
-                        target.transform.pos.y = target.rigidbody.prev_pos.y
-                    else:
-                        target.transform.pos.x = target.prev_pos.x
-                        target.transform.pos.y = target.prev_pos.y
-                    if hasattr(target, "sync_colliders"):
-                        target.sync_colliders()
-                    break
+                )
+            ):
+                if hasattr(target, "rigidbody"):
+                    target.transform.pos.x = target.rigidbody.prev_pos.x
+                    target.transform.pos.y = target.rigidbody.prev_pos.y
+                else:
+                    target.transform.pos.x = target.prev_pos.x
+                    target.transform.pos.y = target.prev_pos.y
+                if hasattr(target, "sync_colliders"):
+                    target.sync_colliders()
+                break
 
-    def _resolve_player_enemy_collisions(self, target: GameObject):
+    def _resolve_player_enemy_collisions(self, target: "GameObject"):
         if not isinstance(target, Player) or not target.collider:
             return
 
         for enemy_sprite in self.enemies_group:
             enemy = getattr(enemy_sprite, "owner", None)
-            if enemy and enemy.collider:
-                if target.collider.collides_with(
+            if (
+                enemy
+                and enemy.collider
+                and target.collider.collides_with(
                     enemy.collider,
                     my_tag=ColliderTagEnum.BODY,
                     other_tag=ColliderTagEnum.BODY,
-                ):
-                    target.health.take_damage(10.0)
-                    target.apply_knockback(enemy.transform.pos, force=1500.0)
+                )
+            ):
+                target.health.take_damage(10.0)
+                target.apply_knockback(enemy.transform.pos, force=1500.0)
 
-                    try:
-                        EventManager().emit(
-                            GameEventEnum.PLAY_SFX, filename="effects/damage.mp3"
-                        )
-                    except Exception as e:
-                        self._logger.error(f"Erro ao reproduzir som de hit: {e}")
+                try:
+                    EventManager().emit(
+                        GameEventEnum.PLAY_SFX, filename="effects/damage.mp3"
+                    )
+                except Exception as e:
+                    self._logger.error(f"Erro ao reproduzir som de hit: {e}")
 
     def _resolve_collisions(
         self,
@@ -180,10 +189,48 @@ class SpatialManager(metaclass=SingletonMeta):
             obj1 = sprite1.owner
             for sprite2 in sprites2:
                 obj2 = sprite2.owner
-                if hasattr(obj1, "on_collision"):
-                    obj1.on_collision(obj2)
-                if hasattr(obj2, "on_collision"):
-                    obj2.on_collision(obj1)
+
+                if (
+                    obj1
+                    and obj2
+                    and getattr(obj1, "collider", None)
+                    and getattr(obj2, "collider", None)
+                ):
+                    pairs = []
+                    for c1 in obj1.collider.colliders:
+                        for c2 in obj2.collider.colliders:
+                            if c1.get_world_rect(obj1.transform.pos).colliderect(
+                                c2.get_world_rect(obj2.transform.pos)
+                            ):
+                                pairs.append({
+                                    "tags": (c1.tag, c2.tag),
+                                    "colliders": (c1, c2),
+                                })
+
+                    if pairs:
+                        for values in pairs:
+                            if hasattr(obj1, "on_collision"):
+                                obj1.on_collision(
+                                    obj2,
+                                    collision_type=values["tags"][1],
+                                    collider=values["colliders"][1],
+                                )
+                            if hasattr(obj2, "on_collision"):
+                                obj2.on_collision(
+                                    obj1,
+                                    collision_type=values["tags"][0],
+                                    collider=values["colliders"][0],
+                                )
+                    else:
+                        if hasattr(obj1, "on_collision"):
+                            obj1.on_collision(obj2, collision_type=None)
+                        if hasattr(obj2, "on_collision"):
+                            obj2.on_collision(obj1, collision_type=None)
+                else:
+                    if hasattr(obj1, "on_collision"):
+                        obj1.on_collision(obj2, collision_type=None)
+                    if hasattr(obj2, "on_collision"):
+                        obj2.on_collision(obj1, collision_type=None)
 
     def get_nearest_enemy(self, position: pygame.Vector2, range: float) -> Enemy | None:
         nearest_enemy = None

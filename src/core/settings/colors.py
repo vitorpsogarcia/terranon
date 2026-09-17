@@ -33,6 +33,8 @@ class Colors:
         panel: Color = (31, 41, 55)
         panel_transparent: Color = (31, 41, 55, 230)
 
+        building_grid: Color = (200, 200, 200, 50)  # Light Gray with transparency
+
     class text:
         """Cores para texto."""
 
@@ -62,5 +64,6 @@ class Colors:
 
         turret: Color = (251, 191, 36)
         turret_range: Color = (16, 185, 129)
+        targeting_line: Color = (239, 68, 68)
 
         base: Color = (3, 105, 161)

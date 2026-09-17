@@ -47,7 +47,7 @@ class Enemy(Entity):
         self.scale = 0.3
         self.collider = self.add_component(ColliderComponent(self))
         self.body_box = self.collider.add_box(
-            -15, -30, 30, 60, tag=ColliderTagEnum.BODY
+            -7.5, -10, 15, 25, tag=ColliderTagEnum.BODY
         )
         self._points = points
         self.current_state = "idle"

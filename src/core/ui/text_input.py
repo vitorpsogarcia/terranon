@@ -18,8 +18,10 @@ class TextInput(UIElement):
         inactive_border: tuple = Colors.ui.border,
         text_color: tuple = Colors.text.on_brand,
         border_radius: int = 6,
+        auto_size: bool = False,
+        clip_overflow: bool = True,
     ):
-        super().__init__(rect)
+        super().__init__(rect, auto_size=auto_size, clip_overflow=clip_overflow)
         self.font = font
         self.placeholder = placeholder
         self.max_length = max_length
@@ -72,10 +74,16 @@ class TextInput(UIElement):
             return
 
         border_color = self.active_border if self.is_active else self.inactive_border
-        pygame.draw.rect(surface, self.bg_color, self.rect, border_radius=self.border_radius)
-        pygame.draw.rect(surface, border_color, self.rect, width=2, border_radius=self.border_radius)
+        pygame.draw.rect(
+            surface, self.bg_color, self.rect, border_radius=self.border_radius
+        )
+        pygame.draw.rect(
+            surface, border_color, self.rect, width=2, border_radius=self.border_radius
+        )
 
-        display_text = self.text if self.text else (self.placeholder if not self.is_active else "")
+        display_text = (
+            self.text if self.text else (self.placeholder if not self.is_active else "")
+        )
         display_color = self.text_color if self.text else Colors.text.disabled
 
         text_surf = self.font.render(display_text, True, display_color)

@@ -18,6 +18,10 @@ class GameEventEnum(Enum):
     UPGRADE_SELECTED = "UPGRADE_SELECTED"
     UPGRADE_APPLIED = "UPGRADE_APPLIED"
 
+    BUILD_TOGGLED = "BUILD_TOGGLED"
+    BUILD_MODE_ENTERED = "BUILD_MODE_ENTERED"
+    BUILD_MODE_EXITED = "BUILD_MODE_EXITED"
+
     def __str__(self):
         return self.value
 

@@ -16,6 +16,7 @@ class BoxCollider:
         offset_y: float,
         width: float,
         height: float,
+        collide_with_friendly_projectiles: bool,
         tag: ColliderTagEnum = ColliderTagEnum.SOLID,
         is_trigger: bool = False,
     ):
@@ -24,6 +25,7 @@ class BoxCollider:
         self.height = float(height)
         self.tag = tag
         self.is_trigger = is_trigger
+        self.collide_with_friendly_projectiles = collide_with_friendly_projectiles
 
     def get_world_rect(self, owner_pos: pygame.math.Vector2) -> pygame.Rect:
         return pygame.Rect(
@@ -49,6 +51,7 @@ class ColliderComponent(Component):
         height: float,
         tag: ColliderTagEnum = ColliderTagEnum.SOLID,
         is_trigger: bool = False,
+        collide_with_friendly_projectiles: bool = True,
     ) -> BoxCollider:
         box = BoxCollider(
             offset_x=offset_x,
@@ -57,6 +60,7 @@ class ColliderComponent(Component):
             height=height,
             tag=tag,
             is_trigger=is_trigger,
+            collide_with_friendly_projectiles=collide_with_friendly_projectiles,
         )
         self.colliders.append(box)
         return box
