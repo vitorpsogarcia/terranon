@@ -3,7 +3,9 @@ import logging
 import pygame
 
 from core.game_object import GameObject
+from core.manager.build_manager import BuildManager
 from core.manager.debug_manager import DebugManager
+from core.map.map_backgroud import MapBackground
 
 
 class CameraGroup(pygame.sprite.LayeredUpdates):
@@ -70,6 +72,7 @@ class CameraGroup(pygame.sprite.LayeredUpdates):
 
         for sprite in self.sprites():
             owner = getattr(sprite, "owner", None)
+
             if owner is not None:
                 if (
                     hasattr(owner, "render_component")
@@ -93,6 +96,9 @@ class CameraGroup(pygame.sprite.LayeredUpdates):
                     and owner.render_component is not None
                 ):
                     owner.render_component.draw(dummy_surface, self.offset)
+
+                if isinstance(owner, MapBackground):
+                    BuildManager().draw(dummy_surface, self.offset)
 
         DebugManager().draw_world_debug(dummy_surface, self)
 

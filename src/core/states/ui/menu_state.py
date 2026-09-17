@@ -1,4 +1,5 @@
 from typing import TYPE_CHECKING
+
 import pygame
 
 from core.enums.game_state_enum import GameStateEnum
@@ -9,6 +10,7 @@ from core.settings.settings import SCREEN_NAME
 from core.states.base_state import GameScene
 from core.ui.button import Button
 from core.ui.icon_button import IconButton
+from core.ui.layout import Column, Row
 from core.ui.panel import UIPanel
 from core.ui.text_input import TextInput
 
@@ -37,49 +39,69 @@ class TitleMenuScene(GameScene):
 
         self.play_state: "PlayState | None" = None
         self.highscores: list[ScoreEntry] = []
-        self.view_mode: str = "main"  # 'main' | 'name_input' | 'settings' | 'highscores'
+        self.view_mode: str = (
+            "main"  # 'main' | 'name_input' | 'settings' | 'highscores'
+        )
 
         center_x = self.screen_size[0] // 2
         btn_w = 280
         btn_h = 46
-        btn_x = center_x - btn_w // 2
 
         # --- Botões do Menu Principal ---
         self.btn_play = Button(
-            rect=pygame.Rect(btn_x, 240, btn_w, btn_h),
+            rect=pygame.Rect(0, 0, btn_w, btn_h),
             text="JOGAR",
             font=self.btn_font,
             on_click=self._start_name_input,
             bg_color=Colors.brand.primary,
             hover_color=Colors.ui.button_hover,
+            auto_size=False,
         )
 
         self.btn_highscores = Button(
-            rect=pygame.Rect(btn_x, 298, btn_w, btn_h),
+            rect=pygame.Rect(0, 0, btn_w, btn_h),
             text="RECORDES",
             font=self.btn_font,
             on_click=self._open_highscores,
             bg_color=Colors.ui.button_disabled,
             hover_color=Colors.brand.primary,
+            auto_size=False,
         )
 
         self.btn_settings = Button(
-            rect=pygame.Rect(btn_x, 356, btn_w, btn_h),
-            text="CONFIGURAÇÕES / ÁUDIO",
+            rect=pygame.Rect(0, 0, btn_w, btn_h),
+            text="CONFIGURAÇÕES",
             font=self.btn_font,
             on_click=self._open_settings,
             bg_color=Colors.ui.button_disabled,
             hover_color=Colors.brand.primary,
+            auto_size=False,
         )
 
         self.btn_quit = Button(
-            rect=pygame.Rect(btn_x, 414, btn_w, btn_h),
+            rect=pygame.Rect(0, 0, btn_w, btn_h),
             text="SAIR",
             font=self.btn_font,
             on_click=self._quit_game,
             bg_color=Colors.ui.button_disabled,
             hover_color=Colors.feedback.error,
+            auto_size=False,
         )
+
+        self.main_menu_layout = Column(
+            children=[
+                self.btn_play,
+                self.btn_highscores,
+                self.btn_settings,
+                self.btn_quit,
+            ],
+            spacing=12,
+        )
+
+        # Posiciona a Column no centro da tela
+        layout_w, layout_h = self.main_menu_layout.get_intrinsic_size()
+        self.main_menu_layout.rect.topleft = (center_x - layout_w // 2, 240)
+        self.main_menu_layout.update_layout()
 
         # --- Modal: Captura de Nome do Jogador ---
         modal_w = 420
@@ -108,26 +130,44 @@ class TitleMenuScene(GameScene):
 
         btn_action_w = 170
         self.btn_confirm_name = Button(
-            rect=pygame.Rect(modal_x + 30, modal_y + 135, btn_action_w, 44),
+            rect=pygame.Rect(0, 0, btn_action_w, 44),
             text="CONFIRMAR",
             font=self.btn_font,
             on_click=lambda: self._confirm_player_name(self.name_input.text),
             bg_color=Colors.brand.primary,
             hover_color=Colors.ui.button_hover,
+            auto_size=False,
         )
 
         self.btn_cancel_name = Button(
-            rect=pygame.Rect(modal_x + modal_w - 30 - btn_action_w, modal_y + 135, btn_action_w, 44),
+            rect=pygame.Rect(0, 0, btn_action_w, 44),
             text="VOLTAR",
             font=self.btn_font,
             on_click=self._back_to_main,
             bg_color=Colors.ui.button_disabled,
             hover_color=Colors.feedback.error,
+            auto_size=False,
         )
 
-        self.name_modal_panel.add_child(self.name_input)
-        self.name_modal_panel.add_child(self.btn_confirm_name)
-        self.name_modal_panel.add_child(self.btn_cancel_name)
+        # O espaçamento = largura total disponivel (modal_w - 60) - 2 * btn_action_w
+        space_between = (modal_w - 60) - (2 * btn_action_w)
+
+        self.name_modal_layout = Column(
+            spacing=22,
+            children=[
+                self.name_input,
+                Row(
+                    spacing=space_between,
+                    children=[self.btn_confirm_name, self.btn_cancel_name],
+                ),
+            ],
+        )
+
+        layout_w, layout_h = self.name_modal_layout.get_intrinsic_size()
+        self.name_modal_layout.rect.topleft = (modal_x + 30, modal_y + 65)
+        self.name_modal_layout.update_layout()
+
+        self.name_modal_panel.add_child(self.name_modal_layout)
 
         # --- Modal: Configurações / Áudio ---
         cfg_w = 440
@@ -147,35 +187,47 @@ class TitleMenuScene(GameScene):
         )
 
         self.btn_toggle_music = Button(
-            rect=pygame.Rect(cfg_x + 40, cfg_y + 65, cfg_w - 80, 44),
+            rect=pygame.Rect(0, 0, cfg_w - 80, 44),
             text="MÚSICA: LIGADA",
             font=self.btn_font,
             on_click=self._toggle_music,
             bg_color=Colors.brand.primary,
             hover_color=Colors.ui.button_hover,
+            auto_size=False,
         )
 
         self.btn_toggle_sfx = Button(
-            rect=pygame.Rect(cfg_x + 40, cfg_y + 125, cfg_w - 80, 44),
+            rect=pygame.Rect(0, 0, cfg_w - 80, 44),
             text="EFEITOS (SFX): LIGADOS",
             font=self.btn_font,
             on_click=self._toggle_sfx,
             bg_color=Colors.brand.primary,
             hover_color=Colors.ui.button_hover,
+            auto_size=False,
         )
 
         self.btn_close_settings = Button(
-            rect=pygame.Rect(cfg_x + 40, cfg_y + 195, cfg_w - 80, 44),
+            rect=pygame.Rect(0, 0, cfg_w - 80, 44),
             text="VOLTAR",
             font=self.btn_font,
             on_click=self._back_to_main,
             bg_color=Colors.ui.button_disabled,
             hover_color=Colors.feedback.error,
+            auto_size=False,
         )
 
-        self.settings_panel.add_child(self.btn_toggle_music)
-        self.settings_panel.add_child(self.btn_toggle_sfx)
-        self.settings_panel.add_child(self.btn_close_settings)
+        settings_layout = Column(
+            spacing=16,
+            children=[
+                self.btn_toggle_music,
+                self.btn_toggle_sfx,
+                self.btn_close_settings,
+            ],
+        )
+        settings_layout.rect.topleft = (cfg_x + 40, cfg_y + 65)
+        settings_layout.update_layout()
+
+        self.settings_panel.add_child(settings_layout)
 
         # --- Modal Dedicado de Recordes ---
         hs_w = 460
@@ -222,8 +274,8 @@ class TitleMenuScene(GameScene):
 
         # Botão de limpar scores (alinhado à direita da escrita "TOP 10 SCORES")
         trash_btn_size = 26
-        trash_btn_x = side_x + side_w - 16 - trash_btn_size
-        trash_btn_y = side_y + 10
+        trash_btn_x = side_x + side_w - trash_btn_size * 2.25
+        trash_btn_y = side_y + 5
         self.btn_clear_scores = IconButton(
             rect=pygame.Rect(trash_btn_x, trash_btn_y, trash_btn_size, trash_btn_size),
             icon_type="trash",
@@ -237,7 +289,6 @@ class TitleMenuScene(GameScene):
             tooltip="Limpar Recordes",
         )
         self.side_highscores_panel.add_child(self.btn_clear_scores)
-
 
     def set_play_state(self, play_state: "PlayState"):
         self.play_state = play_state
@@ -309,12 +360,16 @@ class TitleMenuScene(GameScene):
         is_music_on = sound.volumes.get("music", 1.0) > 0
         is_sfx_on = sound.volumes.get("sfx", 0.8) > 0
 
-        self.btn_toggle_music.text = f"MÚSICA: {'LIGADA' if is_music_on else 'DESLIGADA'}"
+        self.btn_toggle_music.text = (
+            f"MÚSICA: {'LIGADA' if is_music_on else 'DESLIGADA'}"
+        )
         self.btn_toggle_music.bg_color = (
             Colors.brand.primary if is_music_on else Colors.ui.button_disabled
         )
 
-        self.btn_toggle_sfx.text = f"EFEITOS (SFX): {'LIGADOS' if is_sfx_on else 'DESLIGADOS'}"
+        self.btn_toggle_sfx.text = (
+            f"EFEITOS (SFX): {'LIGADOS' if is_sfx_on else 'DESLIGADOS'}"
+        )
         self.btn_toggle_sfx.bg_color = (
             Colors.brand.primary if is_sfx_on else Colors.ui.button_disabled
         )
@@ -322,6 +377,7 @@ class TitleMenuScene(GameScene):
     def update(self, dt: float) -> None:
         if self.view_mode == "main":
             self.side_highscores_panel.update(dt)
+            self.main_menu_layout.update(dt)
         elif self.view_mode == "name_input":
             self.name_modal_panel.update(dt)
         elif self.view_mode == "settings":
@@ -342,13 +398,7 @@ class TitleMenuScene(GameScene):
 
                 if self.side_highscores_panel.handle_event(event):
                     continue
-                if self.btn_play.handle_event(event):
-                    continue
-                if self.btn_highscores.handle_event(event):
-                    continue
-                if self.btn_settings.handle_event(event):
-                    continue
-                if self.btn_quit.handle_event(event):
+                if self.main_menu_layout.handle_event(event):
                     continue
 
             elif self.view_mode == "name_input":
@@ -397,10 +447,7 @@ class TitleMenuScene(GameScene):
         surface.blit(subtitle_surf, (center_x - subtitle_surf.get_width() // 2, 185))
 
         # Botões do menu principal
-        self.btn_play.draw(surface)
-        self.btn_highscores.draw(surface)
-        self.btn_settings.draw(surface)
-        self.btn_quit.draw(surface)
+        self.main_menu_layout.draw(surface)
 
         hint_surf = self.small_font.render(
             "Pressione ENTER para Jogar  |  ESC para Sair", True, Colors.text.disabled
@@ -420,7 +467,10 @@ class TitleMenuScene(GameScene):
                 )
                 surface.blit(
                     hint,
-                    (center_x - hint.get_width() // 2, self.name_modal_panel.rect.bottom + 12),
+                    (
+                        center_x - hint.get_width() // 2,
+                        self.name_modal_panel.rect.bottom + 12,
+                    ),
                 )
 
             elif self.view_mode == "settings":
@@ -457,7 +507,9 @@ class TitleMenuScene(GameScene):
         curr_y = start_y + 4
 
         if not self.highscores:
-            empty_text = self.score_font.render("Nenhum recorde ainda", True, Colors.text.disabled)
+            empty_text = self.score_font.render(
+                "Nenhum recorde ainda", True, Colors.text.disabled
+            )
             surface.blit(empty_text, (start_x, curr_y))
             return
 
@@ -468,7 +520,7 @@ class TitleMenuScene(GameScene):
                 name = name[:11] + "…"
             score = entry.get("score", 0)
 
-            rank_text = f"{i+1}."
+            rank_text = f"{i + 1}."
             rank_surf = self.score_font.render(rank_text, True, rank_color)
             name_surf = self.score_font.render(name, True, Colors.text.primary)
             score_surf = self.score_font.render(str(score), True, Colors.feedback.info)

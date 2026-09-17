@@ -70,6 +70,20 @@ class DebugManager(metaclass=SingletonMeta):
                         [end_pos, left_wing, right_wing],
                     )
 
+            if self.is_option_enabled(DebugOption.TARGETING_LINES):
+                owner = getattr(sprite, "owner", None)
+                if isinstance(owner, GameObject) and owner._is_turret_target:
+                    target = owner
+                    turret = owner._turret
+                    if turret is not None:
+                        start_pos = (
+                            turret.render_component.center() - camera_group.offset
+                        )
+                        end_pos = target.transform.pos - camera_group.offset
+                        pygame.draw.line(
+                            surface, Colors.debug.targeting_line, start_pos, end_pos, 1
+                        )
+
     def draw_ui_debug(self, surface: pygame.Surface, state, clock, font):
         from core.states.play_state import PlayState
 
