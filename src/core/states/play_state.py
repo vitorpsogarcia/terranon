@@ -117,6 +117,9 @@ class PlayState(GameScene):
                     self.state_manager.change_to(GameStateEnum.GAME_OVER)
                 elif event.key == pygame.K_ESCAPE:
                     self.state_manager.push(GameStateEnum.PAUSE)
+                elif event.key == pygame.K_SPACE:
+                    if hasattr(self, "wave_manager") and self.wave_manager:
+                        self.wave_manager.skip_countdown()
 
             if event.type == pygame.MOUSEWHEEL and self.world is not None:
                 self.world.camera_group.handle_zoom(event.y)
@@ -127,6 +130,8 @@ class PlayState(GameScene):
     def draw(self, surface: pygame.Surface) -> None:
         if self.world is not None:
             self.world.draw(surface)
+        if hasattr(self, "wave_manager") and self.wave_manager:
+            self.wave_manager.draw(surface)
 
     def _on_wave_ended(self, wave_index: int = 1, *args, **kwargs):
         self.state_manager.push(GameStateEnum.PAUSED)

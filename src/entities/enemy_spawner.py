@@ -37,7 +37,12 @@ class EnemySpawner(GameObject):
     def update(self, dt: float):
         super().update(dt)
 
-    def spawn_enemy(self, enemy_type: EnemyEnum = EnemyEnum.GOBLIN):
+    def spawn_enemy(self, enemy_type: EnemyEnum = EnemyEnum.GOBLIN, points: int = 5):
         spawn_pos = self.render_component.center()
-        new_enemy = EnemyFactory.create_enemy(enemy_type, spawn_pos, self.path)
+        new_enemy = EnemyFactory.create_enemy(
+            enemy_type, spawn_pos, self.path
+            # enemy_type, spawn_pos, self.path, points=points
+        )
         EventManager().emit(GameEventEnum.ENEMY_SPAWNED, new_enemy)
+        return new_enemy
+
