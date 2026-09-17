@@ -5,7 +5,7 @@ from core.manager.input_manager import InputManager
 from core.settings.colors import Colors
 from core.settings.settings import FPS
 from core.singleton_meta import SingletonMeta
-from core.states.base_state import BaseState
+from core.states.base_state import BaseState, GameScene
 
 
 class GameManager(metaclass=SingletonMeta):
@@ -14,30 +14,36 @@ class GameManager(metaclass=SingletonMeta):
         self.clock = pygame.time.Clock()
         self._running = True
         self.debug_font = pygame.font.SysFont(None, 24)
-        self.state_stack: list[BaseState] = []
+        self.state_stack: list[GameScene] = []
 
     @property
-    def current_state(self) -> BaseState | None:
+    def current_state(self) -> GameScene | None:
         if self.state_stack:
             return self.state_stack[-1]
         return None
 
-    def change_state(self, new_state: BaseState):
-        if self.state_stack:
+    def change_state(self, new_state: GameScene):
+        while self.state_stack:
             old_state = self.state_stack.pop()
             old_state.exit()
 
         self.state_stack.append(new_state)
         new_state.enter()
 
-    def push_state(self, new_state: BaseState):
+    def push_state(self, new_state: GameScene):
+        if self.state_stack:
+            self.state_stack[-1].on_pause()
         self.state_stack.append(new_state)
         new_state.enter()
 
-    def pop_state(self):
+    def pop_state(self) -> GameScene | None:
         if self.state_stack:
             old_state = self.state_stack.pop()
             old_state.exit()
+            if self.state_stack:
+                self.state_stack[-1].on_resume()
+            return old_state
+        return None
 
     def on_execute(self):
         dt = self.clock.tick(FPS) / 1000.0
@@ -63,14 +69,33 @@ class GameManager(metaclass=SingletonMeta):
             self.current_state.handle_events(events)
 
     def update(self, dt: float):
-        if self.current_state:
-            self.current_state.update(dt)
+        if not self.state_stack:
+            return
+
+        top_index = len(self.state_stack) - 1
+        active_index = top_index
+
+        while active_index > 0 and not getattr(self.state_stack[active_index], "blocks_update", True):
+            active_index -= 1
+
+        for i in range(active_index, top_index + 1):
+            self.state_stack[i].update(dt)
 
     def on_render(self):
         self.tela.fill(Colors.ui.background)
 
-        for state in self.state_stack:
-            state.draw(self.tela)
+        if not self.state_stack:
+            pygame.display.flip()
+            return
+
+        first_visible_idx = len(self.state_stack) - 1
+        while first_visible_idx > 0 and getattr(
+            self.state_stack[first_visible_idx], "is_transparent", False
+        ):
+            first_visible_idx -= 1
+
+        for i in range(first_visible_idx, len(self.state_stack)):
+            self.state_stack[i].draw(self.tela)
 
         DebugManager().draw_ui_debug(
             self.tela, self.current_state, self.clock, self.debug_font

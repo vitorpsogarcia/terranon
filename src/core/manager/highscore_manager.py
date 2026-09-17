@@ -65,3 +65,7 @@ class HighscoreManager(metaclass=SingletonMeta):
         scores = self.load_scores()
         scores.sort(key=lambda x: x.get("score", 0), reverse=True)
         return scores[:limit]
+
+    def clear_scores(self) -> bool:
+        """Limpa todas as pontuações salvas no arquivo de scores."""
+        return self.save_scores([])

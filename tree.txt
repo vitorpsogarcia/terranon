@@ -1,0 +1,95 @@
+Listagem de caminhos de pasta para o volume KINGSTON
+O número de série do volume é 5039-4A86
+D:.
++---.vscode
++---src
+¦   +---entities
+¦   ¦   +---__pycache__
+¦   ¦   +---character
+¦   ¦   ¦   +---__pycache__
+¦   ¦   +---projectiles
+¦   ¦   ¦   +---__pycache__
+¦   ¦   +---nature
+¦   ¦       +---__pycache__
+¦   +---core
+¦   ¦   +---__pycache__
+¦   ¦   +---enums
+¦   ¦   ¦   +---__pycache__
+¦   ¦   ¦   +---projectile
+¦   ¦   ¦   ¦   +---__pycache__
+¦   ¦   ¦   +---map_enums
+¦   ¦   ¦       +---__pycache__
+¦   ¦   +---settings
+¦   ¦   ¦   +---__pycache__
+¦   ¦   +---states
+¦   ¦   ¦   +---ui
+¦   ¦   ¦   ¦   +---__pycache__
+¦   ¦   ¦   +---__pycache__
+¦   ¦   +---exceptions
+¦   ¦   ¦   +---__pycache__
+¦   ¦   +---factories
+¦   ¦   ¦   +---__pycache__
+¦   ¦   +---map
+¦   ¦       +---maps
+¦   ¦       ¦   +---__pycache__
+¦   ¦       +---waypoints
+¦   ¦       ¦   +---__pycache__
+¦   ¦       +---__pycache__
+¦   +---utils
+¦       +---__pycache__
++---assets
+¦   +---sounds
+¦   ¦   +---effects
+¦   ¦   +---music
+¦   +---images
+¦   ¦   +---player
+¦   ¦   ¦   +---idle
+¦   ¦   ¦   +---animations
+¦   ¦   ¦       +---moving
+¦   ¦   ¦           +---E
+¦   ¦   ¦           +---N
+¦   ¦   ¦           +---NE
+¦   ¦   ¦           +---NW
+¦   ¦   ¦           +---S
+¦   ¦   ¦           +---SE
+¦   ¦   ¦           +---SW
+¦   ¦   ¦           +---W
+¦   ¦   +---projectile
+¦   ¦   ¦   +---fire
+¦   ¦   ¦   ¦   +---default
+¦   ¦   ¦   +---normal
+¦   ¦   ¦       +---default
+¦   ¦   +---goblin-female-pack
+¦   ¦   ¦   +---frames
+¦   ¦   ¦       +---down
+¦   ¦   ¦       +---left
+¦   ¦   ¦       +---right
+¦   ¦   ¦       +---up
+¦   ¦   +---goblin-pack
+¦   ¦   ¦   +---frames
+¦   ¦   ¦       +---E
+¦   ¦   ¦       +---N
+¦   ¦   ¦       +---S
+¦   ¦   ¦       +---W
+¦   ¦   +---goblin-sword-pack
+¦   ¦       +---frames
+¦   ¦           +---down
+¦   ¦           +---left
+¦   ¦           +---right
+¦   ¦           +---up
+¦   +---maps
+¦       +---Assets
+¦       ¦   +---decorations
+¦       ¦   ¦   +---nature_props
+¦       ¦   +---tiles
+¦       +---tmx
+¦       +---tsx
++---estudos
+    +---eduardo
+    ¦   +---introducao
+    ¦   +---pratica
+    ¦       +---__pycache__
+    ¦       +---img
+    ¦           +---tilesets
+    ¦               +---characters
+    +---vitor
