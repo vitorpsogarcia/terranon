@@ -39,6 +39,7 @@ class Projectile(GameObject):
         self._type = type
         self._variant = variant
         self._name = f"projectile.{self._type.value}.{self._variant.variant_name}"
+        self._fixed_opacity = True
 
         self.collider = ColliderComponent(self)
         self.collider.add_box(
