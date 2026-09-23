@@ -233,6 +233,34 @@ class TestWaveManager(unittest.TestCase):
         self.assertEqual(self.manager.current_wave_number, 1)
         self.assertEqual(self.manager.timer, 30.0)
 
+    def test_skip_wave_countdown_event(self):
+        """Disparar SKIP_WAVE_COUNTDOWN via EventManager deve avançar a contagem."""
+        self.assertEqual(self.manager.state, WaveStateEnum.WARMUP)
+        EventManager().emit(GameEventEnum.SKIP_WAVE_COUNTDOWN)
+        self.assertEqual(self.manager.state, WaveStateEnum.ACTIVE)
+        self.assertEqual(self.manager.current_wave_number, 1)
+
+    def test_reset_waves_kills_alive_enemies(self):
+        """Disparar RESET_WAVES deve eliminar inimigos vivos da onda antes de reiniciar."""
+        mock_enemy = MagicMock()
+        mock_enemy.alive.return_value = True
+        self.manager.current_wave_enemies.append(mock_enemy)
+
+        EventManager().emit(GameEventEnum.RESET_WAVES)
+        mock_enemy.kill.assert_called_once()
+        self.assertEqual(len(self.manager.current_wave_enemies), 0)
+        self.assertEqual(self.manager.state, WaveStateEnum.WARMUP)
+
+    def test_enemy_factory_forwards_custom_points(self):
+        """EnemyFactory.create_enemy deve repassar points ao inicializar o inimigo."""
+        from core.factories.enemy_factory import EnemyFactory
+
+        mock_polyline = MagicMock()
+        enemy = EnemyFactory.create_enemy(
+            EnemyEnum.GOBLIN, pygame.Vector2(100, 100), mock_polyline, points=8
+        )
+        self.assertEqual(enemy._points, 8)
+
     def test_draw_renders_hud_without_error(self):
         """Renderização do HUD no topo deve ocorrer sem erros em todos os estados."""
         surface = pygame.Surface((1056, 720))
@@ -289,8 +317,8 @@ class TestUpgradeSelectionIntegration(unittest.TestCase):
     def tearDownClass(cls):
         pygame.quit()
 
-    def test_upgrade_selection_starts_next_wave(self):
-        """Selecionar um card na UpgradeSelectionUI deve chamar start_next_wave com sucesso."""
+    def test_upgrade_selection_preserves_interval_and_allows_skip(self):
+        """Selecionar card deve aplicar upgrade e preservar INTERVAL, permitindo pular contagem."""
         from core.manager.game_manager import GameManager
         from core.manager.state_manager import StateManager
         from core.states.ui.upgrade_selection_ui import UpgradeSelectionUI
@@ -310,6 +338,8 @@ class TestUpgradeSelectionIntegration(unittest.TestCase):
         }
         wave_mgr = WaveManager(mock_spawners, warmup_duration=1.0)
         wave_mgr.start_wave(1)
+        wave_mgr.end_wave()  # Entra em INTERVAL (30s)
+        self.assertEqual(wave_mgr.state, WaveStateEnum.INTERVAL)
 
         mock_play_state = MagicMock()
         mock_play_state.player = mock_player
@@ -335,12 +365,16 @@ class TestUpgradeSelectionIntegration(unittest.TestCase):
 
         upgrade_ui._select(0)
         self.assertTrue(pop_called)
+        # O intervalo de preparação é preservado para o jogador construir/preparar
+        self.assertEqual(wave_mgr.state, WaveStateEnum.INTERVAL)
+        self.assertEqual(wave_mgr.current_wave_number, 1)
+
+        # O jogador pode optar por pular a contagem com ESPAÇO
+        EventManager().emit(GameEventEnum.SKIP_WAVE_COUNTDOWN)
         self.assertEqual(wave_mgr.current_wave_number, 2)
         self.assertEqual(wave_mgr.state, WaveStateEnum.ACTIVE)
 
         wave_mgr.destroy()
-
-
 
 
 if __name__ == "__main__":

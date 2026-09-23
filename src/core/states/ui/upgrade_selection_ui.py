@@ -53,8 +53,6 @@ class UpgradeSelectionUI(BaseState):
         if 0 <= index < len(self.upgrades):
             chosen = self.upgrades[index]
             UpgradeManager().select_upgrade(chosen, self.play_state.player, self.context)
-            if self.play_state.wave_manager:
-                self.play_state.wave_manager.start_next_wave()
             self.state_manager.pop()
 
     def handle_events(self, events):

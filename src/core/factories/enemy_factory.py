@@ -29,14 +29,14 @@ class EnemyFactory:
 
     @classmethod
     def create_enemy(
-        cls, enemy_type: EnemyEnum, position: pygame.Vector2, path: Polyline
+        cls, enemy_type: EnemyEnum, position: pygame.Vector2, path: Polyline, **kwargs
     ):
         enemy_class = cls.get_enemy_by_type(enemy_type)
 
         if enemy_class is None:
             raise EnemyTypeNotFoundException(enemy_type)
         
-        enemy = enemy_class(position, path=path)
+        enemy = enemy_class(position, path=path, **kwargs)
         enemy.movement.speed *= cls.speed_multiplier
         return enemy
 

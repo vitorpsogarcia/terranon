@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 
+from core.enums.enemy_enum import EnemyEnum
 from core.enums.enemy_spawner_enum import EnemySpawnerEnum
 
 
@@ -10,6 +11,7 @@ class WaveData:
     wave_number: int
     total_enemies: int
     enemy_points: int
+    enemy_type: EnemyEnum = EnemyEnum.GOBLIN
     active_spawners: list[EnemySpawnerEnum] = field(default_factory=list)
     duration: float = 60.0
     interval_duration: float = 30.0

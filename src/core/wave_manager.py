@@ -1,15 +1,13 @@
 import logging
-import math
 from typing import TYPE_CHECKING
 
 import pygame
 
-from core.enums.enemy_enum import EnemyEnum
 from core.enums.enemy_spawner_enum import EnemySpawnerEnum
 from core.enums.game_event_enum import GameEventEnum
 from core.enums.wave_state_enum import WaveStateEnum
 from core.manager.event_manager import EventManager
-from core.settings.colors import Colors
+from core.ui.wave_hud import WaveHUD
 from core.waves.exponential_strategy import ExponentialWaveStrategy
 from core.waves.wave_data import WaveData
 from core.waves.wave_strategy import IWaveStrategy
@@ -44,20 +42,22 @@ class WaveManager:
         self.current_delay_timer: float = 0.0
         self.active_spawner_index: int = 0
         self.current_wave_enemies: list["Enemy"] = []
+        self._valid_spawner_ids: list[str] = []
 
-        # Fontes do HUD
-        self._font_title: "pygame.font.Font | None" = None
-        self._font_sub: "pygame.font.Font | None" = None
+        self._hud = WaveHUD()
 
         EventManager().subscribe(event=GameEventEnum.RESET_WAVES, listener=self.reset)
+        EventManager().subscribe(
+            event=GameEventEnum.SKIP_WAVE_COUNTDOWN, listener=self.skip_countdown
+        )
 
-    def _ensure_fonts(self):
-        if self._font_title is None and pygame.font.get_init():
-            self._font_title = pygame.font.SysFont("Arial", 18, bold=True)
-            self._font_sub = pygame.font.SysFont("Arial", 12)
+    def reset(self, *args, **kwargs):
+        """Reinicia o ciclo completo de ondas, eliminando inimigos remanescentes e voltando ao aquecimento inicial."""
+        for enemy in self.current_wave_enemies:
+            if enemy.alive():
+                enemy.kill()
+        self.current_wave_enemies.clear()
 
-    def reset(self):
-        """Reinicia o ciclo completo de ondas, voltando ao aquecimento inicial."""
         self.state = WaveStateEnum.WARMUP
         self.current_wave_number = 1
         self.timer = self.warmup_duration
@@ -65,7 +65,7 @@ class WaveManager:
         self.spawned_in_current_wave = 0
         self.current_delay_timer = 0.0
         self.active_spawner_index = 0
-        self.current_wave_enemies.clear()
+        self._valid_spawner_ids.clear()
 
     @property
     def current_wave_index(self) -> int:
@@ -85,7 +85,22 @@ class WaveManager:
         self.spawned_in_current_wave = 0
         self.current_delay_timer = 0.0
         self.active_spawner_index = 0
-        self.current_wave_enemies.clear()
+
+        # Mantém apenas os inimigos que continuam vivos de waves anteriores
+        self.current_wave_enemies = [
+            e for e in self.current_wave_enemies if e.alive() and getattr(e, "active", True)
+        ]
+
+        # Pré-computa os spawners válidos para esta onda
+        if self.current_wave_data.active_spawners:
+            self._valid_spawner_ids = [
+                s.value for s in self.current_wave_data.active_spawners if s.value in self.spawners
+            ]
+        else:
+            self._valid_spawner_ids = []
+
+        if not self._valid_spawner_ids:
+            self._valid_spawner_ids = list(self.spawners.keys())
 
         # Cadência dinâmica: entre 0.3s e 1.5s por monstro
         total = self.current_wave_data.total_enemies
@@ -112,7 +127,7 @@ class WaveManager:
         """Inicia a próxima onda após a seleção de melhorias pós-onda."""
         self.start_wave(self.current_wave_number + 1)
 
-    def skip_countdown(self) -> bool:
+    def skip_countdown(self, *args, **kwargs) -> bool:
         """Pula a contagem regressiva de warmup ou intervalo para iniciar a onda imediatamente."""
         if self.state == WaveStateEnum.WARMUP:
             self.start_wave(1)
@@ -123,8 +138,11 @@ class WaveManager:
         return False
 
     def alive_enemies_count(self) -> int:
-        """Retorna a quantidade de inimigos gerados na onda atual que continuam vivos."""
-        return sum(1 for e in self.current_wave_enemies if e.alive() and getattr(e, "active", True))
+        """Retorna a quantidade de inimigos gerados que continuam vivos, limpando referências mortas."""
+        self.current_wave_enemies = [
+            e for e in self.current_wave_enemies if e.alive() and getattr(e, "active", True)
+        ]
+        return len(self.current_wave_enemies)
 
     def update(self, dt: float):
         """Atualiza a máquina de estados, cronômetros e disparos de inimigos."""
@@ -143,7 +161,7 @@ class WaveManager:
                     self.current_delay_timer += dt
                     if self.current_delay_timer >= self.spawn_delay:
                         self._spawn_next_enemy(data)
-                        self.current_delay_timer = 0.0
+                        self.current_delay_timer -= self.spawn_delay
 
                 # Condição 1: Todos os inimigos spawnados e eliminados
                 all_spawned = self.spawned_in_current_wave >= data.total_enemies
@@ -162,98 +180,39 @@ class WaveManager:
 
     def _spawn_next_enemy(self, data: WaveData):
         """Distribui o próximo inimigo para um dos spawners ativos em Round-Robin."""
-        if not data.active_spawners:
-            return
-
-        # Obter IDs dos spawners válidos e existentes no mapa
-        valid_spawner_ids = [
-            s.value for s in data.active_spawners if s.value in self.spawners
-        ]
-
-        if not valid_spawner_ids:
-            # Fallback caso os nomes não batam: usa qualquer spawner registrado
-            valid_spawner_ids = list(self.spawners.keys())
-
-        if not valid_spawner_ids:
+        if not self._valid_spawner_ids:
             return
 
         # Seleção em Round-Robin
-        spawner_id = valid_spawner_ids[self.active_spawner_index % len(valid_spawner_ids)]
+        spawner_id = self._valid_spawner_ids[
+            self.active_spawner_index % len(self._valid_spawner_ids)
+        ]
         self.active_spawner_index += 1
 
         spawner = self.spawners.get(spawner_id)
         if spawner is not None:
             enemy = spawner.spawn_enemy(
-                enemy_type=EnemyEnum.GOBLIN, points=data.enemy_points
+                enemy_type=data.enemy_type, points=data.enemy_points
             )
             if enemy is not None:
                 self.current_wave_enemies.append(enemy)
             self.spawned_in_current_wave += 1
 
     def draw(self, surface: pygame.Surface):
-        """Desenha o contador e status das ondas centralizado no topo da tela."""
-        self._ensure_fonts()
-        if self._font_title is None or self._font_sub is None:
-            return
-
-        screen_w = surface.get_width()
-        badge_w = 320
-        badge_h = 48
-        badge_x = (screen_w - badge_w) // 2
-        badge_y = 14
-        badge_rect = pygame.Rect(badge_x, badge_y, badge_w, badge_h)
-
-        # Fundo semitransparente
-        bg_surface = pygame.Surface((badge_w, badge_h), pygame.SRCALPHA)
-        bg_surface.fill((20, 28, 45, 220))
-        surface.blit(bg_surface, (badge_x, badge_y))
-
-        # Borda
-        border_color = (
-            Colors.brand.secondary
-            if self.state in (WaveStateEnum.WARMUP, WaveStateEnum.INTERVAL)
-            else Colors.brand.primary
+        """Desenha o contador e status das ondas centralizado no topo da tela via WaveHUD."""
+        total = self.current_wave_data.total_enemies if self.current_wave_data else 0
+        self._hud.draw(
+            surface=surface,
+            state=self.state,
+            current_wave_number=self.current_wave_number,
+            timer=self.timer,
+            alive_enemies=self.alive_enemies_count(),
+            total_enemies=total,
         )
-        pygame.draw.rect(surface, border_color, badge_rect, width=1, border_radius=8)
-
-        # Textos de acordo com o estado
-        segundos = max(0, math.ceil(self.timer))
-
-        if self.state == WaveStateEnum.WARMUP:
-            main_text = f"PREPARE-SE: {segundos}s"
-            main_color = Colors.brand.secondary
-            sub_text = "[ESPAÇO] Iniciar Onda Agora"
-            sub_color = Colors.text.secondary
-
-        elif self.state == WaveStateEnum.ACTIVE:
-            main_text = f"ONDA {self.current_wave_number}  |  {segundos}s"
-            main_color = Colors.brand.primary
-            total = self.current_wave_data.total_enemies if self.current_wave_data else 0
-            sub_text = f"Inimigos Restantes: {self.alive_enemies_count()} / {total}"
-            sub_color = Colors.text.primary
-
-        else:  # WaveStateEnum.INTERVAL
-            main_text = f"PRÓXIMA ONDA EM: {segundos}s"
-            main_color = Colors.brand.secondary
-            sub_text = "[ESPAÇO] Iniciar Próxima Onda"
-            sub_color = Colors.text.secondary
-
-        # Renderização e centralização dos textos
-        title_surf = self._font_title.render(main_text, True, main_color)
-        sub_surf = self._font_sub.render(sub_text, True, sub_color)
-
-        title_pos = (
-            badge_x + (badge_w - title_surf.get_width()) // 2,
-            badge_y + 5,
-        )
-        sub_pos = (
-            badge_x + (badge_w - sub_surf.get_width()) // 2,
-            badge_y + 27,
-        )
-
-        surface.blit(title_surf, title_pos)
-        surface.blit(sub_surf, sub_pos)
 
     def destroy(self):
         """Remove assinaturas do barramento de eventos."""
         EventManager().unsubscribe(event=GameEventEnum.RESET_WAVES, listener=self.reset)
+        EventManager().unsubscribe(
+            event=GameEventEnum.SKIP_WAVE_COUNTDOWN, listener=self.skip_countdown
+        )
