@@ -2,7 +2,9 @@ from typing import TYPE_CHECKING
 
 import pygame
 
+from core.enums.game_event_enum import GameEventEnum
 from core.enums.game_state_enum import GameStateEnum
+from core.manager.event_manager import EventManager
 from core.manager.highscore_manager import HighscoreManager, ScoreEntry
 from core.manager.sound_manager import SoundManager
 from core.settings.colors import Colors
@@ -300,8 +302,15 @@ class TitleMenuScene(GameScene):
         self.highscores = HighscoreManager().get_top_scores(10)
         self._update_sound_button_labels()
 
+        EventManager().emit(
+            GameEventEnum.PLAY_MUSIC,
+            filename="Electricity.wav",
+            loops=-1,
+            fade_ms=1000,
+        )
+
     def exit(self) -> None:
-        pass
+        EventManager().emit(GameEventEnum.STOP_MUSIC, fade_ms=500)
 
     def _start_name_input(self):
         self.view_mode = "name_input"
@@ -341,9 +350,11 @@ class TitleMenuScene(GameScene):
         sound = SoundManager()
         current_music = sound.volumes.get("music", 1.0)
         if current_music > 0:
+            self._saved_music_volume = current_music
             sound.set_volume("music", 0.0)
         else:
-            sound.set_volume("music", 1.0)
+            restore_vol =getattr(self, "_saved_music_volume", 1.0)
+            sound.set_volume("music", restore_vol)
         self._update_sound_button_labels()
 
     def _toggle_sfx(self):

@@ -43,7 +43,7 @@ class PlayState(GameScene):
 
     def enter(self) -> None:
         try:
-            SoundManager().play_music("Crashsite-Defense.wav")
+            SoundManager().play_music("Crashsite-Defense.wav", loops=5, fade_ms=1000)
         except Exception as e:
             self._logger.error(f"{e}")
 
