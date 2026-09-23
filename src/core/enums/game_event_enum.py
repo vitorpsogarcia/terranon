@@ -4,6 +4,7 @@ from enum import Enum
 class GameEventEnum(Enum):
     PLAY_SFX = "PLAY_SFX"
     PLAY_MUSIC = "PLAY_MUSIC"
+    STOP_MUSIC = "STOP_MUSIC"
     GAME_OVER = "GAME_OVER"
 
     WAVE_STARTED = "WAVE_STARTED"
