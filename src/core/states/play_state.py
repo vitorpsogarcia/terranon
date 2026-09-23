@@ -17,6 +17,7 @@ from entities.structures.towers.generic_tower import GenericTower
 
 if TYPE_CHECKING:
     from core.manager.state_manager import StateManager
+    from core.wave_manager import WaveManager
     from entities.character.player import Player
 
 
@@ -38,6 +39,7 @@ class PlayState(GameScene):
         )
         self.world: GameWorld | None = None
         self.player: Player | None = None
+        self.wave_manager: "WaveManager | None" = None
         self.game_manager = game_manager
         self.player_name: str = "Player"
 
@@ -65,8 +67,9 @@ class PlayState(GameScene):
 
     def exit(self) -> None:
         SoundManager().stop_music()
-        if hasattr(self, "wave_manager"):
+        if self.wave_manager is not None:
             self.wave_manager.destroy()
+            self.wave_manager = None
         if self.world:
             self.world.destroy()
             self.world = None
@@ -95,7 +98,7 @@ class PlayState(GameScene):
         if self.world is not None:
             self.world.update(dt)
 
-        if hasattr(self, "wave_manager"):
+        if self.wave_manager is not None:
             self.wave_manager.update(dt)
 
     def _change_state(self, new_state: GameStateEnum):
@@ -127,6 +130,8 @@ class PlayState(GameScene):
     def draw(self, surface: pygame.Surface) -> None:
         if self.world is not None:
             self.world.draw(surface)
+        if self.wave_manager is not None:
+            self.wave_manager.draw(surface)
 
     def _on_wave_ended(self, wave_index: int = 1, *args, **kwargs):
         self.state_manager.push(GameStateEnum.PAUSED)

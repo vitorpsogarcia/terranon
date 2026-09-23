@@ -42,6 +42,8 @@ class InputManager:
 
             if event.key == pygame.K_b:
                 EventManager().emit(GameEventEnum.BUILD_TOGGLED)
+            elif event.key == pygame.K_SPACE:
+                EventManager().emit(GameEventEnum.SKIP_WAVE_COUNTDOWN)
 
         elif event.type == pygame.KEYUP:
             if event.key == pygame.K_F3:
