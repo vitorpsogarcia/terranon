@@ -9,7 +9,7 @@ from core.upgrades.upgrades import GameContext, Upgrade
 
 class UpgradeSelectionUI(BaseState):
     def __init__(self, state_manager, screen_size: tuple[int, int]):
-        super().__init__(state_manager, screen_size)
+        super().__init__(state_manager, screen_size, is_transparent=True, blocks_update=True)
         self.font_title = pygame.font.SysFont("Arial", 36, bold=True)
         self.font_card_title = pygame.font.SysFont("Arial", 22, bold=True)
         self.font_card_desc = pygame.font.SysFont("Arial", 16)
@@ -53,8 +53,6 @@ class UpgradeSelectionUI(BaseState):
         if 0 <= index < len(self.upgrades):
             chosen = self.upgrades[index]
             UpgradeManager().select_upgrade(chosen, self.play_state.player, self.context)
-            if self.play_state.wave_manager:
-                self.play_state.wave_manager.start_next_wave()
             self.state_manager.pop()
 
     def handle_events(self, events):

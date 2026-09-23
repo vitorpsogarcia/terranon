@@ -12,8 +12,8 @@ logger = logging.getLogger("Goblin")
 
 
 class Goblin(Enemy):
-    def __init__(self, pos: pygame.Vector2, path: Polyline, *groups):
-        super().__init__(pos, path, *groups, speed=80, max_hp=20)
+    def __init__(self, pos: pygame.Vector2, path: Polyline, *groups, points: int = 5, **kwargs):
+        super().__init__(pos, path, *groups, speed=80, max_hp=20, points=points, **kwargs)
         self.damage = 5.0
         self.scale = GOBLIN_SCALE
         self._last_direction = DirectionsEnum.NORTH
