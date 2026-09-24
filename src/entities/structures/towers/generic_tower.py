@@ -10,7 +10,7 @@ from core.enums.projectile.projectile_variant_enum import ProjectileVariantEnum
 from core.manager.asset_manager import AssetManager
 from core.manager.event_manager import EventManager
 from core.manager.spatial_manager import SpatialManager
-from entities.obstacle import Obstacle
+from entities.structures.structure import Structure
 from utils.math_helpers import calculate_intercept_position
 from utils.position import calculate_distance
 
@@ -21,7 +21,7 @@ TURRET_SIZE = 64
 TURRET_ID_PREFIX = "S_GT_"
 
 
-class GenericTower(Obstacle):
+class GenericTower(Structure):
     id_ct = 0
 
     def __init__(
@@ -32,6 +32,7 @@ class GenericTower(Obstacle):
         damage=10,
         fire_rate=10.0,
         turret_size=TURRET_SIZE,
+        is_ghost=False,
     ):
         half_size = turret_size / 2
         position = pygame.Vector2(
@@ -43,6 +44,8 @@ class GenericTower(Obstacle):
             width=turret_size,
             height=turret_size,
             default_hitbox=False,
+            is_ghost=is_ghost,
+            build_cost=50,
         )
 
         self.range = range

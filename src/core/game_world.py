@@ -81,7 +81,22 @@ class GameWorld(GameScene):
         self.spatial_manager.update_collisions()
         self.spatial_manager.update_target_collisions(self.target)
 
+        if BuildManager().is_building:
+            mouse_pos = pygame.mouse.get_pos()
+            world_pos = self.camera_group.screen_to_world(mouse_pos)
+            BuildManager().update(world_pos)
+
     def handle_events(self, events: list[pygame.event.Event]) -> None:
+        if BuildManager().is_building:
+            for event in events:
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if event.button == 1:
+                        BuildManager().attempt_build()
+                        return
+                    elif event.button == 3:
+                        BuildManager().cancel_build()
+                        return
+
         for obj in self.camera_group.sprites():
             if obj.active:
                 for event in events:

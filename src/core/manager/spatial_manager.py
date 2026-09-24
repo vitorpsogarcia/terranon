@@ -55,10 +55,12 @@ class SpatialManager(metaclass=SingletonMeta):
                 self._logger.error(f"Spawner ID já existe: {obj.spawner_id}")
             self.spawners[obj.spawner_id] = obj
 
-        elif isinstance(obj, Obstacle):
+        elif isinstance(obj, Obstacle) and not getattr(obj, "is_ghost", False):
             self.obstacles.add(obj._sprite)
 
-        if isinstance(obj, (MainBase, GenericTower)):
+        if isinstance(obj, (MainBase, GenericTower)) and not getattr(
+            obj, "is_ghost", False
+        ):
             self.structures_group.add(obj._sprite)
 
     def rem_obj_from_group(self, obj: "GameObject"):
@@ -80,10 +82,12 @@ class SpatialManager(metaclass=SingletonMeta):
                 self.spawners[obj.spawner_id] = obj
                 del self.spawners[obj.spawner_id]
 
-        elif isinstance(obj, Obstacle):
+        elif isinstance(obj, Obstacle) and not getattr(obj, "is_ghost", False):
             self.obstacles.remove(obj._sprite)
 
-        if isinstance(obj, (MainBase, GenericTower)):
+        if isinstance(obj, (MainBase, GenericTower)) and not getattr(
+            obj, "is_ghost", False
+        ):
             self.structures_group.remove(obj._sprite)
 
     def update_collisions(self):
@@ -247,6 +251,54 @@ class SpatialManager(metaclass=SingletonMeta):
                 nearest_distance = distance
 
         return nearest_enemy
+
+    def can_place_structure(self, ghost: "GameObject") -> bool:
+        if not ghost.collider:
+            return True
+
+        for obstacle_sprite in self.obstacles:
+            obstacle = getattr(obstacle_sprite, "owner", None)
+            if (
+                obstacle
+                and obstacle.collider
+                and ghost.collider.collides_with(obstacle.collider)
+            ):
+                return False
+
+        for structure_sprite in self.structures_group:
+            structure = getattr(structure_sprite, "owner", None)
+            if (
+                structure
+                and structure.collider
+                and ghost.collider.collides_with(structure.collider)
+            ):
+                return False
+
+        for enemy_sprite in self.enemies_group:
+            enemy = getattr(enemy_sprite, "owner", None)
+            if (
+                enemy
+                and enemy.collider
+                and ghost.collider.collides_with(enemy.collider)
+            ):
+                return False
+
+        if self.player_group.sprite:
+            player = getattr(self.player_group.sprite, "owner", None)
+            if (
+                player
+                and player.collider
+                and ghost.collider.collides_with(player.collider)
+            ):
+                return False
+
+        for world_collider in self.world_colliders:
+            if world_collider.collider and ghost.collider.collides_with(
+                world_collider.collider
+            ):
+                return False
+
+        return True
 
     def reset(self):
         self.obstacles.empty()
