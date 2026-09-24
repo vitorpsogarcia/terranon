@@ -36,20 +36,56 @@ class Button(UIElement):
         self.is_hovered: bool = False
         self.tooltip = tooltip
 
+        self._text = text
+        self.font = font
+        self.text_color = text_color
+        self._text_child: Text | None = None
+
         self.children: list[UIElement] = list(children) if children else []
         if child:
             self.children.append(child)
 
         if text and font:
-            self.children.append(
-                Text(
-                    text=text,
-                    font=font,
-                    color=text_color,
-                )
+            self._text_child = Text(
+                text=text,
+                font=font,
+                color=text_color,
             )
+            self.children.append(self._text_child)
 
         self.update_layout()
+
+    @property
+    def text(self) -> str:
+        if self._text_child is not None:
+            return self._text_child.text
+        for c in self.children:
+            if isinstance(c, Text):
+                return c.text
+        return getattr(self, "_text", "")
+
+    @text.setter
+    def text(self, new_text: str):
+        self._text = new_text
+        if self._text_child is not None:
+            self._text_child.text = new_text
+            self.update_layout()
+            return
+
+        for c in self.children:
+            if isinstance(c, Text):
+                c.text = new_text
+                self.update_layout()
+                return
+
+        if getattr(self, "font", None) is not None:
+            self._text_child = Text(
+                text=new_text,
+                font=self.font,
+                color=getattr(self, "text_color", Colors.text.on_brand),
+            )
+            self.children.append(self._text_child)
+            self.update_layout()
 
     def get_intrinsic_size(self) -> tuple[int, int]:
         if not self.children:

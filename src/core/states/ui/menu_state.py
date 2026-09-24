@@ -377,12 +377,18 @@ class TitleMenuScene(GameScene):
         self.btn_toggle_music.bg_color = (
             Colors.brand.primary if is_music_on else Colors.ui.button_disabled
         )
+        self.btn_toggle_music.hover_color = (
+            Colors.ui.button_hover if is_music_on else Colors.brand.primary
+        )
 
         self.btn_toggle_sfx.text = (
             f"EFEITOS (SFX): {'LIGADOS' if is_sfx_on else 'DESLIGADOS'}"
         )
         self.btn_toggle_sfx.bg_color = (
             Colors.brand.primary if is_sfx_on else Colors.ui.button_disabled
+        )
+        self.btn_toggle_sfx.hover_color = (
+            Colors.ui.button_hover if is_sfx_on else Colors.brand.primary
         )
 
     def update(self, dt: float) -> None:
