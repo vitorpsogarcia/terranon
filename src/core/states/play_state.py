@@ -130,6 +130,9 @@ class PlayState(GameScene):
         self._change_state(GameStateEnum.GAME_OVER)
 
     def handle_events(self, events: list[pygame.event.Event]) -> None:
+        assert self.state_manager is not None, (
+            "StateManager is None in PlayState.handle_events"
+        )
         for event in events:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_i:
@@ -156,6 +159,9 @@ class PlayState(GameScene):
             self.build_menu.draw(surface)
 
     def _on_wave_ended(self, wave_index: int = 1, *args, **kwargs):
+        assert self.state_manager is not None, (
+            "StateManager is None in PlayState._on_wave_ended"
+        )
         self.state_manager.push(GameStateEnum.PAUSED)
 
     def _on_enemy_spawned(self, enemy):
