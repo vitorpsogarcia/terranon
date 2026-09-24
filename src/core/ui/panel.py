@@ -12,13 +12,13 @@ class UIPanel(UIElement):
     def __init__(
         self,
         rect: pygame.Rect,
-        bg_color: tuple = Colors.ui.panel,
-        border_color: tuple = Colors.ui.border,
+        bg_color: pygame.Color = Colors.ui.panel,
+        border_color: pygame.Color = Colors.ui.border,
         border_width: int = 1,
         border_radius: int = 8,
         title: str | None = None,
         title_font: pygame.font.Font | None = None,
-        title_color: tuple = Colors.text.primary,
+        title_color: pygame.Color = Colors.text.primary,
         consume_clicks: bool = True,
         children: Sequence[UIElement] | None = None,
         auto_size: bool = False,  # Panels are usually fixed size by default
