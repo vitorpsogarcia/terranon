@@ -63,7 +63,7 @@ class PlayState(GameScene):
         )
 
         # Center the menu
-        menu_w, menu_h = 600, 400
+        menu_w, menu_h = 900, 600
         menu_x = (self.screen_size[0] - menu_w) // 2
         menu_y = (self.screen_size[1] - menu_h) // 2
         self.build_menu = BuildMenuPanel(
@@ -133,6 +133,7 @@ class PlayState(GameScene):
         assert self.state_manager is not None, (
             "StateManager is None in PlayState.handle_events"
         )
+
         for event in events:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_i:
