@@ -59,7 +59,8 @@ class BuildManager(metaclass=SingletonMeta):
         EventManager().subscribe(GameEventEnum.BUILD_TOGGLED, self._toggle_build_menu)
 
     def _toggle_build_menu(self):
-        EventManager().emit(GameEventEnum.PLAY_SFX, filename="ui/click.wav")
+        # EventManager().emit(GameEventEnum.PLAY_SFX, filename="ui/click.wav")
+        pass
 
     def set_ghost(self, structure_class: type[Structure], world: "GameWorld"):
         if self.is_building:
@@ -120,12 +121,12 @@ class BuildManager(metaclass=SingletonMeta):
             )
             self.world_reference.add_object(real_structure)
 
-            try:
-                EventManager().emit(
-                    GameEventEnum.PLAY_SFX, filename="effects/build.wav"
-                )
-            except Exception as e:
-                self._logger.error(f"Error playing build sfx: {e}")
+            # try:
+            #     EventManager().emit(
+            #         GameEventEnum.PLAY_SFX, filename="effects/build.wav"
+            #     )
+            # except Exception as e:
+            #     self._logger.error(f"Error playing build sfx: {e}")
 
             # Usually we keep building mode active to build more, or we cancel
             # Let's cancel for now, or keep ghost. If we keep, we just don't cancel.

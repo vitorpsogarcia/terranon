@@ -1,9 +1,7 @@
 import pygame
 
-from core.enums.game_event_enum import GameEventEnum
 from core.manager.build_manager import BuildManager
 from core.manager.economy_manager import EconomyManager
-from core.manager.event_manager import EventManager
 from core.settings.colors import Colors
 from core.ui.button import Button
 from core.ui.layout import Column, Row
@@ -79,8 +77,8 @@ class BuildCardButton(Button):
     def _on_click(self):
         if EconomyManager().current_points >= self.item_info["cost"]:
             self.on_select(self.item_info["class"])
-        else:
-            EventManager().emit(GameEventEnum.PLAY_SFX, filename="ui/error.wav")
+        # else:
+        # EventManager().emit(GameEventEnum.PLAY_SFX, filename="ui/error.wav")
 
     def update(self, dt: float):
         super().update(dt)
