@@ -134,6 +134,7 @@ class PlayState(GameScene):
             "StateManager is None in PlayState.handle_events"
         )
 
+        world_events = []
         for event in events:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_i:
@@ -147,10 +148,13 @@ class PlayState(GameScene):
                 self.world.camera_group.handle_zoom(event.y)
 
             if self.build_menu.visible and self.build_menu.handle_event(event):
+                # Consume the event so it doesn't propagate to the world
                 continue
 
+            world_events.append(event)
+
         if self.world is not None:
-            self.world.handle_events(events)
+            self.world.handle_events(world_events)
 
     def draw(self, surface: pygame.Surface) -> None:
         if self.world is not None:
