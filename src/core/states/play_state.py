@@ -13,6 +13,7 @@ from core.manager.game_manager import GameManager
 from core.manager.highscore_manager import HighscoreManager
 from core.manager.sound_manager import SoundManager
 from core.states.base_state import GameScene
+from core.ui.game_hud import GameHUD
 from entities.structures.towers.generic_tower import GenericTower
 
 if TYPE_CHECKING:
@@ -42,6 +43,7 @@ class PlayState(GameScene):
         self.wave_manager: "WaveManager | None" = None
         self.game_manager = game_manager
         self.player_name: str = "Player"
+        self.hud: GameHUD = GameHUD(screen_size)
 
     def enter(self) -> None:
         try:
@@ -132,6 +134,10 @@ class PlayState(GameScene):
             self.world.draw(surface)
         if self.wave_manager is not None:
             self.wave_manager.draw(surface)
+
+        if self.player is not None and self.hud is not None:
+            main_base = getattr(self.world, "main_base", None)
+            self.hud.draw(surface, self.player, main_base)
 
     def _on_wave_ended(self, wave_index: int = 1, *args, **kwargs):
         self.state_manager.push(GameStateEnum.PAUSED)
