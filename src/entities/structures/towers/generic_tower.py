@@ -34,10 +34,7 @@ class GenericTower(Structure):
         turret_size=TURRET_SIZE,
         is_ghost=False,
     ):
-        half_size = turret_size / 2
-        position = pygame.Vector2(
-            round(position.x - half_size), round(position.y - half_size)
-        )
+        position = pygame.Vector2(round(position.x), round(position.y))
         super().__init__(
             position,
             *groups,
