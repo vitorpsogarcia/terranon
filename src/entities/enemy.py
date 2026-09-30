@@ -8,6 +8,7 @@ from core.components.path_follower_component import PathFollowerComponent
 from core.entity import Entity
 from core.enums.collider_tag_enum import ColliderTagEnum
 from core.enums.game_event_enum import GameEventEnum
+from core.manager.effect_manager import EffectManager
 from core.manager.event_manager import EventManager
 from core.map.waypoints.polyline import Polyline
 from core.map.waypoints.waypoint import Waypoint
@@ -82,6 +83,10 @@ class Enemy(Entity):
     def on_death(self, by_player: bool = False):
         self.active = False
         self.kill()
+
+        EffectManager().add_particle(
+            self.transform.pos, count=14, color=(220, 38, 38), speed=140.0
+        )
 
         if by_player:
             EventManager().emit(GameEventEnum.ENEMY_KILLED, self._points)
