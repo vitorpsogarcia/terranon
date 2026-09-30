@@ -14,7 +14,9 @@ class HealthComponent(Component):
         damage_reduction: float = 0.0,
         max_damage_reduction: float = 0.75,
         shield: ShieldComponent | None = None,
+        owner: object | None = None,
     ):
+        self.owner = owner
         self.max_hp = max_hp
         self.current_hp = max_hp
 
@@ -36,6 +38,33 @@ class HealthComponent(Component):
 
         effective_reduction = min(self.damage_reduction, self.max_damage_reduction)
         mitigated_damage = amount * (1.0 - effective_reduction)
+
+        owner = getattr(self, "owner", None)
+        render_comp = getattr(owner, "render_component", None) if owner else None
+        animator_comp = getattr(owner, "animator", None) if owner else None
+        if render_comp and hasattr(render_comp, "trigger_flash"):
+            render_comp.trigger_flash()
+        elif animator_comp and hasattr(animator_comp, "trigger_flash"):
+            animator_comp.trigger_flash()
+
+        owner_name = owner.__class__.__name__ if owner else ""
+        is_player_or_base = (
+            "player" in owner_name.lower()
+            or "mainbase" in owner_name.lower()
+            or self.allow_invulnerability
+        )
+        if is_player_or_base:
+            try:
+                from core.enums.game_event_enum import GameEventEnum
+                from core.manager.event_manager import EventManager
+
+                shake_intensity = 10.0 if "mainbase" in owner_name.lower() else 7.0
+                EventManager().emit(
+                    GameEventEnum.SCREEN_SHAKE,
+                    {"intensity": shake_intensity, "duration": 0.25},
+                )
+            except Exception:
+                pass
 
         remaning_damage = mitigated_damage
         if self.shield and self.shield.is_active and self.shield.current_shield > 0:
