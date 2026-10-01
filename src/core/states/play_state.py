@@ -15,6 +15,7 @@ from core.manager.sound_manager import SoundManager
 from core.states.base_state import GameScene
 from core.ui.game_hud import GameHUD
 from entities.structures.towers.generic_tower import GenericTower
+from utils.cursor import set_game_cursor, set_ui_cursor
 
 if TYPE_CHECKING:
     from core.manager.state_manager import StateManager
@@ -66,8 +67,10 @@ class PlayState(GameScene):
         )
 
         self._load_debug_objects()
+        set_game_cursor()
 
     def exit(self) -> None:
+        set_ui_cursor()
         SoundManager().stop_music()
         if self.wave_manager is not None:
             self.wave_manager.destroy()
@@ -80,14 +83,14 @@ class PlayState(GameScene):
         EventManager().unsubscribe(GameEventEnum.ENEMY_SPAWNED, self._on_enemy_spawned)
         EventManager().unsubscribe(GameEventEnum.WAVE_ENDED, self._on_wave_ended)
 
-
-
     def on_pause(self) -> None:
+        set_ui_cursor()
         if self.player is not None:
             self.player.direction = pygame.math.Vector2(0, 0)
             self.player._shooting = False
 
     def on_resume(self) -> None:
+        set_game_cursor()
         if self.player is not None:
             self.player.direction = pygame.math.Vector2(0, 0)
             self.player._shooting = False
@@ -107,6 +110,7 @@ class PlayState(GameScene):
         self.state_manager.change_to(new_state)
 
     def _game_over(self):
+        set_ui_cursor()
         final_score = EconomyManager().total_points
         HighscoreManager().add_score(self.player_name, final_score)
         self.initialized = False

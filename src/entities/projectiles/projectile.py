@@ -11,6 +11,7 @@ from core.enums.projectile.projectile_types_enum import ProjectileTypesEnum
 from core.enums.projectile.projectile_variant_enum import ProjectileVariantEnum
 from core.game_object import GameObject
 from core.manager.asset_manager import AssetManager
+from core.manager.effect_manager import EffectManager
 from entities.enemy import Enemy
 from entities.obstacle import Obstacle
 
@@ -115,6 +116,12 @@ class Projectile(GameObject):
 
         if isinstance(other, Enemy) and self.friendly:
             other.take_damage(self.damage, True)
+            EffectManager().add_floating_text(
+                self.transform.pos, str(self.damage), color=(255, 230, 80)
+            )
+            EffectManager().add_particle(
+                self.transform.pos, count=8, color=(255, 180, 50)
+            )
 
         if collider.collide_with_friendly_projectiles:
             self.kill()

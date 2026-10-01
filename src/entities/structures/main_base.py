@@ -40,8 +40,10 @@ class MainBase(Obstacle):
 
         # Os hitboxes antigos foram removidos, usamos apenas o collider
 
-        self.health = HealthComponent(
-            max_hp=MAIN_BASE_HEALTH, on_death_callback=self.on_death
+        self.health = self.add_component(
+            HealthComponent(
+                max_hp=MAIN_BASE_HEALTH, on_death_callback=self.on_death, owner=self
+            )
         )
 
     def update(self, dt: float):
