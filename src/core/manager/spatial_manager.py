@@ -157,7 +157,7 @@ class SpatialManager(metaclass=SingletonMeta):
                     other_tag=ColliderTagEnum.BODY,
                 )
             ):
-                target.health.take_damage(10.0)
+                target.health.take_damage(2.0)
                 target.apply_knockback(enemy.transform.pos, force=1500.0)
 
                 try:
