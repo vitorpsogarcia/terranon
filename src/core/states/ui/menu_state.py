@@ -339,7 +339,14 @@ class TitleMenuScene(GameScene):
         if self.play_state is not None:
             self.play_state.player_name = confirmed_name
         self.view_mode = "main"
-        self.state_manager.change_to(GameStateEnum.PLAY)
+        if (
+            hasattr(GameStateEnum, "INTRO")
+            and hasattr(self.state_manager, "state_factories")
+            and GameStateEnum.INTRO.value in self.state_manager.state_factories
+        ):
+            self.state_manager.change_to(GameStateEnum.INTRO)
+        else:
+            self.state_manager.change_to(GameStateEnum.PLAY)
 
     def _quit_game(self):
         if self.state_manager and self.state_manager.game_manager:
