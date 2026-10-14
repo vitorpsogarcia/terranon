@@ -2,7 +2,9 @@ from typing import TYPE_CHECKING
 
 import pygame
 
+from core.enums.game_event_enum import GameEventEnum
 from core.enums.game_state_enum import GameStateEnum
+from core.manager.event_manager import EventManager
 from core.manager.highscore_manager import HighscoreManager, ScoreEntry
 from core.manager.sound_manager import SoundManager
 from core.settings.colors import Colors
@@ -300,8 +302,15 @@ class TitleMenuScene(GameScene):
         self.highscores = HighscoreManager().get_top_scores(10)
         self._update_sound_button_labels()
 
+        EventManager().emit(
+            GameEventEnum.PLAY_MUSIC,
+            filename="Electricity.wav",
+            loops=-1,
+            fade_ms=1000,
+        )
+
     def exit(self) -> None:
-        pass
+        EventManager().emit(GameEventEnum.STOP_MUSIC, fade_ms=500)
 
     def _start_name_input(self):
         self.view_mode = "name_input"
@@ -330,7 +339,14 @@ class TitleMenuScene(GameScene):
         if self.play_state is not None:
             self.play_state.player_name = confirmed_name
         self.view_mode = "main"
-        self.state_manager.change_to(GameStateEnum.PLAY)
+        if (
+            hasattr(GameStateEnum, "INTRO")
+            and hasattr(self.state_manager, "state_factories")
+            and GameStateEnum.INTRO.value in self.state_manager.state_factories
+        ):
+            self.state_manager.change_to(GameStateEnum.INTRO)
+        else:
+            self.state_manager.change_to(GameStateEnum.PLAY)
 
     def _quit_game(self):
         if self.state_manager and self.state_manager.game_manager:
@@ -341,9 +357,11 @@ class TitleMenuScene(GameScene):
         sound = SoundManager()
         current_music = sound.volumes.get("music", 1.0)
         if current_music > 0:
+            self._saved_music_volume = current_music
             sound.set_volume("music", 0.0)
         else:
-            sound.set_volume("music", 1.0)
+            restore_vol =getattr(self, "_saved_music_volume", 1.0)
+            sound.set_volume("music", restore_vol)
         self._update_sound_button_labels()
 
     def _toggle_sfx(self):
@@ -366,12 +384,18 @@ class TitleMenuScene(GameScene):
         self.btn_toggle_music.bg_color = (
             Colors.brand.primary if is_music_on else Colors.ui.button_disabled
         )
+        self.btn_toggle_music.hover_color = (
+            Colors.ui.button_hover if is_music_on else Colors.brand.primary
+        )
 
         self.btn_toggle_sfx.text = (
             f"EFEITOS (SFX): {'LIGADOS' if is_sfx_on else 'DESLIGADOS'}"
         )
         self.btn_toggle_sfx.bg_color = (
             Colors.brand.primary if is_sfx_on else Colors.ui.button_disabled
+        )
+        self.btn_toggle_sfx.hover_color = (
+            Colors.ui.button_hover if is_sfx_on else Colors.brand.primary
         )
 
     def update(self, dt: float) -> None:

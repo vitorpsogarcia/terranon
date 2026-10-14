@@ -26,7 +26,7 @@ class ProjectileFactory(Factory):
         type: ProjectileTypesEnum,
         variant: ProjectileVariantEnum,
         speed=400.0,
-        damage=10,
+        damage=5,
         lifetime=1.5,
         friendly=False,
     ):

@@ -62,6 +62,11 @@ class GameObject(ABC):
 
     def add_component(self, component: T) -> T:
         self.components.append(component)
+        if hasattr(component, "owner"):
+            if getattr(component, "owner") is None:
+                component.owner = self
+        else:
+            setattr(component, "owner", self)
         return component
 
     def get_component(self, comp_type: type[T]) -> T | None:

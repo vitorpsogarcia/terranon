@@ -13,10 +13,13 @@ from core.manager.game_manager import GameManager
 from core.manager.highscore_manager import HighscoreManager
 from core.manager.sound_manager import SoundManager
 from core.states.base_state import GameScene
+from core.ui.game_hud import GameHUD
 from entities.structures.towers.generic_tower import GenericTower
+from utils.cursor import set_game_cursor, set_ui_cursor
 
 if TYPE_CHECKING:
     from core.manager.state_manager import StateManager
+    from core.wave_manager import WaveManager
     from entities.character.player import Player
 
 
@@ -38,12 +41,14 @@ class PlayState(GameScene):
         )
         self.world: GameWorld | None = None
         self.player: Player | None = None
+        self.wave_manager: "WaveManager | None" = None
         self.game_manager = game_manager
         self.player_name: str = "Player"
+        self.hud: GameHUD = GameHUD(screen_size)
 
     def enter(self) -> None:
         try:
-            SoundManager().play_music("Crashsite-Defense.wav")
+            SoundManager().play_music("Crashsite-Defense.wav", loops=5, fade_ms=1000)
         except Exception as e:
             self._logger.error(f"{e}")
 
@@ -74,6 +79,7 @@ class PlayState(GameScene):
         EventManager().subscribe(GameEventEnum.BUILD_TOGGLED, self._toggle_build_menu)
 
         self._load_debug_objects()
+        set_game_cursor()
 
     def _toggle_build_menu(self):
         from core.manager.build_manager import BuildManager
@@ -84,9 +90,11 @@ class PlayState(GameScene):
             self.build_menu.visible = not self.build_menu.visible
 
     def exit(self) -> None:
+        set_ui_cursor()
         SoundManager().stop_music()
-        if hasattr(self, "wave_manager"):
+        if self.wave_manager is not None:
             self.wave_manager.destroy()
+            self.wave_manager = None
         if self.world:
             self.world.destroy()
             self.world = None
@@ -97,11 +105,13 @@ class PlayState(GameScene):
         EventManager().unsubscribe(GameEventEnum.BUILD_TOGGLED, self._toggle_build_menu)
 
     def on_pause(self) -> None:
+        set_ui_cursor()
         if self.player is not None:
             self.player.direction = pygame.math.Vector2(0, 0)
             self.player._shooting = False
 
     def on_resume(self) -> None:
+        set_game_cursor()
         if self.player is not None:
             self.player.direction = pygame.math.Vector2(0, 0)
             self.player._shooting = False
@@ -114,7 +124,7 @@ class PlayState(GameScene):
         if self.world is not None:
             self.world.update(dt)
 
-        if hasattr(self, "wave_manager"):
+        if self.wave_manager is not None:
             self.wave_manager.update(dt)
 
         if self.build_menu.visible:
@@ -124,6 +134,7 @@ class PlayState(GameScene):
         self.state_manager.change_to(new_state)
 
     def _game_over(self):
+        set_ui_cursor()
         final_score = EconomyManager().total_points
         HighscoreManager().add_score(self.player_name, final_score)
         self.initialized = False
@@ -159,6 +170,12 @@ class PlayState(GameScene):
     def draw(self, surface: pygame.Surface) -> None:
         if self.world is not None:
             self.world.draw(surface)
+        if self.wave_manager is not None:
+            self.wave_manager.draw(surface)
+
+        if self.player is not None and self.hud is not None:
+            main_base = getattr(self.world, "main_base", None)
+            self.hud.draw(surface, self.player, main_base)
 
         if self.build_menu.visible:
             self.build_menu.draw(surface)

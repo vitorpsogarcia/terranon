@@ -4,6 +4,7 @@ from core.camera_group import CameraGroup
 from core.factories.enemy_factory import EnemyFactory
 from core.game_object import GameObject
 from core.manager.build_manager import BuildManager
+from core.manager.effect_manager import EffectManager
 from core.manager.spatial_manager import SpatialManager
 from core.states.base_state import GameScene
 
@@ -24,8 +25,27 @@ class GameWorld(GameScene):
 
         EnemyFactory.preload_all_enemies()
 
+        from core.enums.game_event_enum import GameEventEnum
+        from core.manager.event_manager import EventManager
+
+        EventManager().subscribe(GameEventEnum.SCREEN_SHAKE, self._on_screen_shake)
+
+    def _on_screen_shake(self, data: object = None):
+        if isinstance(data, dict):
+            intensity = float(data.get("intensity", 6.0))
+            duration = float(data.get("duration", 0.25))
+            self.camera_group.shake(intensity, duration)
+        elif isinstance(data, (int, float)):
+            self.camera_group.shake(float(data), 0.25)
+        else:
+            self.camera_group.shake(6.0, 0.25)
+
     def destroy(self):
         self.projectile_factory.destroy()
+        from core.enums.game_event_enum import GameEventEnum
+        from core.manager.event_manager import EventManager
+
+        EventManager().unsubscribe(GameEventEnum.SCREEN_SHAKE, self._on_screen_shake)
 
     def enter(self) -> None:
         pass
@@ -55,6 +75,8 @@ class GameWorld(GameScene):
         self.camera_group.remove(obj._sprite)
 
     def update(self, dt: float) -> None:
+        EffectManager().update(dt)
+        self.camera_group.update_shake(dt)
         for sprite in self.camera_group.sprites():
             obj = sprite.owner
             if obj.active and hasattr(sprite, "update"):

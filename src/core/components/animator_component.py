@@ -14,6 +14,7 @@ class AnimatorComponent(BaseRenderComponent, Component):  # 1. Herda do contrato
         self._time_acc: float = 0.0
         self._angle = 0
         self.current_frame: pygame.Surface | None = None
+        self.flash_timer: float = 0.0
 
     def add_animation(
         self, state_name: str, frames_list: list[pygame.Surface], frame_duration: float
@@ -39,6 +40,9 @@ class AnimatorComponent(BaseRenderComponent, Component):  # 1. Herda do contrato
         self._apply_frame()
 
     def update(self, dt: float):
+        if self.flash_timer > 0:
+            self.flash_timer -= dt
+
         if self.current is None:
             return
         anim = self.animations.get(self.current)
@@ -57,6 +61,9 @@ class AnimatorComponent(BaseRenderComponent, Component):  # 1. Herda do contrato
             self._time_acc %= duration
             self._frame_index = (self._frame_index + num_frames) % len(frames)
         self._apply_frame()
+
+    def trigger_flash(self, duration: float = 0.08):
+        self.flash_timer = duration
 
     def _apply_frame(self):
         if self.current is None:
@@ -90,9 +97,14 @@ class AnimatorComponent(BaseRenderComponent, Component):  # 1. Herda do contrato
 
         draw_rect.topleft = (draw_rect.x - offset.x, draw_rect.y - offset.y)
 
+        frame_to_draw = self.current_frame
+        if self.flash_timer > 0:
+            frame_to_draw = self.current_frame.copy()
+            frame_to_draw.fill((255, 255, 255), special_flags=pygame.BLEND_RGB_ADD)
+
         if self._opacity < 255:
-            self.current_frame.set_alpha(self._opacity)
-            surface.blit(self.current_frame, draw_rect)
-            self.current_frame.set_alpha(255)
+            frame_to_draw.set_alpha(self._opacity)
+            surface.blit(frame_to_draw, draw_rect)
+            frame_to_draw.set_alpha(255)
         else:
-            surface.blit(self.current_frame, draw_rect)
+            surface.blit(frame_to_draw, draw_rect)

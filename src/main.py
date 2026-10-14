@@ -8,6 +8,7 @@ from core.manager.game_manager import GameManager
 from core.manager.state_manager import StateManager
 from core.map.map_manager import MapManager
 from core.settings.settings import SCREEN_HEIGHT, SCREEN_NAME, SCREEN_WIDTH
+from core.states.intro_cutscene_scene import IntroCutsceneScene
 from core.states.play_state import PlayState
 from core.states.ui.game_over import GameOverState
 from core.states.ui.inventory_state import InventoryState
@@ -35,6 +36,10 @@ def main():
     state_manager.register_state(
         GameStateEnum.MENU,
         lambda: MenuState(state_manager, (SCREEN_WIDTH, SCREEN_HEIGHT)),
+    )
+    state_manager.register_state(
+        GameStateEnum.INTRO,
+        lambda: IntroCutsceneScene(state_manager, (SCREEN_WIDTH, SCREEN_HEIGHT)),
     )
     state_manager.register_state(
         GameStateEnum.PLAY,

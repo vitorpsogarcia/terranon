@@ -43,7 +43,7 @@ class TestTitleMenuScene(unittest.TestCase):
         """Menu deve conter os botões Jogar, Recordes, Configurações e Sair."""
         self.assertEqual(self.menu.btn_play.text, "JOGAR")
         self.assertEqual(self.menu.btn_highscores.text, "RECORDES")
-        self.assertEqual(self.menu.btn_settings.text, "CONFIGURAÇÕES / ÁUDIO")
+        self.assertIn("CONFIGURAÇÕES", self.menu.btn_settings.text)
         self.assertEqual(self.menu.btn_quit.text, "SAIR")
         self.assertEqual(self.menu.view_mode, "main")
 

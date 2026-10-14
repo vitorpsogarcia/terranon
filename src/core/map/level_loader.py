@@ -34,6 +34,7 @@ class LevelLoader:
 
                 base = MainBase(pygame.Vector2(base_x, base_y))
                 world.add_object(base)
+                world.main_base = base
 
         player = Player(pygame.Vector2(player_x, player_y))
         player.transform.pos = pygame.math.Vector2(player_x, player_y)

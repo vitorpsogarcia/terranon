@@ -29,7 +29,7 @@ class GenericTower(Structure):
         position: pygame.Vector2,
         *groups: pygame.sprite.Group,
         range=100,
-        damage=10,
+        damage=5,
         fire_rate=10.0,
         turret_size=TURRET_SIZE,
         is_ghost=False,

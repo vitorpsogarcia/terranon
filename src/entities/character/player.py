@@ -36,7 +36,7 @@ class Player(Entity):
             )
         )
 
-        self.bullet_damage: float = 10.0
+        self.bullet_damage: float = 2.0
 
         self.movement = self.add_component(
             MovementComponent(self, speed=PLAYER_BASE_SPEED)

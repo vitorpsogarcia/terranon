@@ -1,10 +1,12 @@
 import logging
+import random
 
 import pygame
 
 from core.game_object import GameObject
 from core.manager.build_manager import BuildManager
 from core.manager.debug_manager import DebugManager
+from core.manager.effect_manager import EffectManager
 from core.map.map_backgroud import MapBackground
 
 
@@ -22,6 +24,10 @@ class CameraGroup(pygame.sprite.LayeredUpdates):
         self.zoom_min = 0.5
         self.zoom_max = 2.0
         self._target = None
+        self.shake_intensity = 0
+        self.shake_timer: float = 0
+        self.shake_duration: float = 0
+        self.shake_offset = pygame.math.Vector2(0, 0)
 
     @property
     def target(self):
@@ -49,6 +55,30 @@ class CameraGroup(pygame.sprite.LayeredUpdates):
             return pygame.math.Vector2(world_pos) - self.offset
         return (pygame.math.Vector2(world_pos) - self.offset) / self.zoom
 
+    def shake(self, intensity: float, duration: float):
+        self.shake_intensity = intensity
+        self.shake_duration = duration
+        self.shake_timer = duration
+
+    def update_shake(self, dt: float):
+        if self.shake_timer > 0:
+            self.shake_timer = max(0.0, self.shake_timer - dt)
+            if self.shake_timer > 0:
+                progress = (
+                    self.shake_timer / self.shake_duration
+                    if self.shake_duration > 0
+                    else 0.0
+                )
+                current_intensity = self.shake_intensity * progress
+                self.shake_offset.x = random.uniform(-current_intensity, current_intensity)
+                self.shake_offset.y = random.uniform(-current_intensity, current_intensity)
+            else:
+                self.shake_offset = pygame.math.Vector2(0, 0)
+        else:
+            self.shake_offset = pygame.math.Vector2(0, 0)
+
+    shake_update = update_shake
+
     def custom_draw(self, surface: pygame.Surface, player=None):
         if player is None:
             player = self._target
@@ -59,8 +89,8 @@ class CameraGroup(pygame.sprite.LayeredUpdates):
         dummy_width = int(surface.get_width() * self.zoom)
         dummy_height = int(surface.get_height() * self.zoom)
 
-        self.offset.x = player.transform.pos.x - (dummy_width // 2)
-        self.offset.y = player.transform.pos.y - (dummy_height // 2)
+        self.offset.x = player.transform.pos.x - (dummy_width // 2) + self.shake_offset.x
+        self.offset.y = player.transform.pos.y - (dummy_height // 2) + self.shake_offset.y
 
         target_pos = player.transform.pos
         target_layer = 0
@@ -99,6 +129,8 @@ class CameraGroup(pygame.sprite.LayeredUpdates):
 
                 if isinstance(owner, MapBackground):
                     BuildManager().draw(dummy_surface, self.offset)
+
+        EffectManager().draw(dummy_surface, self.offset)
 
         DebugManager().draw_world_debug(dummy_surface, self)
 

@@ -44,3 +44,5 @@ class IconButton(Button):
             auto_size=auto_size,
             clip_overflow=clip_overflow,
         )
+        self.icon = icon
+        self.icon_type = icon_type

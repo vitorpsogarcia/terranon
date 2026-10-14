@@ -1,3 +1,5 @@
+import logging
+
 import pygame
 
 from core.enums.game_event_enum import GameEventEnum
@@ -10,6 +12,7 @@ from core.singleton_meta import SingletonMeta
 
 class SoundManager(metaclass=SingletonMeta):
     _instance = None
+    _logger = logging.getLogger("SoundManager")
 
     def __init__(self):
         pygame.mixer.init()
@@ -20,6 +23,7 @@ class SoundManager(metaclass=SingletonMeta):
 
         EventManager().subscribe(GameEventEnum.PLAY_SFX, self._on_play_sfx)
         EventManager().subscribe(GameEventEnum.PLAY_MUSIC, self._on_play_music)
+        EventManager().subscribe(GameEventEnum.STOP_MUSIC, self._on_stop_music)
 
     def _on_play_sfx(self, filename: str):
         self.play_sfx(filename)
@@ -27,18 +31,25 @@ class SoundManager(metaclass=SingletonMeta):
     def _on_play_music(self, filename: str, loops: int = -1, fade_ms: int = 1000):
         self.play_music(filename, loops, fade_ms)
 
+    def _on_stop_music(self, fade_ms: int = 500):
+        self.stop_music(fade_ms)
+
     def play_music(self, filename: str, loops: int = -1, fade_ms: int = 1000):
         try:
             music_path = ASSETS_FOLDER / "sounds" / "music" / filename
+
+            if not music_path.exists():
+                self._logger.warning(f"Musica '{filename}' não foi encontrada. Verifique o caminho: {music_path}")
+                return
+            
             pygame.mixer.music.load(str(music_path))
             pygame.mixer.music.set_volume(
                 self.volumes["music"] * self.volumes["master"]
             )
             pygame.mixer.music.play(loops=loops, fade_ms=fade_ms)
+            
         except Exception as e:
-            raise AssetNotFoundException(
-                f"Musica '{filename}' não foi encontrada."
-            ) from e
+            self._logger.error(f"Erro ao tocar música '{filename}': {e}")
 
     def play_sfx(self, filename: str):
         sound = AssetManager().get_sound(filename)
@@ -59,7 +70,10 @@ class SoundManager(metaclass=SingletonMeta):
             channel.set_endevent(pygame.event.custom_type())
 
     def stop_music(self, fade_ms: int = 500):
-        pygame.mixer.music.fadeout(fade_ms)
+        try:
+            pygame.mixer.music.fadeout(fade_ms)
+        except Exception as e:
+            self._logger.error(f"Erro ao parar música: {e}")
 
     def set_volume(self, category: str, volume: float):
         if category in self.volumes:
