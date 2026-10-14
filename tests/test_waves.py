@@ -97,6 +97,10 @@ class MockEnemy:
     def alive(self) -> bool:
         return self._is_alive
 
+    def kill(self):
+        self._is_alive = False
+        self.active = False
+
 
 class TestWaveManager(unittest.TestCase):
     @classmethod

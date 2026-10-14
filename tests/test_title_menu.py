@@ -34,6 +34,9 @@ class TestTitleMenuScene(unittest.TestCase):
         self.menu = TitleMenuScene(self.sm, self.screen_size)
         self.menu.enter()
 
+    def tearDown(self):
+        self.sm.__dict__.pop("change_to", None)
+
     def test_inheritance_and_alias(self):
         """TitleMenuScene deve herdar de GameScene e ser alias de MenuState."""
         self.assertTrue(issubclass(TitleMenuScene, GameScene))
