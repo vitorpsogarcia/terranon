@@ -42,6 +42,7 @@ class PlayState(GameScene):
         self.world: GameWorld | None = None
         self.player: Player | None = None
         self.wave_manager: "WaveManager | None" = None
+        self.build_menu = None
         self.game_manager = game_manager
         self.player_name: str = "Player"
         self.hud: GameHUD = GameHUD(screen_size)
@@ -53,6 +54,9 @@ class PlayState(GameScene):
             self._logger.error(f"{e}")
 
         EconomyManager().reset_points()
+        from core.manager.upgrade_manager import UpgradeManager
+
+        UpgradeManager().reset_catalog()
         self.player_name = HighscoreManager().current_player_name
 
         EventManager().subscribe(GameEventEnum.GAME_OVER, self._game_over)
@@ -84,6 +88,9 @@ class PlayState(GameScene):
     def _toggle_build_menu(self):
         from core.manager.build_manager import BuildManager
 
+        if not self.build_menu:
+            return
+
         if BuildManager().is_building:
             BuildManager().cancel_build()
             set_game_cursor()
@@ -97,12 +104,20 @@ class PlayState(GameScene):
     def exit(self) -> None:
         set_ui_cursor()
         SoundManager().stop_music()
+        from core.manager.build_manager import BuildManager
+        from core.manager.spatial_manager import SpatialManager
+
+        BuildManager().cancel_build()
+        if self.build_menu is not None:
+            self.build_menu.visible = False
+            self.build_menu = None
         if self.wave_manager is not None:
             self.wave_manager.destroy()
             self.wave_manager = None
         if self.world:
             self.world.destroy()
             self.world = None
+        SpatialManager().reset()
         self.player = None
         EventManager().unsubscribe(GameEventEnum.GAME_OVER, self._game_over)
         EventManager().unsubscribe(GameEventEnum.ENEMY_SPAWNED, self._on_enemy_spawned)
@@ -132,7 +147,7 @@ class PlayState(GameScene):
         if self.wave_manager is not None:
             self.wave_manager.update(dt)
 
-        if self.build_menu.visible:
+        if self.build_menu and self.build_menu.visible:
             self.build_menu.update(dt)
 
     def _change_state(self, new_state: GameStateEnum):
@@ -157,12 +172,14 @@ class PlayState(GameScene):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_i:
                     self.state_manager.push(GameStateEnum.INVENTORY)
+                    return
                 elif event.key == pygame.K_k:
-                    self.state_manager.change_to(GameStateEnum.GAME_OVER)
+                    self._game_over()
+                    return
                 elif event.key == pygame.K_ESCAPE:
                     from core.manager.build_manager import BuildManager
 
-                    if self.build_menu.visible:
+                    if self.build_menu and self.build_menu.visible:
                         self.build_menu.visible = False
                         set_game_cursor()
                         continue
@@ -171,11 +188,12 @@ class PlayState(GameScene):
                         set_game_cursor()
                         continue
                     self.state_manager.push(GameStateEnum.PAUSE)
+                    return
 
             if event.type == pygame.MOUSEWHEEL and self.world is not None:
                 self.world.camera_group.handle_zoom(event.y)
 
-            if self.build_menu.visible:
+            if self.build_menu and self.build_menu.visible:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if self.build_menu.rect.collidepoint(event.pos):
                         self.build_menu.handle_event(event)
@@ -198,10 +216,10 @@ class PlayState(GameScene):
             self.wave_manager.draw(surface)
 
         if self.player is not None and self.hud is not None:
-            main_base = getattr(self.world, "main_base", None)
+            main_base = getattr(self.world, "main_base", None) if self.world else None
             self.hud.draw(surface, self.player, main_base)
 
-        if self.build_menu.visible:
+        if self.build_menu and self.build_menu.visible:
             self.build_menu.draw(surface)
 
     def _on_wave_ended(self, wave_index: int = 1, *args, **kwargs):
