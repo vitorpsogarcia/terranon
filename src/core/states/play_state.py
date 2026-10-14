@@ -131,6 +131,8 @@ class PlayState(GameScene):
             self.build_menu.update(dt)
 
     def _change_state(self, new_state: GameStateEnum):
+        assert self.state_manager is not None
+
         self.state_manager.change_to(new_state)
 
     def _game_over(self):
