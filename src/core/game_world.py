@@ -43,9 +43,12 @@ class GameWorld(GameScene):
     def destroy(self):
         self.projectile_factory.destroy()
         from core.enums.game_event_enum import GameEventEnum
+        from core.manager.effect_manager import EffectManager
         from core.manager.event_manager import EventManager
 
         EventManager().unsubscribe(GameEventEnum.SCREEN_SHAKE, self._on_screen_shake)
+        self.spatial_manager.reset()
+        EffectManager().clear()
 
     def enter(self) -> None:
         pass
@@ -77,7 +80,7 @@ class GameWorld(GameScene):
     def update(self, dt: float) -> None:
         EffectManager().update(dt)
         self.camera_group.update_shake(dt)
-        for sprite in self.camera_group.sprites():
+        for sprite in list(self.camera_group.sprites()):
             obj = sprite.owner
             if obj.active and hasattr(sprite, "update"):
                 sprite.update(dt)
@@ -86,6 +89,7 @@ class GameWorld(GameScene):
                 obj.active
                 and not getattr(obj, "_fixed_layer", False)
                 and hasattr(obj, "_sprite")
+                and sprite in self.camera_group
             ):
                 new_layer = round(obj._sprite.rect.bottom)
                 current_layer = 0
@@ -101,7 +105,8 @@ class GameWorld(GameScene):
                 continue
 
         self.spatial_manager.update_collisions()
-        self.spatial_manager.update_target_collisions(self.target)
+        if hasattr(self, "target") and self.target is not None:
+            self.spatial_manager.update_target_collisions(self.target)
 
         if BuildManager().is_building:
             mouse_pos = pygame.mouse.get_pos()

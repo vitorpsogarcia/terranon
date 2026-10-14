@@ -143,6 +143,7 @@ class BuildManager(metaclass=SingletonMeta):
 
         self.current_ghost = None
         self.current_structure_class = None
+        self.world_reference = None
         self.is_building = False
         self._logger.info("Exited building mode.")
         EventManager().emit(GameEventEnum.BUILD_MODE_EXITED)

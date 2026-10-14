@@ -58,6 +58,9 @@ class SpatialManager(metaclass=SingletonMeta):
         elif isinstance(obj, Obstacle) and not getattr(obj, "is_ghost", False):
             self.obstacles.add(obj._sprite)
 
+        if isinstance(obj, Player):
+            self.player_group.add(obj._sprite)
+
         if isinstance(obj, (MainBase, GenericTower)) and not getattr(
             obj, "is_ghost", False
         ):
@@ -84,6 +87,9 @@ class SpatialManager(metaclass=SingletonMeta):
 
         elif isinstance(obj, Obstacle) and not getattr(obj, "is_ghost", False):
             self.obstacles.remove(obj._sprite)
+
+        if isinstance(obj, Player):
+            self.player_group.remove(obj._sprite)
 
         if isinstance(obj, (MainBase, GenericTower)) and not getattr(
             obj, "is_ghost", False
