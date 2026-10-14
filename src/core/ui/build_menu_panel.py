@@ -4,11 +4,13 @@ from core.manager.build_manager import BuildManager
 from core.manager.economy_manager import EconomyManager
 from core.settings.colors import Colors
 from core.ui.button import Button
+from core.ui.icon import Icon
 from core.ui.layout import Column, Row
 from core.ui.layout_grid import GridLayout
 from core.ui.panel import Panel
 from core.ui.text import Text
 from entities.structures.towers.generic_tower import GenericTower
+from utils.cursor import set_game_cursor
 
 # Dictionary holding the available categories and structures
 AVAILABLE_STRUCTURES = {
@@ -19,7 +21,7 @@ AVAILABLE_STRUCTURES = {
             "cost": 50,
             "desc": "Torre básica de defesa.",
             "range": 100,
-            "damage": 10,
+            "damage": 5,
             "image_name": "generic_tower_64",
             "image_path": "Tower_gun.png",
         },
@@ -46,8 +48,8 @@ class BuildCardButton(Button):
         children = []
 
         if "image_name" in item_info and "image_path" in item_info:
-            from core.ui.image import Image
             from core.ui.circle_highlight import CircleHighlight
+            from core.ui.image import Image
 
             img = Image(
                 image_name=item_info["image_name"],
@@ -56,17 +58,23 @@ class BuildCardButton(Button):
             )
             children.append(CircleHighlight(img, color=(255, 255, 255, 30), radius=40))
 
+        self.cost_icon = Icon(icon_type="coin", rect=pygame.Rect(0, 0, 16, 16))
+        self.cost_text = Text(
+            f"Custo: {item_info['cost']}", font=font_small, color=border_color
+        )
+        cost_row = Row(children=[self.cost_icon, self.cost_text], spacing=6)
+
         children.extend([
             Text(item_info["name"], font=font_title, color=Colors.text.primary),
-            Text(f"Custo: {item_info['cost']}", font=font_small, color=border_color),
+            cost_row,
         ])
 
         content = Column(children=children, spacing=8, padding=8)
 
         super().__init__(
             rect=pygame.Rect(0, 0, 130, 160),
-            bg_color=(60, 70, 85),  # Lighter background for the card
-            hover_color=(80, 90, 105),
+            bg_color=pygame.Color(60, 70, 85, 210),  # Lighter background for the card
+            hover_color=pygame.Color(80, 90, 105, 230),
             border_color=border_color,
             border_hover_color=Colors.ui.button_hover,
             child=content,
@@ -86,11 +94,7 @@ class BuildCardButton(Button):
         self.border_color = (
             Colors.building.greenish if self.affordable else Colors.building.reddish
         )
-
-        # We also need to update the color of the text child that shows cost
-        for c in self.children[0].children:
-            if isinstance(c, Text) and c.text.startswith("Custo:"):
-                c.color = self.border_color
+        self.cost_text.color = self.border_color
 
 
 class BuildMenuPanel(Panel):
@@ -100,7 +104,7 @@ class BuildMenuPanel(Panel):
             title="Menu de Construção",
             title_font=pygame.font.SysFont("Arial", 24, bold=True),
             border_color=Colors.ui.border,
-            bg_color=Colors.ui.panel,
+            bg_color=Colors.ui.panel_semi_transparent,
             auto_size=False,
         )
         self.game_world = game_world
@@ -110,11 +114,15 @@ class BuildMenuPanel(Panel):
 
         self.current_category = "Torres"
 
-        # Top-Right Currency Display
+        # Top-Right Currency Display (Coin Icon + Criptcoins Text)
+        self.coin_icon = Icon(
+            icon_type="coin",
+            rect=pygame.Rect(0, 0, 24, 24),
+        )
         self.currency_text = Text(
             "", font=self.font_medium, color=Colors.text.points_currency
         )
-        self.currency_text.rect.topright = (self.rect.right - 20, self.rect.top + 20)
+        self.add_child(self.coin_icon)
         self.add_child(self.currency_text)
 
         # Main Layout
@@ -133,10 +141,18 @@ class BuildMenuPanel(Panel):
 
     def update(self, dt: float):
         super().update(dt)
-        self.currency_text.text = f"Cristais: {EconomyManager().current_points}"
+        self.currency_text.text = f"Criptcoins: {EconomyManager().current_points}"
         self.currency_text.rect.size = self.currency_text.get_intrinsic_size()
-        # Pin to top-right
-        self.currency_text.rect.topright = (self.rect.right - 20, self.rect.top + 20)
+
+        spacing = 8
+        total_w = self.coin_icon.rect.width + spacing + self.currency_text.rect.width
+        start_x = self.rect.right - 20 - total_w
+        cy = self.rect.top + 26
+
+        self.coin_icon.rect.left = start_x
+        self.coin_icon.rect.centery = cy
+        self.currency_text.rect.left = self.coin_icon.rect.right + spacing
+        self.currency_text.rect.centery = cy
 
     def _build_categories(self):
         self.category_column.children.clear()
@@ -180,3 +196,4 @@ class BuildMenuPanel(Panel):
         if structure_class:
             BuildManager().set_ghost(structure_class, self.game_world)
             self.visible = False  # Close menu
+            set_game_cursor()

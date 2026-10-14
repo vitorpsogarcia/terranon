@@ -86,8 +86,13 @@ class PlayState(GameScene):
 
         if BuildManager().is_building:
             BuildManager().cancel_build()
+            set_game_cursor()
         else:
             self.build_menu.visible = not self.build_menu.visible
+            if self.build_menu.visible:
+                set_ui_cursor()
+            else:
+                set_game_cursor()
 
     def exit(self) -> None:
         set_ui_cursor()
@@ -155,14 +160,31 @@ class PlayState(GameScene):
                 elif event.key == pygame.K_k:
                     self.state_manager.change_to(GameStateEnum.GAME_OVER)
                 elif event.key == pygame.K_ESCAPE:
+                    from core.manager.build_manager import BuildManager
+
+                    if self.build_menu.visible:
+                        self.build_menu.visible = False
+                        set_game_cursor()
+                        continue
+                    if BuildManager().is_building:
+                        BuildManager().cancel_build()
+                        set_game_cursor()
+                        continue
                     self.state_manager.push(GameStateEnum.PAUSE)
 
             if event.type == pygame.MOUSEWHEEL and self.world is not None:
                 self.world.camera_group.handle_zoom(event.y)
 
-            if self.build_menu.visible and self.build_menu.handle_event(event):
-                # Consume the event so it doesn't propagate to the world
-                continue
+            if self.build_menu.visible:
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if self.build_menu.rect.collidepoint(event.pos):
+                        self.build_menu.handle_event(event)
+                    else:
+                        self.build_menu.visible = False
+                        set_game_cursor()
+                    continue
+                if self.build_menu.handle_event(event):
+                    continue
 
             world_events.append(event)
 
