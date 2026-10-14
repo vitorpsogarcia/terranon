@@ -154,7 +154,9 @@ class Button(UIElement):
             btn_surf = pygame.Surface(
                 (self.rect.width, self.rect.height), pygame.SRCALPHA
             )
-            btn_surf.fill(current_bg)
+            pygame.draw.rect(
+                btn_surf, current_bg, btn_surf.get_rect(), border_radius=self.border_radius
+            )
             surface.blit(btn_surf, self.rect.topleft)
         else:
             pygame.draw.rect(

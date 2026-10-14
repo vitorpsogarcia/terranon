@@ -88,7 +88,12 @@ class UIPanel(UIElement):
             panel_surface = pygame.Surface(
                 (self.rect.width, self.rect.height), pygame.SRCALPHA
             )
-            panel_surface.fill(self.bg_color)
+            pygame.draw.rect(
+                panel_surface,
+                self.bg_color,
+                panel_surface.get_rect(),
+                border_radius=self.border_radius,
+            )
             surface.blit(panel_surface, self.rect.topleft)
         else:
             pygame.draw.rect(

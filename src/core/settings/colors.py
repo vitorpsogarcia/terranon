@@ -32,6 +32,7 @@ class Colors:
 
         panel: Color = Color(31, 41, 55)
         panel_transparent: Color = Color(31, 41, 55, 230)
+        panel_semi_transparent: Color = Color(31, 41, 55, 180)
 
         building_grid: Color = Color(200, 200, 200, 50)  # Light Gray with transparency
 
