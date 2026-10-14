@@ -88,6 +88,8 @@ class BuildManager(metaclass=SingletonMeta):
 
         self.current_ghost.transform.pos.x = snapped_x
         self.current_ghost.transform.pos.y = snapped_y
+        if hasattr(self.current_ghost, "_sprite"):
+            self.current_ghost._sprite._sync_rect()
 
         # Validate placement
         can_place = SpatialManager().can_place_structure(self.current_ghost)
@@ -176,8 +178,12 @@ class BuildManager(metaclass=SingletonMeta):
                 )
 
         # Draw range for the ghost
-        assert self.current_ghost is not None, "Ghost is None during range drawing."
-        if self.current_ghost and hasattr(self.current_ghost, "range"):
+        if (
+            self.current_ghost
+            and hasattr(self.current_ghost, "range")
+            and hasattr(self.current_ghost, "render_component")
+            and self.current_ghost.render_component
+        ):
             center = self.current_ghost.render_component.center()
             self._draw_circle_alpha(
                 surface,

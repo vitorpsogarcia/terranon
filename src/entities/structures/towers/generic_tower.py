@@ -62,6 +62,9 @@ class GenericTower(Structure):
 
         self.render_component = StaticRenderComponent(self, self.image)
         self.render_component.render_layer = 2
+        if self.is_ghost:
+            self._fixed_opacity = False
+            self.render_component.opacity = 128
         self._fixed_opacity = True
 
         self.target: Enemy | None = None
@@ -81,7 +84,11 @@ class GenericTower(Structure):
         )
 
     def update(self, dt: float):
+        if self.is_ghost:
+            return
+
         super().update(dt)
+        self._center = self.render_component.center()
 
         if self.target is None:
             enemy = SpatialManager().get_nearest_enemy(self._center, self.range)
