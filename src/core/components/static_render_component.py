@@ -14,12 +14,19 @@ class StaticRenderComponent(BaseRenderComponent):
 
         draw_pos = self.owner.transform.pos - offset
 
+        img_to_draw = self.image
+
+        if self.color_tint is not None:
+            img_to_draw = self.image.copy()
+            img_to_draw.fill(self.color_tint, special_flags=pygame.BLEND_RGB_MULT)
+
         if self._opacity < 255:
-            self.image.set_alpha(self._opacity)
-            surface.blit(self.image, draw_pos)
-            self.image.set_alpha(255)
+            img_to_draw.set_alpha(self._opacity)
+            surface.blit(img_to_draw, draw_pos)
+            if img_to_draw is self.image:
+                img_to_draw.set_alpha(255)
         else:
-            surface.blit(self.image, draw_pos)
+            surface.blit(img_to_draw, draw_pos)
 
     def center(self) -> pygame.Vector2:
         rect = self.image.get_rect(

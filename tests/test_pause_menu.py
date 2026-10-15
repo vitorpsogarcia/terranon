@@ -30,6 +30,10 @@ class TestPauseMenuScene(unittest.TestCase):
         self.pause = PauseMenuScene(self.sm, self.screen_size)
         self.pause.enter()
 
+    def tearDown(self):
+        self.sm.__dict__.pop("pop", None)
+        self.sm.__dict__.pop("change_to", None)
+
     def test_inheritance_and_modal_flags(self):
         """PauseMenuScene deve herdar de GameScene, ser transparente e bloquear update."""
         self.assertTrue(issubclass(PauseMenuScene, GameScene))

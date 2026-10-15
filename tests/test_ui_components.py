@@ -5,7 +5,7 @@ import pygame
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src")))
 
-from core.ui import Button, IconButton, Panel, TextInput, UIElement, UIPanel
+from core.ui import Button, Column, IconButton, Panel, TextInput, UIElement, UIPanel
 
 
 class TestUIComponents(unittest.TestCase):
@@ -84,6 +84,62 @@ class TestUIComponents(unittest.TestCase):
         rect = pygame.Rect(10, 10, 100, 40)
         btn = Button(rect, "Test", self.font)
         btn.draw(self.surface)
+
+    def test_ghost_button_with_bottom_line(self):
+        rect = pygame.Rect(10, 10, 120, 40)
+        btn = Button(
+            rect,
+            "Ghost",
+            self.font,
+            bg_color=None,
+            hover_color=pygame.Color(80, 80, 80),
+            bottom_line_only=True,
+            bottom_line_width=2,
+            text_align="left",
+            padding_x=12,
+        )
+        self.assertIsNone(btn.bg_color)
+        self.assertTrue(btn.bottom_line_only)
+        self.assertEqual(btn.bottom_line_width, 2)
+        self.assertEqual(btn.text_align, "left")
+
+        # Test draw unhovered and hovered
+        btn.draw(self.surface)
+        btn.is_hovered = True
+        btn.draw(self.surface)
+
+    def test_button_text_align_left_and_right(self):
+        rect = pygame.Rect(10, 10, 140, 40)
+        btn_left = Button(rect, "Left", self.font, text_align="left", padding_x=10)
+        btn_right = Button(rect, "Right", self.font, text_align="right", padding_x=10)
+
+        self.assertEqual(btn_left._text_child.rect.left, rect.left + 10)
+        self.assertEqual(btn_right._text_child.rect.right, rect.right - 10)
+
+    def test_column_alignment_left_and_right(self):
+        col_left = Column(
+            children=[
+                Button(pygame.Rect(0, 0, 80, 30), "B1", self.font, auto_size=False),
+                Button(pygame.Rect(0, 0, 120, 30), "B2", self.font, auto_size=False),
+            ],
+            rect=pygame.Rect(50, 50, 200, 100),
+            align="left",
+            padding=5,
+        )
+        col_left.update_layout()
+        self.assertEqual(col_left.children[0].rect.left, 55)
+        self.assertEqual(col_left.children[1].rect.left, 55)
+
+        col_right = Column(
+            children=[
+                Button(pygame.Rect(0, 0, 80, 30), "B1", self.font, auto_size=False),
+            ],
+            rect=pygame.Rect(50, 50, 200, 100),
+            align="right",
+            padding=5,
+        )
+        col_right.update_layout()
+        self.assertEqual(col_right.children[0].rect.right, 200 + 50 - 5)
 
     # --- TextInput tests ---
     def test_text_input_typing_and_backspace(self):

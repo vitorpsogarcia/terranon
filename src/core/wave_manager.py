@@ -211,7 +211,13 @@ class WaveManager:
         )
 
     def destroy(self):
-        """Remove assinaturas do barramento de eventos."""
+        """Remove assinaturas do barramento de eventos e finaliza inimigos ativos."""
+        for enemy in self.current_wave_enemies:
+            if hasattr(enemy, "kill") and enemy.alive():
+                enemy.kill()
+            elif hasattr(enemy, "active"):
+                enemy.active = False
+        self.current_wave_enemies.clear()
         EventManager().unsubscribe(event=GameEventEnum.RESET_WAVES, listener=self.reset)
         EventManager().unsubscribe(
             event=GameEventEnum.SKIP_WAVE_COUNTDOWN, listener=self.skip_countdown

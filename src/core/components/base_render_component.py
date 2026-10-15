@@ -7,6 +7,7 @@ class BaseRenderComponent(ABC):
     def __init__(self, owner, render_layer: int = 0):
         self.owner = owner
         self._opacity: int = 255
+        self._color_tint: pygame.Color | None = None
         self._render_layer = render_layer
 
     @property
@@ -26,6 +27,14 @@ class BaseRenderComponent(ABC):
         if getattr(self.owner, "_fixed_opacity", False):
             return
         self._opacity = max(0, min(255, int(value)))
+
+    @property
+    def color_tint(self) -> pygame.Color | None:
+        return self._color_tint
+
+    @color_tint.setter
+    def color_tint(self, value: pygame.Color | None):
+        self._color_tint = value
 
     @abstractmethod
     def draw(self, surface: pygame.Surface, offset: pygame.math.Vector2):

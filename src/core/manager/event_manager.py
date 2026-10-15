@@ -42,11 +42,13 @@ class EventManager(metaclass=SingletonMeta):
     def emit(self, event: GameEventEnum, *args, **kwargs):
         self._validate_event(event)
 
-        live_listeners = []
-        for ref in self._events_listeners[event]:
-            func = ref()
-            if func is not None:
-                live_listeners.append(ref)
-                func(*args, **kwargs)
+        listeners = list(self._events_listeners[event])
+        for ref in listeners:
+            if ref in self._events_listeners[event]:
+                func = ref()
+                if func is not None:
+                    func(*args, **kwargs)
 
-        self._events_listeners[event] = live_listeners
+        self._events_listeners[event] = [
+            ref for ref in self._events_listeners[event] if ref() is not None
+        ]

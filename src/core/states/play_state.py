@@ -42,6 +42,7 @@ class PlayState(GameScene):
         self.world: GameWorld | None = None
         self.player: Player | None = None
         self.wave_manager: "WaveManager | None" = None
+        self.build_menu = None
         self.game_manager = game_manager
         self.player_name: str = "Player"
         self.hud: GameHUD = GameHUD(screen_size)
@@ -53,6 +54,9 @@ class PlayState(GameScene):
             self._logger.error(f"{e}")
 
         EconomyManager().reset_points()
+        from core.manager.upgrade_manager import UpgradeManager
+
+        UpgradeManager().reset_catalog()
         self.player_name = HighscoreManager().current_player_name
 
         EventManager().subscribe(GameEventEnum.GAME_OVER, self._game_over)
@@ -60,28 +64,65 @@ class PlayState(GameScene):
         EventManager().subscribe(GameEventEnum.WAVE_ENDED, self._on_wave_ended)
 
         from core.map.level_loader import LevelLoader
+        from core.ui.build_menu_panel import BuildMenuPanel
 
         level_loader = LevelLoader(self.screen_size)
         self.world, self.player, self.wave_manager = level_loader.load_level(
             MapsEnum.MAIN_WORLD
         )
 
+        # Center the menu
+        menu_w, menu_h = 900, 600
+        menu_x = (self.screen_size[0] - menu_w) // 2
+        menu_y = (self.screen_size[1] - menu_h) // 2
+        self.build_menu = BuildMenuPanel(
+            pygame.Rect(menu_x, menu_y, menu_w, menu_h), self.world
+        )
+        self.build_menu.visible = False
+
+        EventManager().subscribe(GameEventEnum.BUILD_TOGGLED, self._toggle_build_menu)
+
         self._load_debug_objects()
         set_game_cursor()
+
+    def _toggle_build_menu(self):
+        from core.manager.build_manager import BuildManager
+
+        if not self.build_menu:
+            return
+
+        if BuildManager().is_building:
+            BuildManager().cancel_build()
+            set_game_cursor()
+        else:
+            self.build_menu.visible = not self.build_menu.visible
+            if self.build_menu.visible:
+                set_ui_cursor()
+            else:
+                set_game_cursor()
 
     def exit(self) -> None:
         set_ui_cursor()
         SoundManager().stop_music()
+        from core.manager.build_manager import BuildManager
+        from core.manager.spatial_manager import SpatialManager
+
+        BuildManager().cancel_build()
+        if self.build_menu is not None:
+            self.build_menu.visible = False
+            self.build_menu = None
         if self.wave_manager is not None:
             self.wave_manager.destroy()
             self.wave_manager = None
         if self.world:
             self.world.destroy()
             self.world = None
+        SpatialManager().reset()
         self.player = None
         EventManager().unsubscribe(GameEventEnum.GAME_OVER, self._game_over)
         EventManager().unsubscribe(GameEventEnum.ENEMY_SPAWNED, self._on_enemy_spawned)
         EventManager().unsubscribe(GameEventEnum.WAVE_ENDED, self._on_wave_ended)
+        EventManager().unsubscribe(GameEventEnum.BUILD_TOGGLED, self._toggle_build_menu)
 
     def on_pause(self) -> None:
         set_ui_cursor()
@@ -106,7 +147,12 @@ class PlayState(GameScene):
         if self.wave_manager is not None:
             self.wave_manager.update(dt)
 
+        if self.build_menu and self.build_menu.visible:
+            self.build_menu.update(dt)
+
     def _change_state(self, new_state: GameStateEnum):
+        assert self.state_manager is not None
+
         self.state_manager.change_to(new_state)
 
     def _game_over(self):
@@ -117,21 +163,51 @@ class PlayState(GameScene):
         self._change_state(GameStateEnum.GAME_OVER)
 
     def handle_events(self, events: list[pygame.event.Event]) -> None:
+        assert self.state_manager is not None, (
+            "StateManager is None in PlayState.handle_events"
+        )
 
+        world_events = []
         for event in events:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_i:
                     self.state_manager.push(GameStateEnum.INVENTORY)
+                    return
                 elif event.key == pygame.K_k:
-                    self.state_manager.change_to(GameStateEnum.GAME_OVER)
+                    self._game_over()
+                    return
                 elif event.key == pygame.K_ESCAPE:
+                    from core.manager.build_manager import BuildManager
+
+                    if self.build_menu and self.build_menu.visible:
+                        self.build_menu.visible = False
+                        set_game_cursor()
+                        continue
+                    if BuildManager().is_building:
+                        BuildManager().cancel_build()
+                        set_game_cursor()
+                        continue
                     self.state_manager.push(GameStateEnum.PAUSE)
+                    return
 
             if event.type == pygame.MOUSEWHEEL and self.world is not None:
                 self.world.camera_group.handle_zoom(event.y)
 
+            if self.build_menu and self.build_menu.visible:
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if self.build_menu.rect.collidepoint(event.pos):
+                        self.build_menu.handle_event(event)
+                    else:
+                        self.build_menu.visible = False
+                        set_game_cursor()
+                    continue
+                if self.build_menu.handle_event(event):
+                    continue
+
+            world_events.append(event)
+
         if self.world is not None:
-            self.world.handle_events(events)
+            self.world.handle_events(world_events)
 
     def draw(self, surface: pygame.Surface) -> None:
         if self.world is not None:
@@ -140,10 +216,16 @@ class PlayState(GameScene):
             self.wave_manager.draw(surface)
 
         if self.player is not None and self.hud is not None:
-            main_base = getattr(self.world, "main_base", None)
+            main_base = getattr(self.world, "main_base", None) if self.world else None
             self.hud.draw(surface, self.player, main_base)
 
+        if self.build_menu and self.build_menu.visible:
+            self.build_menu.draw(surface)
+
     def _on_wave_ended(self, wave_index: int = 1, *args, **kwargs):
+        assert self.state_manager is not None, (
+            "StateManager is None in PlayState._on_wave_ended"
+        )
         self.state_manager.push(GameStateEnum.PAUSED)
 
     def _on_enemy_spawned(self, enemy):

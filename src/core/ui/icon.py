@@ -9,7 +9,7 @@ class Icon(UIElement):
         self,
         icon_type: str = "trash",
         color: tuple = Colors.text.primary,
-        hover_color: tuple | None = None,
+        hover_color: pygame.Color | None = None,
         rect: pygame.Rect | None = None,
         auto_size: bool = True,
         clip_overflow: bool = True,

@@ -10,7 +10,7 @@ from core.enums.projectile.projectile_variant_enum import ProjectileVariantEnum
 from core.manager.asset_manager import AssetManager
 from core.manager.event_manager import EventManager
 from core.manager.spatial_manager import SpatialManager
-from entities.obstacle import Obstacle
+from entities.structures.structure import Structure
 from utils.math_helpers import calculate_intercept_position
 from utils.position import calculate_distance
 
@@ -21,7 +21,7 @@ TURRET_SIZE = 64
 TURRET_ID_PREFIX = "S_GT_"
 
 
-class GenericTower(Obstacle):
+class GenericTower(Structure):
     id_ct = 0
 
     def __init__(
@@ -32,17 +32,17 @@ class GenericTower(Obstacle):
         damage=5,
         fire_rate=10.0,
         turret_size=TURRET_SIZE,
+        is_ghost=False,
     ):
-        half_size = turret_size / 2
-        position = pygame.Vector2(
-            round(position.x - half_size), round(position.y - half_size)
-        )
+        position = pygame.Vector2(round(position.x), round(position.y))
         super().__init__(
             position,
             *groups,
             width=turret_size,
             height=turret_size,
             default_hitbox=False,
+            is_ghost=is_ghost,
+            build_cost=50,
         )
 
         self.range = range
@@ -62,6 +62,9 @@ class GenericTower(Obstacle):
 
         self.render_component = StaticRenderComponent(self, self.image)
         self.render_component.render_layer = 2
+        if self.is_ghost:
+            self._fixed_opacity = False
+            self.render_component.opacity = 128
         self._fixed_opacity = True
 
         self.target: Enemy | None = None
@@ -81,7 +84,11 @@ class GenericTower(Obstacle):
         )
 
     def update(self, dt: float):
+        if self.is_ghost:
+            return
+
         super().update(dt)
+        self._center = self.render_component.center()
 
         if self.target is None:
             enemy = SpatialManager().get_nearest_enemy(self._center, self.range)
