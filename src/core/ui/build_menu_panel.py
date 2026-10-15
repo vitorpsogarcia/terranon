@@ -130,7 +130,7 @@ class BuildMenuPanel(Panel):
         self.main_row.rect.topleft = (self.rect.left + 20, self.rect.top + 60)
         self.add_child(self.main_row)
 
-        self.category_column = Column(spacing=10, auto_size=True)
+        self.category_column = Column(spacing=10, auto_size=True, align="left")
         self.cards_grid = GridLayout(columns=3, spacing=15)
 
         self.main_row.children.append(self.category_column)
@@ -157,13 +157,22 @@ class BuildMenuPanel(Panel):
     def _build_categories(self):
         self.category_column.children.clear()
         for cat in AVAILABLE_STRUCTURES:
+            is_selected = cat == self.current_category
             btn = Button(
-                rect=pygame.Rect(0, 0, 100, 40),
+                rect=pygame.Rect(0, 0, 140, 42),
                 text=cat,
                 font=self.font_medium,
-                bg_color=Colors.ui.button_primary
-                if cat != self.current_category
-                else Colors.ui.button_hover,
+                bg_color=Colors.ui.button_primary if is_selected else None,
+                hover_color=Colors.ui.button_hover,
+                text_color=Colors.text.on_brand if is_selected else Colors.text.secondary,
+                text_hover_color=Colors.text.on_brand,
+                border_color=Colors.brand.secondary if is_selected else Colors.ui.border,
+                border_hover_color=Colors.brand.secondary if is_selected else Colors.brand.primary,
+                border_radius=4,
+                bottom_line_only=True,
+                bottom_line_width=2,
+                text_align="left",
+                padding_x=14,
                 on_click=lambda c=cat: self._set_category(c),
                 auto_size=False,
             )

@@ -143,3 +143,37 @@ class TestBuildSystem(unittest.TestCase):
         self.assertIsNone(bm.current_ghost)
         self.assertEqual(EconomyManager().current_points, 50)  # 100 - 50 custo da torre
 
+    def test_category_buttons_left_aligned_and_ghost_style(self):
+        """Verifica se os botões de categoria são alinhados à esquerda, tipo ghost com linha inferior e mantêm fundo quando selecionados."""
+        self.assertEqual(self.build_menu.category_column.align, "left")
+
+        cat_buttons = self.build_menu.category_column.children
+        self.assertGreaterEqual(len(cat_buttons), 2)
+
+        # "Torres" deve estar selecionada por padrão
+        torres_btn = cat_buttons[0]
+        self.assertEqual(torres_btn.text, "Torres")
+        self.assertEqual(torres_btn.text_align, "left")
+        self.assertTrue(torres_btn.bottom_line_only)
+        self.assertEqual(torres_btn.bg_color, Colors.ui.button_primary)
+        self.assertEqual(torres_btn.border_color, Colors.brand.secondary)
+
+        # "Economia" deve ser ghost (sem cor de fundo sólida quando não selecionada)
+        eco_btn = cat_buttons[1]
+        self.assertEqual(eco_btn.text, "Economia")
+        self.assertEqual(eco_btn.text_align, "left")
+        self.assertTrue(eco_btn.bottom_line_only)
+        self.assertIsNone(eco_btn.bg_color)
+        self.assertEqual(eco_btn.border_color, Colors.ui.border)
+
+        # Ao selecionar Economia, ela passa a manter a cor de fundo e Torres passa a ser ghost
+        eco_btn.on_click()
+        self.assertEqual(self.build_menu.current_category, "Economia")
+
+        new_torres_btn = self.build_menu.category_column.children[0]
+        new_eco_btn = self.build_menu.category_column.children[1]
+
+        self.assertIsNone(new_torres_btn.bg_color)
+        self.assertEqual(new_eco_btn.bg_color, Colors.ui.button_primary)
+        self.assertEqual(new_eco_btn.border_color, Colors.brand.secondary)
+
