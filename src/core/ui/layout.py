@@ -102,7 +102,9 @@ class Column(UIElement):
         rect: pygame.Rect | None = None,
         auto_size: bool = True,
         clip_overflow: bool = True,
+        align: str = "center",
     ):
+        self.align = align
         super().__init__(
             rect or pygame.Rect(0, 0, 0, 0),
             auto_size=auto_size,
@@ -138,8 +140,13 @@ class Column(UIElement):
         for c in self.children:
             cw, ch = c.get_intrinsic_size()
             c.rect.size = (cw, ch)
-            # Centraliza o filho horizontalmente dentro da Column
-            curr_x = self.rect.centerx - cw // 2
+            if getattr(self, "align", "center") == "left":
+                curr_x = self.rect.left + self.padding
+            elif getattr(self, "align", "center") == "right":
+                curr_x = self.rect.right - self.padding - cw
+            else:
+                # Centraliza o filho horizontalmente dentro da Column
+                curr_x = self.rect.centerx - cw // 2
             c.rect.topleft = (curr_x, curr_y)
 
             c.update_layout()

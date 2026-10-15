@@ -14,12 +14,17 @@ class Button(UIElement):
         text: str = "",
         font: pygame.font.Font | None = None,
         on_click: Callable[[], None] | None = None,
-        bg_color: pygame.Color = Colors.ui.button_primary,
-        hover_color: pygame.Color = Colors.ui.button_hover,
+        bg_color: pygame.Color | None = Colors.ui.button_primary,
+        hover_color: pygame.Color | None = Colors.ui.button_hover,
         text_color: pygame.Color = Colors.text.on_brand,
+        text_hover_color: pygame.Color | None = None,
         border_color: pygame.Color | None = Colors.ui.border,
         border_hover_color: pygame.Color | None = None,
         border_radius: int = 6,
+        bottom_line_only: bool = False,
+        bottom_line_width: int = 2,
+        text_align: str = "center",
+        padding_x: int = 16,
         child: UIElement | None = None,
         children: Sequence[UIElement] | None = None,
         tooltip: str | None = None,
@@ -30,15 +35,20 @@ class Button(UIElement):
         self.on_click = on_click
         self.bg_color = bg_color
         self.hover_color = hover_color
+        self._text_color = text_color
+        self.text_hover_color = text_hover_color
         self.border_color = border_color
         self.border_hover_color = border_hover_color
         self.border_radius = border_radius
+        self.bottom_line_only = bottom_line_only
+        self.bottom_line_width = bottom_line_width
+        self.text_align = text_align
+        self.padding_x = padding_x
         self.is_hovered: bool = False
         self.tooltip = tooltip
 
         self._text = text
         self.font = font
-        self.text_color = text_color
         self._text_child: Text | None = None
 
         self.children: list[UIElement] = list(children) if children else []
@@ -54,6 +64,16 @@ class Button(UIElement):
             self.children.append(self._text_child)
 
         self.update_layout()
+
+    @property
+    def text_color(self) -> pygame.Color:
+        return self._text_color
+
+    @text_color.setter
+    def text_color(self, new_color: pygame.Color):
+        self._text_color = new_color
+        if self._text_child is not None and not (self.is_hovered and self.text_hover_color):
+            self._text_child.color = new_color
 
     @property
     def text(self) -> str:
@@ -113,7 +133,14 @@ class Button(UIElement):
         for c in self.children:
             cw, ch = c.get_intrinsic_size()
             c.rect.size = (cw, ch)
-            c.rect.center = self.rect.center
+            if self.text_align == "left":
+                c.rect.left = self.rect.left + self.padding_x
+                c.rect.centery = self.rect.centery
+            elif self.text_align == "right":
+                c.rect.right = self.rect.right - self.padding_x
+                c.rect.centery = self.rect.centery
+            else:
+                c.rect.center = self.rect.center
             c.update_layout()
 
     def handle_event(self, event: pygame.event.Event) -> bool:
@@ -146,24 +173,44 @@ class Button(UIElement):
         current_bg = (
             Colors.ui.button_disabled
             if not self.enabled
-            else (self.hover_color if self.is_hovered else self.bg_color)
+            else (
+                self.hover_color
+                if (self.is_hovered and self.hover_color is not None)
+                else self.bg_color
+            )
         )
 
-        has_alpha = len(current_bg) == 4 and current_bg[3] < 255
-        if has_alpha:
-            btn_surf = pygame.Surface(
-                (self.rect.width, self.rect.height), pygame.SRCALPHA
-            )
-            pygame.draw.rect(
-                btn_surf, current_bg, btn_surf.get_rect(), border_radius=self.border_radius
-            )
-            surface.blit(btn_surf, self.rect.topleft)
-        else:
-            pygame.draw.rect(
-                surface, current_bg, self.rect, border_radius=self.border_radius
-            )
+        if current_bg is not None:
+            has_alpha = len(current_bg) == 4 and current_bg[3] < 255
+            if has_alpha:
+                if current_bg[3] > 0:
+                    btn_surf = pygame.Surface(
+                        (self.rect.width, self.rect.height), pygame.SRCALPHA
+                    )
+                    pygame.draw.rect(
+                        btn_surf, current_bg, btn_surf.get_rect(), border_radius=self.border_radius
+                    )
+                    surface.blit(btn_surf, self.rect.topleft)
+            else:
+                pygame.draw.rect(
+                    surface, current_bg, self.rect, border_radius=self.border_radius
+                )
 
-        if self.border_color:
+        if self.bottom_line_only:
+            line_c = (
+                self.border_hover_color
+                if self.is_hovered and self.border_hover_color
+                else self.border_color
+            )
+            if line_c:
+                line_rect = pygame.Rect(
+                    self.rect.left,
+                    self.rect.bottom - self.bottom_line_width,
+                    self.rect.width,
+                    self.bottom_line_width,
+                )
+                pygame.draw.rect(surface, line_c, line_rect)
+        elif self.border_color:
             border_c = (
                 self.border_hover_color
                 if self.is_hovered and self.border_hover_color
@@ -171,6 +218,13 @@ class Button(UIElement):
             )
             pygame.draw.rect(
                 surface, border_c, self.rect, width=1, border_radius=self.border_radius
+            )
+
+        if self._text_child is not None and self.text_hover_color is not None:
+            self._text_child.color = (
+                self.text_hover_color
+                if (self.is_hovered and self.enabled)
+                else self.text_color
             )
 
         def _draw_children(surf):
