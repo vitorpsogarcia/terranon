@@ -165,6 +165,95 @@ class TestTitleMenuScene(unittest.TestCase):
             self.menu.view_mode = mode
             self.menu.draw(self.surface)
 
+    def test_keyboard_navigation_main_menu(self):
+        """Navegação com setas para baixo/cima e W/S deve alternar o botão selecionado ciclicamente."""
+        self.assertEqual(self.menu.selected_menu_index, 0)
+        self.assertTrue(self.menu.btn_play.is_selected)
+        self.assertFalse(self.menu.btn_highscores.is_selected)
+
+        # Seta para baixo -> RECORDES (índice 1)
+        self.menu.handle_events([pygame.event.Event(pygame.KEYDOWN, key=pygame.K_DOWN)])
+        self.assertEqual(self.menu.selected_menu_index, 1)
+        self.assertTrue(self.menu.btn_highscores.is_selected)
+        self.assertFalse(self.menu.btn_play.is_selected)
+
+        # Tecla S -> CONFIGURAÇÕES (índice 2)
+        self.menu.handle_events([pygame.event.Event(pygame.KEYDOWN, key=pygame.K_s)])
+        self.assertEqual(self.menu.selected_menu_index, 2)
+        self.assertTrue(self.menu.btn_settings.is_selected)
+
+        # Seta para baixo -> SAIR (índice 3)
+        self.menu.handle_events([pygame.event.Event(pygame.KEYDOWN, key=pygame.K_DOWN)])
+        self.assertEqual(self.menu.selected_menu_index, 3)
+        self.assertTrue(self.menu.btn_quit.is_selected)
+
+        # Seta para baixo no último -> volta ao primeiro (JOGAR, índice 0)
+        self.menu.handle_events([pygame.event.Event(pygame.KEYDOWN, key=pygame.K_DOWN)])
+        self.assertEqual(self.menu.selected_menu_index, 0)
+        self.assertTrue(self.menu.btn_play.is_selected)
+
+        # Seta para cima no primeiro -> vai ao último (SAIR, índice 3)
+        self.menu.handle_events([pygame.event.Event(pygame.KEYDOWN, key=pygame.K_UP)])
+        self.assertEqual(self.menu.selected_menu_index, 3)
+        self.assertTrue(self.menu.btn_quit.is_selected)
+
+        # Tecla W -> CONFIGURAÇÕES (índice 2)
+        self.menu.handle_events([pygame.event.Event(pygame.KEYDOWN, key=pygame.K_w)])
+        self.assertEqual(self.menu.selected_menu_index, 2)
+        self.assertTrue(self.menu.btn_settings.is_selected)
+
+    def test_keyboard_activation_triggers_selected_button(self):
+        """Pressionar ENTER ou ESPAÇO aciona o botão selecionado pela navegação."""
+        # Navega para CONFIGURAÇÕES (índice 2)
+        self.menu.handle_events([
+            pygame.event.Event(pygame.KEYDOWN, key=pygame.K_DOWN),
+            pygame.event.Event(pygame.KEYDOWN, key=pygame.K_DOWN),
+        ])
+        self.assertEqual(self.menu.selected_menu_index, 2)
+
+        # Pressiona ESPAÇO para acionar CONFIGURAÇÕES
+        self.menu.handle_events([pygame.event.Event(pygame.KEYDOWN, key=pygame.K_SPACE)])
+        self.assertEqual(self.menu.view_mode, "settings")
+
+    def test_button_click_and_selection_animation_states(self):
+        """Button deve atualizar timers de animação de clique e seleção e renderizar corretamente."""
+        btn = self.menu.btn_play
+        btn.is_selected = True
+        btn.update(0.1)
+        self.assertGreater(btn.selected_anim_time, 0.0)
+
+        # Aciona clique
+        btn.trigger_click()
+        self.assertGreater(btn.click_anim_time, 0.0)
+
+        # Desenha com ambos os estados ativos
+        btn.draw(self.surface)
+
+        # Avança o tempo além da duração do clique
+        btn.update(0.2)
+        self.assertEqual(btn.click_anim_time, 0.0)
+
+    def test_keyboard_navigation_settings_menu(self):
+        """Navegação no modal de configurações com setas e ativação com ENTER."""
+        self.menu._open_settings()
+        self.assertEqual(self.menu.view_mode, "settings")
+        self.assertEqual(self.menu.selected_settings_index, 0)
+        self.assertTrue(self.menu.btn_toggle_music.is_selected)
+
+        # Seta para baixo -> Toggle SFX
+        self.menu.handle_events([pygame.event.Event(pygame.KEYDOWN, key=pygame.K_DOWN)])
+        self.assertEqual(self.menu.selected_settings_index, 1)
+        self.assertTrue(self.menu.btn_toggle_sfx.is_selected)
+
+        # Seta para baixo -> Voltar
+        self.menu.handle_events([pygame.event.Event(pygame.KEYDOWN, key=pygame.K_DOWN)])
+        self.assertEqual(self.menu.selected_settings_index, 2)
+        self.assertTrue(self.menu.btn_close_settings.is_selected)
+
+        # ENTER aciona o botão Voltar, retornando para 'main'
+        self.menu.handle_events([pygame.event.Event(pygame.KEYDOWN, key=pygame.K_RETURN)])
+        self.assertEqual(self.menu.view_mode, "main")
+
 
 if __name__ == "__main__":
     unittest.main()
