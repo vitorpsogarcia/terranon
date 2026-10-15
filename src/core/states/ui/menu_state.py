@@ -8,7 +8,7 @@ from core.manager.event_manager import EventManager
 from core.manager.highscore_manager import HighscoreManager, ScoreEntry
 from core.manager.sound_manager import SoundManager
 from core.settings.colors import Colors
-from core.settings.settings import SCREEN_NAME
+from core.settings.settings import ASSETS_FOLDER, SCREEN_NAME
 from core.states.base_state import GameScene
 from core.ui.button import Button
 from core.ui.icon_button import IconButton
@@ -17,8 +17,73 @@ from core.ui.panel import UIPanel
 from core.ui.text_input import TextInput
 
 if TYPE_CHECKING:
+    from pathlib import Path
     from core.manager.state_manager import StateManager
     from core.states.play_state import PlayState
+
+
+class MenuBackgroundVideo:
+    """Gerencia a reprodução em loop contínuo do vídeo de fundo do menu."""
+
+    def __init__(self, video_path, fps: float = 30.0):
+        self.video_path = video_path
+        self.fps = fps
+        self.frame_interval = 1.0 / fps
+        self.timer = 0.0
+        self.current_surface: pygame.Surface | None = None
+        self._cap = None
+
+    def start(self):
+        if not self.video_path.exists():
+            return
+        try:
+            import cv2
+            if self._cap is None or not self._cap.isOpened():
+                self._cap = cv2.VideoCapture(str(self.video_path))
+            if self._cap.isOpened():
+                self._cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+                self._read_next_frame(cv2)
+        except Exception:
+            self._cap = None
+
+    def _read_next_frame(self, cv2_module):
+        if self._cap is None or not self._cap.isOpened():
+            return
+        ret, frame = self._cap.read()
+        if not ret or frame is None:
+            self._cap.set(cv2_module.CAP_PROP_POS_FRAMES, 0)
+            ret, frame = self._cap.read()
+        if ret and frame is not None:
+            h, w = frame.shape[:2]
+            self.current_surface = pygame.image.frombuffer(frame.tobytes(), (w, h), "BGR")
+
+    def update(self, dt: float):
+        if self._cap is None or not self._cap.isOpened():
+            return
+        self.timer += dt
+        if self.timer >= self.frame_interval:
+            try:
+                import cv2
+                steps = int(self.timer / self.frame_interval)
+                self.timer -= steps * self.frame_interval
+                for _ in range(steps):
+                    self._read_next_frame(cv2)
+            except Exception:
+                pass
+
+    def draw(self, surface: pygame.Surface):
+        if self.current_surface is not None:
+            surface.blit(self.current_surface, (0, 0))
+        else:
+            surface.fill(Colors.ui.background)
+
+    def close(self):
+        if self._cap is not None:
+            try:
+                self._cap.release()
+            except Exception:
+                pass
+            self._cap = None
 
 
 class TitleMenuScene(GameScene):
@@ -32,7 +97,7 @@ class TitleMenuScene(GameScene):
             blocks_update=True,
         )
 
-        self.title_font = pygame.font.SysFont("Arial", 56, bold=True)
+        self.title_font = pygame.font.Font("assets/fonts/tiny.ttf", 110)
         self.font = pygame.font.SysFont("Arial", 26)
         self.btn_font = pygame.font.SysFont("Arial", 22, bold=True)
         self.small_font = pygame.font.SysFont("Arial", 18)
@@ -45,6 +110,11 @@ class TitleMenuScene(GameScene):
             "main"  # 'main' | 'name_input' | 'settings' | 'highscores'
         )
 
+        self.bg_video = MenuBackgroundVideo(
+            ASSETS_FOLDER / "videos" / "menu_background.mp4"
+        )
+        self.bg_video.start()
+
         center_x = self.screen_size[0] // 2
         btn_w = 280
         btn_h = 46
@@ -55,7 +125,7 @@ class TitleMenuScene(GameScene):
             text="JOGAR",
             font=self.btn_font,
             on_click=self._start_name_input,
-            bg_color=Colors.brand.primary,
+            bg_color=Colors.ui.button_disabled,
             hover_color=Colors.ui.button_hover,
             auto_size=False,
         )
@@ -100,9 +170,9 @@ class TitleMenuScene(GameScene):
             spacing=12,
         )
 
-        # Posiciona a Column no centro da tela
+        # Posiciona a Column no centro da tela com espaçamento adequado abaixo do título
         layout_w, layout_h = self.main_menu_layout.get_intrinsic_size()
-        self.main_menu_layout.rect.topleft = (center_x - layout_w // 2, 240)
+        self.main_menu_layout.rect.topleft = (center_x - layout_w // 2, 300)
         self.main_menu_layout.update_layout()
 
         # --- Modal: Captura de Nome do Jogador ---
@@ -292,6 +362,42 @@ class TitleMenuScene(GameScene):
         )
         self.side_highscores_panel.add_child(self.btn_clear_scores)
 
+        # Listas de botões e índices para navegação por teclado
+        self.main_menu_buttons = [
+            self.btn_play,
+            self.btn_highscores,
+            self.btn_settings,
+            self.btn_quit,
+        ]
+        self.selected_menu_index: int = 0
+
+        self.settings_buttons = [
+            self.btn_toggle_music,
+            self.btn_toggle_sfx,
+            self.btn_close_settings,
+        ]
+        self.selected_settings_index: int = 0
+
+        self.name_modal_buttons = [
+            self.btn_confirm_name,
+            self.btn_cancel_name,
+        ]
+        self.selected_name_modal_index: int = -1
+
+        self._update_main_selection()
+
+    def _update_main_selection(self):
+        for i, btn in enumerate(self.main_menu_buttons):
+            btn.is_selected = (self.view_mode == "main" and i == self.selected_menu_index)
+
+    def _update_settings_selection(self):
+        for i, btn in enumerate(self.settings_buttons):
+            btn.is_selected = (self.view_mode == "settings" and i == self.selected_settings_index)
+
+    def _update_name_modal_selection(self):
+        for i, btn in enumerate(self.name_modal_buttons):
+            btn.is_selected = (self.view_mode == "name_input" and i == self.selected_name_modal_index)
+
     def set_play_state(self, play_state: "PlayState"):
         self.play_state = play_state
 
@@ -301,6 +407,10 @@ class TitleMenuScene(GameScene):
         self.name_input.is_active = True
         self.highscores = HighscoreManager().get_top_scores(10)
         self._update_sound_button_labels()
+        self.bg_video.start()
+
+        self.selected_menu_index = 0
+        self._update_main_selection()
 
         EventManager().emit(
             GameEventEnum.PLAY_MUSIC,
@@ -310,16 +420,24 @@ class TitleMenuScene(GameScene):
         )
 
     def exit(self) -> None:
+        self.bg_video.close()
         EventManager().emit(GameEventEnum.STOP_MUSIC, fade_ms=500)
 
     def _start_name_input(self):
         self.view_mode = "name_input"
         self.name_input.text = ""
         self.name_input.is_active = True
+        self.selected_name_modal_index = -1
+        self._update_name_modal_selection()
+        for btn in self.main_menu_buttons:
+            btn.is_selected = False
 
     def _open_highscores(self):
         self.highscores = HighscoreManager().get_top_scores(10)
         self.view_mode = "highscores"
+        self.btn_close_highscores.is_selected = True
+        for btn in self.main_menu_buttons:
+            btn.is_selected = False
 
     def _clear_highscores(self):
         HighscoreManager().clear_scores()
@@ -328,10 +446,20 @@ class TitleMenuScene(GameScene):
     def _open_settings(self):
         self._update_sound_button_labels()
         self.view_mode = "settings"
+        self.selected_settings_index = 0
+        self._update_settings_selection()
+        for btn in self.main_menu_buttons:
+            btn.is_selected = False
 
     def _back_to_main(self):
         self.view_mode = "main"
         self.name_input.text = ""
+        self.btn_close_highscores.is_selected = False
+        for btn in self.settings_buttons:
+            btn.is_selected = False
+        for btn in self.name_modal_buttons:
+            btn.is_selected = False
+        self._update_main_selection()
 
     def _confirm_player_name(self, name: str):
         confirmed_name = name.strip() or "Player"
@@ -399,6 +527,7 @@ class TitleMenuScene(GameScene):
         )
 
     def update(self, dt: float) -> None:
+        self.bg_video.update(dt)
         if self.view_mode == "main":
             self.side_highscores_panel.update(dt)
             self.main_menu_layout.update(dt)
@@ -413,12 +542,34 @@ class TitleMenuScene(GameScene):
         for event in events:
             if self.view_mode == "main":
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_RETURN:
-                        self._start_name_input()
+                    if event.key in (pygame.K_DOWN, pygame.K_s):
+                        self.selected_menu_index = (
+                            self.selected_menu_index + 1
+                        ) % len(self.main_menu_buttons)
+                        self._update_main_selection()
+                        continue
+                    elif event.key in (pygame.K_UP, pygame.K_w):
+                        self.selected_menu_index = (
+                            self.selected_menu_index - 1
+                        ) % len(self.main_menu_buttons)
+                        self._update_main_selection()
+                        continue
+                    elif event.key in (pygame.K_RETURN, pygame.K_SPACE):
+                        self.main_menu_buttons[
+                            self.selected_menu_index
+                        ].trigger_click()
                         continue
                     elif event.key == pygame.K_ESCAPE:
                         self._quit_game()
                         continue
+
+                elif event.type == pygame.MOUSEMOTION:
+                    for i, btn in enumerate(self.main_menu_buttons):
+                        if btn.rect.collidepoint(event.pos):
+                            if self.selected_menu_index != i:
+                                self.selected_menu_index = i
+                                self._update_main_selection()
+                            break
 
                 if self.side_highscores_panel.handle_event(event):
                     continue
@@ -426,49 +577,138 @@ class TitleMenuScene(GameScene):
                     continue
 
             elif self.view_mode == "name_input":
-                if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                    self._back_to_main()
-                    continue
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        self._back_to_main()
+                        continue
+                    elif event.key in (pygame.K_TAB, pygame.K_DOWN):
+                        if self.name_input.is_active:
+                            self.name_input.is_active = False
+                            self.selected_name_modal_index = 0
+                            self._update_name_modal_selection()
+                            continue
+                        elif self.selected_name_modal_index >= 0:
+                            self.selected_name_modal_index = (
+                                self.selected_name_modal_index + 1
+                            ) % len(self.name_modal_buttons)
+                            self._update_name_modal_selection()
+                            continue
+                    elif event.key == pygame.K_UP:
+                        if not self.name_input.is_active:
+                            self.name_input.is_active = True
+                            self.selected_name_modal_index = -1
+                            self._update_name_modal_selection()
+                            continue
+                    elif event.key in (pygame.K_LEFT, pygame.K_a):
+                        if not self.name_input.is_active:
+                            self.selected_name_modal_index = 0
+                            self._update_name_modal_selection()
+                            continue
+                    elif event.key in (pygame.K_RIGHT, pygame.K_d):
+                        if not self.name_input.is_active:
+                            self.selected_name_modal_index = 1
+                            self._update_name_modal_selection()
+                            continue
+                    elif event.key in (pygame.K_RETURN, pygame.K_SPACE):
+                        if (
+                            not self.name_input.is_active
+                            and self.selected_name_modal_index >= 0
+                        ):
+                            self.name_modal_buttons[
+                                self.selected_name_modal_index
+                            ].trigger_click()
+                            continue
+                        elif self.name_input.is_active and event.key == pygame.K_RETURN:
+                            self._confirm_player_name(self.name_input.text)
+                            continue
+
+                elif event.type == pygame.MOUSEMOTION:
+                    for i, btn in enumerate(self.name_modal_buttons):
+                        if btn.rect.collidepoint(event.pos):
+                            self.name_input.is_active = False
+                            if self.selected_name_modal_index != i:
+                                self.selected_name_modal_index = i
+                                self._update_name_modal_selection()
+                            break
+
                 if self.name_modal_panel.handle_event(event):
                     continue
 
             elif self.view_mode == "settings":
-                if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                    self._back_to_main()
-                    continue
+                if event.type == pygame.KEYDOWN:
+                    if event.key in (pygame.K_DOWN, pygame.K_s):
+                        self.selected_settings_index = (
+                            self.selected_settings_index + 1
+                        ) % len(self.settings_buttons)
+                        self._update_settings_selection()
+                        continue
+                    elif event.key in (pygame.K_UP, pygame.K_w):
+                        self.selected_settings_index = (
+                            self.selected_settings_index - 1
+                        ) % len(self.settings_buttons)
+                        self._update_settings_selection()
+                        continue
+                    elif event.key in (pygame.K_RETURN, pygame.K_SPACE):
+                        self.settings_buttons[
+                            self.selected_settings_index
+                        ].trigger_click()
+                        continue
+                    elif event.key == pygame.K_ESCAPE:
+                        self._back_to_main()
+                        continue
+
+                elif event.type == pygame.MOUSEMOTION:
+                    for i, btn in enumerate(self.settings_buttons):
+                        if btn.rect.collidepoint(event.pos):
+                            if self.selected_settings_index != i:
+                                self.selected_settings_index = i
+                                self._update_settings_selection()
+                            break
+
                 if self.settings_panel.handle_event(event):
                     continue
 
             elif self.view_mode == "highscores":
-                if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                    self._back_to_main()
-                    continue
+                if event.type == pygame.KEYDOWN:
+                    if event.key in (pygame.K_ESCAPE, pygame.K_RETURN, pygame.K_SPACE):
+                        self.btn_close_highscores.trigger_click()
+                        continue
+
                 if self.highscores_modal_panel.handle_event(event):
                     continue
 
     def draw(self, surface: pygame.Surface) -> None:
-        surface.fill(Colors.ui.background)
+        self.bg_video.draw(surface)
 
-        # Painel lateral de Highscores
-        self.side_highscores_panel.draw(surface)
-        self._draw_scores_list(
-            surface,
-            start_x=self.side_highscores_panel.rect.x + 14,
-            start_y=self.side_highscores_panel.rect.y + 45,
-            width=self.side_highscores_panel.rect.width - 28,
-            max_items=10,
-        )
+        # # Painel lateral de Highscores
+        # self.side_highscores_panel.draw(surface)
+        # self._draw_scores_list(
+        #     surface,
+        #     start_x=self.side_highscores_panel.rect.x + 14,
+        #     start_y=self.side_highscores_panel.rect.y + 45,
+        #     width=self.side_highscores_panel.rect.width - 28,
+        #     max_items=10,
+        # )
 
         center_x = self.screen_size[0] // 2
 
-        # Título principal do jogo
-        title_surf = self.title_font.render(SCREEN_NAME, True, Colors.brand.primary)
-        surface.blit(title_surf, (center_x - title_surf.get_width() // 2, 120))
+        main_color = Colors.brand.primary
+        dark_color = tuple(max(0, c - 60) for c in main_color)
 
-        subtitle_surf = self.small_font.render(
-            "Top-Down Action / Base Defense", True, Colors.text.secondary
-        )
-        surface.blit(subtitle_surf, (center_x - subtitle_surf.get_width() // 2, 185))
+        text_surf = self.title_font.render(SCREEN_NAME, True, main_color)
+        base_x = center_x - text_surf.get_width() // 2
+        base_y = 100
+
+        depth = 8
+        for i in range(depth, 0, -1):
+            layer_surf = self.title_font.render(SCREEN_NAME, True, dark_color)
+            surface.blit(layer_surf, (base_x + i, base_y + i))
+
+        
+
+        # 4. Desenhar o texto principal por cima
+        surface.blit(text_surf, (base_x, base_y))
+
 
         # Botões do menu principal
         self.main_menu_layout.draw(surface)
@@ -476,7 +716,7 @@ class TitleMenuScene(GameScene):
         hint_surf = self.small_font.render(
             "Pressione ENTER para Jogar  |  ESC para Sair", True, Colors.text.disabled
         )
-        surface.blit(hint_surf, (center_x - hint_surf.get_width() // 2, 480))
+        surface.blit(hint_surf, (center_x - hint_surf.get_width() // 2, 615))
 
         # Modais de sobreposição
         if self.view_mode != "main":

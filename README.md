@@ -34,3 +34,7 @@ Para mantermos o repositório organizado, dividiremos as branches por trimestres
 
 > **Geração de vídeo de Abertura**
 * python scripts/generate_intro_video.py
+
+> **Geração de vídeo de Fundo do Menu**
+* python scripts/generate_menu_video.py
+
