@@ -205,7 +205,7 @@ class IntroCutsceneScene(GameScene):
         try:
             EventManager().emit(
                 GameEventEnum.PLAY_MUSIC,
-                filename="Electricity.wav",
+                filename="aniquilador-mechwave.mp3",
                 loops=-1,
                 fade_ms=500,
             )
